@@ -102,15 +102,17 @@
   }
 
   textarea{
-    width:94%;
-    max-width: 94%;
-    margin-top:10px;
-    height:140px;
-    border-radius:10px;
-    padding:10px;
-    font-size:14px;
-    border:1px solid #ddd;
-  }
+  width: 94%;
+  max-width: 94%;
+  margin: 10px auto 0 auto;   /* ← выравнивание по центру */
+  height: 140px;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+  display: block;             /* ← обязательно */
+}
 
   .row{display:flex;gap:10px;}
   .small-btn{padding:8px 12px;border-radius:8px;border:0;background:#eee;cursor:pointer}
