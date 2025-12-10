@@ -47,12 +47,6 @@
     box-sizing:border-box;
   }
 
-  input[type="number"]:focus{
-    outline:none;
-    border-color:var(--accent);
-    box-shadow:0 0 0 2px rgba(0,102,255,0.2);
-  }
-
   .btn{
     width:100%;
     padding:14px;
@@ -102,58 +96,37 @@
   }
 
   textarea{
-  width: 100%;
-  margin: 10px 0 10px 0;   /* ← выравнивание по центру */
-  height: 140px;
-  border-radius: 10px;
-  padding: 10px;
-  font-size: 14px;
-  border: 1px solid #ddd;
-  box-sizing: border-box;
-  display: block;             /* ← обязательно */
-}
+    width:100%;
+    height:140px;
+    border-radius:10px;
+    padding:10px;
+    font-size:14px;
+    margin:10px 0;
+    border:1px solid #ddd;
+    box-sizing:border-box;
+  }
 
-  .row{display:flex;gap:10px;}
   .small-btn{padding:8px 12px;border-radius:8px;border:0;background:#eee;cursor:pointer}
 
-/* строка с переключателем */
-.toggle-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 12px 0 6px;
-  font-size: 16px;
-}
+  .toggle-row {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin:12px 0 6px;
+    font-size:16px;
+  }
 
-/* скрытый блок */
-#extraFields {
-  overflow: hidden;
-  max-height: 0;
-  padding: 0;
-  transition: max-height 0.35s ease, padding 0.25s ease;
-}
+  #extraFields {
+    overflow:hidden;
+    max-height:0;
+    padding:0;
+    transition:max-height .35s ease, padding .25s ease;
+  }
 
-/* когда открыт */
-#extraFields.open {
-  max-height: 300px; /* достаточно много */
-  padding: 10px 0;
-}
-
-/* стиль дополнительных полей */
-#extraFields label {
-  display: block;
-  margin: 8px 0 4px;
-}
-
-#extraFields input {
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #d8dce3;
-  font-size: 16px;
-  box-sizing: border-box;
-}
-
+  #extraFields.open {
+    max-height:300px;
+    padding:10px 0;
+  }
 </style>
 </head>
 
@@ -163,27 +136,25 @@
 
   <div class="card">
     <label>Фактична сума, грн</label>
-    <input id="actual" type="number" inputmode="decimal" placeholder="наприклад 155">
+    <input id="actual" type="number" inputmode="decimal">
 
     <label>Пробіг, км</label>
-    <input id="distance" type="number" inputmode="decimal" step="0.01" placeholder="наприклад 3.0">
+    <input id="distance" type="number" step="0.01" inputmode="decimal">
 
     <label>Коефіцієнт</label>
-    <input id="coef" type="number" inputmode="decimal" step="0.01" placeholder="наприклад 1.06">
+    <input id="coef" type="number" step="0.01" inputmode="decimal">
 
-<label class="toggle-row">
-  <span>Додаткові параметри</span>
-  <input type="checkbox" id="extraToggle">
-</label>
+    <label class="toggle-row">
+      <span>Додаткові параметри</span>
+      <input type="checkbox" id="extraToggle">
+    </label>
 
-    <div id="extraFields" class="extra-hidden">
-    
+    <div id="extraFields">
       <label>Кількість платних хвилин</label>
-      <input id="paidMinutes" type="number" step="1" placeholder="необов’язково">
-    
+      <input id="paidMinutes" type="number" step="1">
+
       <label>Кількість проміжних точок</label>
-      <input id="midPoints" type="number" step="1" placeholder="необов’язково">
-    
+      <input id="midPoints" type="number" step="1">
     </div>
 
     <button class="btn" id="calcBtn">Розрахувати</button>
@@ -195,7 +166,7 @@
       <h3>Стандарт</h3>
       <div class="line"><span>Розрахункова сума</span><span class="val" id="stdCalc">—</span></div>
       <div class="line"><span>Різниця</span><span class="diff zero" id="stdDiff">—</span></div>
-      <textarea id="stdMsg" placeholder="Повідомлення для оператора зʼявиться тут"></textarea>
+      <textarea id="stdMsg"></textarea>
       <button class="small-btn" id="copyStd">Копіювати</button>
     </div>
 
@@ -203,15 +174,15 @@
       <h3>Комфорт</h3>
       <div class="line"><span>Розрахункова сума</span><span class="val" id="cfCalc">—</span></div>
       <div class="line"><span>Різниця</span><span class="diff zero" id="cfDiff">—</span></div>
-      <textarea id="cfMsg" placeholder="Повідомлення для оператора зʼявиться тут"></textarea>
+      <textarea id="cfMsg"></textarea>
       <button class="small-btn" id="copyCf">Копіювати</button>
     </div>
 
     <div class="panel">
       <h3>Бізнес</h3>
-      <div class="line"><span>Розрахункова сума</span><span class="val" id="bizCalc">—</span></div>
+      <div class="line"><span>Розрахункова сума</span><span clas="val" id="bizCalc">—</span></div>
       <div class="line"><span>Різниця</span><span class="diff zero" id="bizDiff">—</span></div>
-      <textarea id="bizMsg" placeholder="Повідомлення для оператора зʼявиться тут"></textarea>
+      <textarea id="bizMsg"></textarea>
       <button class="small-btn" id="copyBiz">Копіювати</button>
     </div>
 
@@ -219,144 +190,134 @@
 </div>
 
 <script>
-const STD = {minKm:1.9, base:100, perKm:17.6, name:"Стандарт"};
-const CFM = {minKm:2.1, base:115, perKm:19.8, name:"Комфорт"};
-const BIZ = {minKm:1.6, base:140, perKm:23.5, name:"Бізнес"};
+// Тарифи + нові параметри
+const STD = {minKm:1.9, base:100, perKm:17.6, paidMinutePrice:3, waypointPrice:10, name:"Стандарт"};
+const CFM = {minKm:2.1, base:115, perKm:19.8, paidMinutePrice:3, waypointPrice:10, name:"Комфорт"};
+const BIZ = {minKm:1.6, base:140, perKm:23.5, paidMinutePrice:4, waypointPrice:10, name:"Бізнес"};
 
-// расчёт тарифа
+// Основний розрахунок по км
 function calcFare(km, t){
   return km <= t.minKm ? t.base : t.base + (km - t.minKm) * t.perKm;
 }
 
-// формат суммы
-function fmt(x){
-  return isNaN(x) ? "—" : x.toFixed(2) + " ₴";
-}
+// Формат грошей
+function fmt(x){ return isNaN(x) ? "—" : x.toFixed(2) + " ₴"; }
 
-// раскраска разницы
+// Розфарбовка різниці
 function colorize(el, v){
-  el.className = "diff";
+  el.className="diff";
   if(isNaN(v)){
     el.classList.add("zero");
-    el.textContent = "—";
+    el.textContent="—";
     return;
   }
-
   el.textContent = v.toFixed(2) + " ₴";
-
   if(v > 0){
-    el.style.background = "var(--green)";
-    el.style.color = "var(--good)";
-  } 
-  else if(v < 0){
-    el.style.background = "var(--red)";
-    el.style.color = "var(--bad)";
-  }
-  else {
-    el.classList.add("zero");
-  }
+    el.style.background="var(--green)";
+    el.style.color="var(--good)";
+  } else if(v < 0){
+    el.style.background="var(--red)";
+    el.style.color="var(--bad)";
+  } else el.classList.add("zero");
 }
 
-// формула для операторского сообщения
-function breakdownString(km, coef, t){
-  if(km <= t.minKm) return `${t.base} × ${coef}`;
-  return `(${t.base} + (${km} - ${t.minKm}) × ${t.perKm}) × ${coef}`;
-}
-
-// функция определения приветствия по времени
-function getGreeting() {
+// Привітання
+function getGreeting(){
   const h = new Date().getHours();
-
-  if (h >= 5 && h < 12) return "Доброго ранку!🌤️";
-  if (h >= 12 && h < 17) return "Доброго дня!🌤️";
-  if (h >= 17 && h < 23) return "Доброго вечора!🌙✨";
+  if(h>=5 && h<12) return "Доброго ранку!🌤️";
+  if(h>=12 && h<17) return "Доброго дня!🌤️";
+  if(h>=17 && h<23) return "Доброго вечора!🌙✨";
   return "Доброї ночі!✨🌙";
 }
 
-// генерация текста сообщения для оператора
-function genMsg(t, km, coef, actual){
-  const calcTotal = calcFare(km, t) * coef;
-  const diff = calcTotal - actual;
+// Повідомлення оператору
+function genMsg(t, km, coef, actual, paidMin, midPts){
+  const base = calcFare(km, t) * coef;
+  const extraMinCost = paidMin * t.paidMinutePrice;
+  const extraPtsCost = midPts * t.waypointPrice;
+  const total = base + extraMinCost + extraPtsCost;
+  const diff = total - actual;
 
   if(diff <= 0) return "";
 
-  const breakdown = breakdownString(km, coef, t);
   const greeting = getGreeting();
 
-  return `${greeting} 
+  let msg =
+`${greeting}
 Прошу провести перерахунок вартості поїздки.
-Розрахункова сума становить ${calcTotal.toFixed(2)} грн (${breakdown}).
-Фактична — ${actual.toFixed(2)} грн.
+Розрахункова сума становить ${total.toFixed(2)} грн.`;
+
+  // Якщо є доплати — додаємо блок
+  if(paidMin || midPts){
+    msg += "\n\nДеталі розрахунку:";
+
+    msg += `\n• Базовий тариф: ${base.toFixed(2)} грн`;
+
+    if(paidMin)
+      msg += `\n• Платні хвилини (${paidMin} × ${t.paidMinutePrice} грн) = ${extraMinCost} грн`;
+
+    if(midPts)
+      msg += `\n• Проміжні точки (${midPts} × ${t.waypointPrice} грн) = ${extraPtsCost} грн`;
+  }
+
+  msg +=
+`\nФактична — ${actual.toFixed(2)} грн.
 Прошу донарахувати різницю у розмірі ${diff.toFixed(2)} грн.
 Щиро дякую!🤗`;
+
+  return msg;
 }
 
-// привязка кнопки копирования
-function bindCopy(btnId, taId){
-  const btn = document.getElementById(btnId);
-  btn.onclick = function(){
-    const t = document.getElementById(taId);
-    if(!t.value){
-      alert('Немає повідомлення для копіювання');
-      return;
-    }
-    t.select();
-    t.setSelectionRange(0, 99999);
-    navigator.clipboard.writeText(t.value).then(
-      () => alert('Скопійовано'),
-      () => { document.execCommand('copy'); alert('Скопійовано'); }
-    );
+// Копіювання
+function bindCopy(btn, ta){
+  document.getElementById(btn).onclick = ()=>{
+    const t=document.getElementById(ta);
+    if(!t.value){ alert("Немає повідомлення"); return; }
+    t.select(); navigator.clipboard.writeText(t.value);
+    alert("Скопійовано");
   };
 }
+bindCopy("copyStd","stdMsg");
+bindCopy("copyCf","cfMsg");
+bindCopy("copyBiz","bizMsg");
 
-// привязка всех кнопок копирования
-bindCopy('copyStd','stdMsg');
-bindCopy('copyCf','cfMsg');
-bindCopy('copyBiz','bizMsg');
-
-// обработка кнопки "Розрахувати"
+// Обробка кнопки "Розрахувати"
 document.getElementById("calcBtn").onclick = function(){
-  const actual = parseFloat(document.getElementById("actual").value);
-  const km = parseFloat(document.getElementById("distance").value);
-  const coef = parseFloat(document.getElementById("coef").value);
+  const actual = +document.getElementById("actual").value;
+  const km = +document.getElementById("distance").value;
+  const coef = +document.getElementById("coef").value;
 
-  if(isNaN(km) || isNaN(coef) || isNaN(actual)){
+  const paidMin = +(document.getElementById("paidMinutes").value || 0);
+  const midPts  = +(document.getElementById("midPoints").value || 0);
+
+  if(isNaN(actual)||isNaN(km)||isNaN(coef)){
     alert("Введіть коректні дані");
     return;
   }
 
-  // расчет по тарифам
-  const totals = {
-    std: calcFare(km, STD) * coef,
-    cf: calcFare(km, CFM) * coef,
-    biz: calcFare(km, BIZ) * coef
-  };
+  function total(t){
+    return calcFare(km,t)*coef + paidMin*t.paidMinutePrice + midPts*t.waypointPrice;
+  }
 
-  // отображение рассчитанных сумм
-  document.getElementById("stdCalc").textContent = fmt(totals.std);
-  document.getElementById("cfCalc").textContent = fmt(totals.cf);
-  document.getElementById("bizCalc").textContent = fmt(totals.biz);
+  const tStd = total(STD), tCf = total(CFM), tBiz = total(BIZ);
 
-  // разницы (actual - calc)
-  colorize(document.getElementById("stdDiff"), actual - totals.std);
-  colorize(document.getElementById("cfDiff"), actual - totals.cf);
-  colorize(document.getElementById("bizDiff"), actual - totals.biz);
+  document.getElementById("stdCalc").textContent = fmt(tStd);
+  document.getElementById("cfCalc").textContent = fmt(tCf);
+  document.getElementById("bizCalc").textContent = fmt(tBiz);
 
-  // генерация сообщений
-  document.getElementById('stdMsg').value = genMsg(STD, km, coef, actual);
-  document.getElementById('cfMsg').value = genMsg(CFM, km, coef, actual);
-  document.getElementById('bizMsg').value = genMsg(BIZ, km, coef, actual);
+  colorize(document.getElementById("stdDiff"), actual - tStd);
+  colorize(document.getElementById("cfDiff"), actual - tCf);
+  colorize(document.getElementById("bizDiff"), actual - tBiz);
+
+  document.getElementById("stdMsg").value = genMsg(STD, km, coef, actual, paidMin, midPts);
+  document.getElementById("cfMsg").value = genMsg(CFM, km, coef, actual, paidMin, midPts);
+  document.getElementById("bizMsg").value = genMsg(BIZ, km, coef, actual, paidMin, midPts);
 };
 
-  document.getElementById('extraToggle').addEventListener('change', function () {
-    const extra = document.getElementById('extraFields');
-    if (this.checked) {
-      extra.classList.add('open');
-    } else {
-      extra.classList.remove('open');
-    }
-  });
-
+// Показ додаткових параметрів
+document.getElementById("extraToggle").onchange = function(){
+  document.getElementById("extraFields").classList.toggle("open", this.checked);
+};
 </script>
 </body>
 </html>
