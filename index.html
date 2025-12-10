@@ -168,107 +168,114 @@
 const STD = {minKm:1.9, base:100, perKm:17.6, name:"Стандарт"};
 const CFM = {minKm:2.1, base:115, perKm:19.8, name:"Комфорт"};
 const BIZ = {minKm:1.6, base:140, perKm:23.5, name:"Бізнес"};
+const TARIFFS = { "Стандарт": STD, "Комфорт": CFM, "Бізнес": BIZ };
 
 function calcFare(km, t){
-  if(km <= t.minKm) return t.base;
-  return t.base + (km - t.minKm) * t.perKm;
+  return km <= t.minKm ? t.base : t.base + (km - t.minKm) * t.perKm;
 }
 
-function buildMessage(t, km, coef, fact, calc){
-return `Тариф: ${t.name}
-Пробіг: ${km} км
-Коефіцієнт: x${coef}
-Сплачено: ${fact} грн
-
-Мінімальна ціна: ${t.base} грн за ${t.minKm} км
-Ціна за км: ${t.perKm} грн
-Розрахунок: ${calc.toFixed(2)} грн
-Різниця: ${(calc - fact).toFixed(2)} грн
-
-Прошу перевірити коректність нарахування та виконати перерахунок.`;
+function fmt(x){
+  return isNaN(x) ? "—" : x.toFixed(2) + " ₴";
 }
-
-function fmt(x){return isNaN(x) ? "—" : x.toFixed(2) + " ₴";}
 
 function colorize(el, v){
-  el.className="diff";
-  if(isNaN(v)){el.classList.add("zero"); el.textContent="—"; return;}
-  el.textContent=v.toFixed(2)+" ₴";
+  el.className = "diff";
+  if(isNaN(v)){
+    el.classList.add("zero");
+    el.textContent = "—";
+    return;
+  }
 
-  if(v>0){el.style.background="var(--green)"; el.style.color="var(--good)";}
-  else if(v<0){el.style.background="var(--red)"; el.style.color="var(--bad)";}
-  else el.classList.add("zero");
+  el.textContent = v.toFixed(2) + " ₴";
+
+  if(v > 0){
+    el.style.background = "var(--green)";
+    el.style.color = "var(--good)";
+  } 
+  else if(v < 0){
+    el.style.background = "var(--red)";
+    el.style.color = "var(--bad)";
+  }
+  else {
+    el.classList.add("zero");
+  }
 }
 
+// формула для операторского сообщения
+function breakdownString(km, coef, t){
+  if(km <= t.minKm) return `${t.base} × ${coef}`;
+  return `(${t.base} + (${km} - ${t.minKm}) × ${t.perKm}) × ${coef}`;
+}
+
+// генерация текста сообщения
+function genMsg(t, km, coef, actual){
+  const base = calcFare(km, t);
+  const calcTotal = base * coef;
+  const diff = calcTotal - actual;
+
+  if(diff <= 0) return "";
+
+  const breakdown = breakdownString(km, coef, t);
+
+  return `Доброго дня! Прошу провести перерахунок вартості поїздки.
+Розрахункова сума становить ${calcTotal.toFixed(2)} грн (${breakdown}).
+Фактична — ${actual.toFixed(2)} грн.
+Прошу донарахувати різницю у розмірі ${diff.toFixed(2)} грн.`;
+}
+
+// копирование в буфер
+function bindCopy(btnId, taId){
+  const btn = document.getElementById(btnId);
+  btn.onclick = function(){
+    const t = document.getElementById(taId);
+    if(!t.value){
+      alert('Немає повідомлення для копіювання');
+      return;
+    }
+    t.select();
+    t.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(t.value).then(
+      () => alert('Скопійовано'),
+      () => { document.execCommand('copy'); alert('Скопійовано'); }
+    );
+  };
+}
+
+bindCopy('copyStd','stdMsg');
+bindCopy('copyCf','cfMsg');
+bindCopy('copyBiz','bizMsg');
+
 document.getElementById("calcBtn").onclick = function(){
-  let actual = parseFloat(document.getElementById("actual").value);
-  let km = parseFloat(document.getElementById("distance").value);
-  let coef = parseFloat(document.getElementById("coef").value);
+  const actual = parseFloat(document.getElementById("actual").value);
+  const km = parseFloat(document.getElementById("distance").value);
+  const coef = parseFloat(document.getElementById("coef").value);
 
   if(isNaN(km) || isNaN(coef) || isNaN(actual)){
     alert("Введіть коректні дані");
     return;
   }
 
-  // base and total
-  const stdBase = calcFare(km, STD);
-  const cfBase = calcFare(km, CFM);
-  const bizBase = calcFare(km, BIZ);
+  // расчёт по тарифам
+  const totals = {
+    std: calcFare(km, STD) * coef,
+    cf: calcFare(km, CFM) * coef,
+    biz: calcFare(km, BIZ) * coef
+  };
 
-  const stdTotal = stdBase * coef;
-  const cfTotal = cfBase * coef;
-  const bizTotal = bizBase * coef;
+  // отображение рассчитанных сумм
+  document.getElementById("stdCalc").textContent = fmt(totals.std);
+  document.getElementById("cfCalc").textContent = fmt(totals.cf);
+  document.getElementById("bizCalc").textContent = fmt(totals.biz);
 
-  // display totals
-  document.getElementById("stdCalc").textContent = fmt(stdTotal);
-  document.getElementById("cfCalc").textContent = fmt(cfTotal);
-  document.getElementById("bizCalc").textContent = fmt(bizTotal);
+  // разницы (actual - calc)
+  colorize(document.getElementById("stdDiff"), actual - totals.std);
+  colorize(document.getElementById("cfDiff"), actual - totals.cf);
+  colorize(document.getElementById("bizDiff"), actual - totals.biz);
 
-  // differences for coloring (actual - calc): positive => переплата (green)
-  const dStd = actual - stdTotal;
-  const dCf = actual - cfTotal;
-  const dBiz = actual - bizTotal;
-
-  colorize(document.getElementById("stdDiff"), dStd);
-  colorize(document.getElementById("cfDiff"), dCf);
-  colorize(document.getElementById("bizDiff"), dBiz);
-
-  // prepare breakdown strings (show full calculation) and messages only when calc > actual
-  function breakdownString(base, t){
-    if(km <= t.minKm) return `${t.base} × ${coef}`;
-    return `(${t.base} + (${km} - ${t.minKm}) × ${t.perKm}) × ${coef}`;
-  }
-
-  function genMsg(name, calcTotal){
-    const diff = calcTotal - actual; // positive means customer недоплатив
-    if(!(diff > 0)) return "";
-    const breakdown = breakdownString(null, name === STD.name ? STD : (name === CFM.name ? CFM : BIZ));
-    return `Доброго дня! Прошу провести перерахунок вартості поїздки.
-Розрахункова сума становить ${calcTotal.toFixed(2)} грн (${breakdown}).
-Фактична — ${actual.toFixed(2)} грн.
-Прошу донарахувати різницю у розмірі ${diff.toFixed(2)} грн.`;
-  }
-
-  // fill messages (only if calc > actual)
-  document.getElementById('stdMsg').value = genMsg(STD.name, stdTotal);
-  document.getElementById('cfMsg').value = genMsg(CFM.name, cfTotal);
-  document.getElementById('bizMsg').value = genMsg(BIZ.name, bizTotal);
-
-  // copy buttons
-  function copyIfNotEmpty(btnId, taId){
-    document.getElementById(btnId).onclick = function(){
-      const t = document.getElementById(taId);
-      if(!t.value){ alert('Немає повідомлення для копіювання'); return; }
-      t.select();
-      t.setSelectionRange(0, 99999);
-      try{ navigator.clipboard.writeText(t.value); alert('Скопійовано'); }
-      catch(e){ document.execCommand('copy'); alert('Скопійовано'); }
-    };
-  }
-
-  copyIfNotEmpty('copyStd', 'stdMsg');
-  copyIfNotEmpty('copyCf', 'cfMsg');
-  copyIfNotEmpty('copyBiz', 'bizMsg');
+  // генерация сообщений
+  document.getElementById('stdMsg').value = genMsg(STD, km, coef, actual);
+  document.getElementById('cfMsg').value = genMsg(CFM, km, coef, actual);
+  document.getElementById('bizMsg').value = genMsg(BIZ, km, coef, actual);
 };
 
 </script>
