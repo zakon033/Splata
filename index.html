@@ -103,7 +103,7 @@
 
   textarea{
     width: 100%;
-    margin: 10px 0 10px 0;
+    margin: 10px 0;
     height: 140px;
     border-radius: 10px;
     padding: 10px;
@@ -153,6 +153,7 @@
     font-size: 16px;
     box-sizing: border-box;
   }
+
 </style>
 </head>
 
@@ -175,7 +176,7 @@
       <input type="checkbox" id="extraToggle">
     </label>
 
-    <div id="extraFields" class="extra-hidden">
+    <div id="extraFields">
       <label>Кількість платних хвилин</label>
       <input id="paidMinutes" type="number" step="1" placeholder="необов’язково">
 
@@ -187,6 +188,7 @@
   </div>
 
   <div class="results">
+
     <div class="panel">
       <h3>Стандарт</h3>
       <div class="line"><span>Розрахункова сума</span><span class="val" id="stdCalc">—</span></div>
@@ -210,26 +212,23 @@
       <textarea id="bizMsg" placeholder="Повідомлення для оператора зʼявиться тут"></textarea>
       <button class="small-btn" id="copyBiz">Копіювати</button>
     </div>
+
   </div>
 </div>
 
 <script>
-// тарифы с ценами для дополнительных параметров
-const STD = {minKm:1.9, base:100, perKm:17.6, name:"Стандарт", paidMinutePrice:3, midPointPrice:10};
-const CFM = {minKm:2.1, base:115, perKm:19.8, name:"Комфорт", paidMinutePrice:3, midPointPrice:10};
-const BIZ = {minKm:1.6, base:140, perKm:23.5, name:"Бізнес", paidMinutePrice:4, midPointPrice:10};
+const STD = {minKm:1.9, base:100, perKm:17.6, name:"Стандарт", extraMinute:3, extraPoint:10};
+const CFM = {minKm:2.1, base:115, perKm:19.8, name:"Комфорт", extraMinute:3, extraPoint:10};
+const BIZ = {minKm:1.6, base:140, perKm:23.5, name:"Бізнес", extraMinute:4, extraPoint:10};
 
-// расчёт тарифа
 function calcFare(km, t){
   return km <= t.minKm ? t.base : t.base + (km - t.minKm) * t.perKm;
 }
 
-// формат суммы
 function fmt(x){
   return isNaN(x) ? "—" : x.toFixed(2) + " ₴";
 }
 
-// раскраска разницы
 function colorize(el, v){
   el.className = "diff";
   if(isNaN(v)){
@@ -237,61 +236,69 @@ function colorize(el, v){
     el.textContent = "—";
     return;
   }
+
   el.textContent = v.toFixed(2) + " ₴";
+
   if(v > 0){
     el.style.background = "var(--green)";
     el.style.color = "var(--good)";
-  } else if(v < 0){
+  } 
+  else if(v < 0){
     el.style.background = "var(--red)";
     el.style.color = "var(--bad)";
-  } else {
+  }
+  else {
     el.classList.add("zero");
   }
 }
 
-// определение приветствия
 function getGreeting() {
   const h = new Date().getHours();
+
   if (h >= 5 && h < 12) return "Доброго ранку!🌤️";
   if (h >= 12 && h < 17) return "Доброго дня!🌤️";
   if (h >= 17 && h < 23) return "Доброго вечора!🌙✨";
   return "Доброї ночі!✨🌙";
 }
 
-// генерация сообщения
-function genMsg(t, km, coef, actual, paidMinutes = 0, midPoints = 0) {
-  const baseFare = calcFare(km, t);
-  const totalBase = baseFare * coef;
-  const paidMinutesTotal = paidMinutes * t.paidMinutePrice;
-  const midPointsTotal = midPoints * t.midPointPrice;
-  const total = totalBase + paidMinutesTotal + midPointsTotal;
-  const diff = total - actual;
+function breakdownString(km, t){
+  if(km <= t.minKm) return `${t.base} × coef`;
+  return `(${t.base} + (${km} - ${t.minKm}) × ${t.perKm}) × coef`;
+}
 
+function genMsg(t, km, coef, actual, paidMinutes, midPoints){
+  const baseFare = calcFare(km, t);
+  let total = baseFare * coef;
+
+  let lines = [`• Базовий тариф: (${t.base} + (${km} - ${t.minKm}) × ${t.perKm}) × ${coef} = ${(baseFare*coef).toFixed(2)} грн`];
+
+  // дополнительные параметры
+  if(paidMinutes > 0){
+    let addPaid = paidMinutes * t.extraMinute;
+    lines.push(`• Платні хвилини (${paidMinutes} × ${t.extraMinute} грн) = ${addPaid.toFixed(2)} грн`);
+    total += addPaid;
+  }
+  if(midPoints > 0){
+    let addPoints = midPoints * t.extraPoint;
+    lines.push(`• Проміжні точки (${midPoints} × ${t.extraPoint} грн) = ${addPoints.toFixed(2)} грн`);
+    total += addPoints;
+  }
+
+  const diff = total - actual;
   if(diff <= 0) return "";
 
   const greeting = getGreeting();
 
-  let msg = `${greeting}
+  return `${greeting}
 Прошу провести перерахунок вартості поїздки.
 Розрахункова сума становить ${total.toFixed(2)} грн.
 Деталі розрахунку:
-• Базовий тариф: (${t.base}+(${km} - ${t.minKm}) × ${t.perKm}) × ${coef} = ${totalBase.toFixed(2)} грн`;
-
-  if(paidMinutes > 0){
-    msg += `\n• Платні хвилини (${paidMinutes} × ${t.paidMinutePrice} грн) = ${paidMinutesTotal.toFixed(2)} грн`;
-  }
-  if(midPoints > 0){
-    msg += `\n• Проміжні точки (${midPoints} × ${t.midPointPrice} грн) = ${midPointsTotal.toFixed(2)} грн`;
-  }
-
-  msg += `\nФактична — ${actual.toFixed(2)} грн.
+${lines.join("\n")}
+Фактична — ${actual.toFixed(2)} грн.
 Прошу донарахувати різницю у розмірі ${diff.toFixed(2)} грн.
 Щиро дякую!🤗`;
-
-  return msg;
 }
 
-// привязка копирования
 function bindCopy(btnId, taId){
   const btn = document.getElementById(btnId);
   btn.onclick = function(){
@@ -326,9 +333,9 @@ document.getElementById("calcBtn").onclick = function(){
   }
 
   const totals = {
-    std: calcFare(km, STD)*coef + paidMinutes*STD.paidMinutePrice + midPoints*STD.midPointPrice,
-    cf: calcFare(km, CFM)*coef + paidMinutes*CFM.paidMinutePrice + midPoints*CFM.midPointPrice,
-    biz: calcFare(km, BIZ)*coef + paidMinutes*BIZ.paidMinutePrice + midPoints*BIZ.midPointPrice
+    std: calcFare(km, STD) * coef + paidMinutes*STD.extraMinute + midPoints*STD.extraPoint,
+    cf: calcFare(km, CFM) * coef + paidMinutes*CFM.extraMinute + midPoints*CFM.extraPoint,
+    biz: calcFare(km, BIZ) * coef + paidMinutes*BIZ.extraMinute + midPoints*BIZ.extraPoint
   };
 
   document.getElementById("stdCalc").textContent = fmt(totals.std);
@@ -344,11 +351,18 @@ document.getElementById("calcBtn").onclick = function(){
   document.getElementById('bizMsg').value = genMsg(BIZ, km, coef, actual, paidMinutes, midPoints);
 };
 
-// слайдер для дополнительных параметров
 document.getElementById('extraToggle').addEventListener('change', function () {
   const extra = document.getElementById('extraFields');
-  if (this.checked) extra.classList.add('open');
-  else extra.classList.remove('open');
+  const paidInput = document.getElementById('paidMinutes');
+  const midInput = document.getElementById('midPoints');
+
+  if (this.checked) {
+    extra.classList.add('open');
+  } else {
+    extra.classList.remove('open');
+    paidInput.value = '';
+    midInput.value = '';
+  }
 });
 </script>
 </body>
