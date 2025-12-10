@@ -168,16 +168,18 @@
 const STD = {minKm:1.9, base:100, perKm:17.6, name:"Стандарт"};
 const CFM = {minKm:2.1, base:115, perKm:19.8, name:"Комфорт"};
 const BIZ = {minKm:1.6, base:140, perKm:23.5, name:"Бізнес"};
-const TARIFFS = { "Стандарт": STD, "Комфорт": CFM, "Бізнес": BIZ };
 
+// расчёт тарифа
 function calcFare(km, t){
   return km <= t.minKm ? t.base : t.base + (km - t.minKm) * t.perKm;
 }
 
+// формат суммы
 function fmt(x){
   return isNaN(x) ? "—" : x.toFixed(2) + " ₴";
 }
 
+// раскраска разницы
 function colorize(el, v){
   el.className = "diff";
   if(isNaN(v)){
@@ -207,23 +209,33 @@ function breakdownString(km, coef, t){
   return `(${t.base} + (${km} - ${t.minKm}) × ${t.perKm}) × ${coef}`;
 }
 
-// генерация текста сообщения
+// функция определения приветствия по времени
+function getGreeting() {
+  const h = new Date().getHours();
+
+  if (h >= 5 && h < 12) return "Доброго ранку!";
+  if (h >= 12 && h < 18) return "Доброго дня!";
+  if (h >= 18 && h < 23) return "Доброго вечора!";
+  return "Доброї ночі!";
+}
+
+// генерация текста сообщения для оператора
 function genMsg(t, km, coef, actual){
-  const base = calcFare(km, t);
-  const calcTotal = base * coef;
+  const calcTotal = calcFare(km, t) * coef;
   const diff = calcTotal - actual;
 
   if(diff <= 0) return "";
 
   const breakdown = breakdownString(km, coef, t);
+  const greeting = getGreeting();
 
-  return `Доброго дня! Прошу провести перерахунок вартості поїздки.
+  return `${greeting} Прошу провести перерахунок вартості поїздки.
 Розрахункова сума становить ${calcTotal.toFixed(2)} грн (${breakdown}).
 Фактична — ${actual.toFixed(2)} грн.
 Прошу донарахувати різницю у розмірі ${diff.toFixed(2)} грн.`;
 }
 
-// копирование в буфер
+// привязка кнопки копирования
 function bindCopy(btnId, taId){
   const btn = document.getElementById(btnId);
   btn.onclick = function(){
@@ -241,10 +253,12 @@ function bindCopy(btnId, taId){
   };
 }
 
+// привязка всех кнопок копирования
 bindCopy('copyStd','stdMsg');
 bindCopy('copyCf','cfMsg');
 bindCopy('copyBiz','bizMsg');
 
+// обработка кнопки "Розрахувати"
 document.getElementById("calcBtn").onclick = function(){
   const actual = parseFloat(document.getElementById("actual").value);
   const km = parseFloat(document.getElementById("distance").value);
@@ -255,7 +269,7 @@ document.getElementById("calcBtn").onclick = function(){
     return;
   }
 
-  // расчёт по тарифам
+  // расчет по тарифам
   const totals = {
     std: calcFare(km, STD) * coef,
     cf: calcFare(km, CFM) * coef,
@@ -277,7 +291,6 @@ document.getElementById("calcBtn").onclick = function(){
   document.getElementById('cfMsg').value = genMsg(CFM, km, coef, actual);
   document.getElementById('bizMsg').value = genMsg(BIZ, km, coef, actual);
 };
-
 </script>
 </body>
 </html>
