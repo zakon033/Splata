@@ -115,6 +115,45 @@
 
   .row{display:flex;gap:10px;}
   .small-btn{padding:8px 12px;border-radius:8px;border:0;background:#eee;cursor:pointer}
+
+/* строка с переключателем */
+.toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 12px 0 6px;
+  font-size: 16px;
+}
+
+/* скрытый блок */
+#extraFields {
+  overflow: hidden;
+  max-height: 0;
+  padding: 0;
+  transition: max-height 0.35s ease, padding 0.25s ease;
+}
+
+/* когда открыт */
+#extraFields.open {
+  max-height: 300px; /* достаточно много */
+  padding: 10px 0;
+}
+
+/* стиль дополнительных полей */
+#extraFields label {
+  display: block;
+  margin: 8px 0 4px;
+}
+
+#extraFields input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #d8dce3;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
 </style>
 </head>
 
@@ -131,6 +170,21 @@
 
     <label>Коефіцієнт</label>
     <input id="coef" type="number" inputmode="decimal" step="0.01" placeholder="наприклад 1.06">
+
+<label class="toggle-row">
+  <span>Додаткові параметри</span>
+  <input type="checkbox" id="extraToggle">
+</label>
+
+    <div id="extraFields" class="extra-hidden">
+    
+      <label>Кількість платних хвилин</label>
+      <input id="paidMinutes" type="number" step="1" placeholder="необов’язково">
+    
+      <label>Кількість проміжних точок</label>
+      <input id="midPoints" type="number" step="1" placeholder="необов’язково">
+    
+    </div>
 
     <button class="btn" id="calcBtn">Розрахувати</button>
   </div>
@@ -293,6 +347,16 @@ document.getElementById("calcBtn").onclick = function(){
   document.getElementById('cfMsg').value = genMsg(CFM, km, coef, actual);
   document.getElementById('bizMsg').value = genMsg(BIZ, km, coef, actual);
 };
+
+  document.getElementById('extraToggle').addEventListener('change', function () {
+    const extra = document.getElementById('extraFields');
+    if (this.checked) {
+      extra.classList.add('open');
+    } else {
+      extra.classList.remove('open');
+    }
+  });
+
 </script>
 </body>
 </html>
