@@ -6,7 +6,6 @@
 <title>Переказ коштів</title>
 
 <style>
-/* ===== СБРОС ===== */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -14,34 +13,35 @@
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-/* ===== ФОН ===== */
+/* ===== СТАЦИОНАРНЫЙ ФОН (КЛЮЧ!) ===== */
 body {
   min-height: 100vh;
-  background:
-    radial-gradient(1200px 600px at 10% 10%, rgba(0,255,140,.35), transparent 60%),
-    radial-gradient(1000px 500px at 90% 30%, rgba(0,180,90,.35), transparent 60%),
-    linear-gradient(180deg, #0a3f2a, #06281b);
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 40px 16px;
   color: #fff;
+  padding: 40px 16px;
+
+  background-image:
+    url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed; /* ← КРИТИЧЕСКИ ВАЖНО */
 }
 
-/* Лёгкий blur фона */
+/* затемнение + мягкий blur фона */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(0, 80, 40, 0.45);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
   z-index: -1;
 }
 
 /* ===== КОНТЕЙНЕР ===== */
 .container {
-  width: 100%;
   max-width: 420px;
+  margin: auto;
 }
 
 /* ===== ЗАГОЛОВКИ ===== */
@@ -53,38 +53,38 @@ h1 {
 
 .small {
   text-align: center;
-  opacity: .75;
+  opacity: .8;
   margin-bottom: 24px;
 }
 
-/* ===== LIQUID GLASS ===== */
+/* ===== НАСТОЯЩЕЕ СТЕКЛО ===== */
 .section {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
   padding: 16px;
-  border-radius: 18px;
+  border-radius: 20px;
 
-  background: rgba(255,255,255,0.12);
+  background: rgba(255, 255, 255, 0.18);
+
   backdrop-filter:
-    blur(12px)
-    saturate(180%);
+    blur(14px)
+    saturate(160%)
+    contrast(110%);
   -webkit-backdrop-filter:
-    blur(12px)
-    saturate(180%);
+    blur(14px)
+    saturate(160%)
+    contrast(110%);
 
-  border: 1px solid rgba(255,255,255,0.22);
+  border: 1px solid rgba(255,255,255,0.35);
 
   box-shadow:
-    0 10px 30px rgba(0,0,0,.35),
-    inset 0 2px 8px rgba(255,255,255,.15);
+    0 15px 40px rgba(0,0,0,.35),
+    inset 0 1px 8px rgba(255,255,255,.25);
 
-  transition: transform .25s ease, box-shadow .25s ease;
+  transition: transform .25s ease;
 }
 
 .section:hover {
-  transform: scale(1.015);
-  box-shadow:
-    0 14px 40px rgba(0,0,0,.45),
-    inset 0 3px 10px rgba(255,255,255,.18);
+  transform: translateY(-2px);
 }
 
 /* ===== КНОПКИ ===== */
@@ -93,31 +93,24 @@ h1 {
   text-align: center;
   text-decoration: none;
   color: #fff;
-  font-weight: 500;
 
   padding: 14px;
   margin-bottom: 10px;
 
   border-radius: 14px;
-  background: rgba(255,255,255,0.16);
 
+  background: rgba(255,255,255,0.22);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 
-  border: 1px solid rgba(255,255,255,0.25);
-  transition: background .2s ease, transform .2s ease;
+  border: 1px solid rgba(255,255,255,0.35);
 }
 
 .btn:last-child {
   margin-bottom: 0;
 }
 
-.btn:hover {
-  background: rgba(255,255,255,0.25);
-  transform: translateY(-1px);
-}
-
-/* ===== COPY BLOCK ===== */
+/* ===== COPY ===== */
 .copy {
   display: flex;
   justify-content: space-between;
@@ -129,26 +122,13 @@ h1 {
   border-radius: 14px;
   cursor: pointer;
 
-  background: rgba(255,255,255,0.14);
-  border: 1px solid rgba(255,255,255,0.25);
-
-  transition: background .2s ease;
-}
-
-.copy:hover {
   background: rgba(255,255,255,0.22);
+  border: 1px solid rgba(255,255,255,0.35);
 }
 
-/* ===== МЕЛКИЙ ТЕКСТ ===== */
-.copy span:last-child {
-  opacity: .8;
-}
-
-/* ===== АДАПТИВ ===== */
+/* ===== МОБИЛЬНЫЕ ===== */
 @media (max-width: 360px) {
-  h1 {
-    font-size: 22px;
-  }
+  h1 { font-size: 22px; }
 }
 </style>
 </head>
@@ -179,41 +159,13 @@ h1 {
   <a class="btn" href="https://app.binance.com/uni-qr/LXViL5Hb">Binance Pay</a>
 </div>
 
-<div class="section">
-  <div class="copy" onclick="copyText('bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp')">
-    <span>₿ Bitcoin (BTC)</span><span>📋</span>
-  </div>
-
-  <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
-    <span>◆ Ethereum (Ethereum)</span><span>📋</span>
-  </div>
-
-  <div class="copy" onclick="copyText('TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh')">
-    <span>₮ USDT (Tron)</span><span>📋</span>
-  </div>
-
-  <div class="copy" onclick="copyText('EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7')">
-    <span>◎ Solana (SOL)</span><span>📋</span>
-  </div>
-
-  <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
-    <span>◇ USDC (Polygon)</span><span>📋</span>
-  </div>
-
-  <a class="btn"
-     href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9"
-     target="_blank" rel="noopener">
-     USDC (Polygon · Trust)
-  </a>
-</div>
-
 </div>
 
 <script>
 function copyText(text) {
   navigator.clipboard.writeText(text);
   navigator.vibrate?.(20);
-  alert('Скопійовано:\n' + text);
+  alert("Скопійовано:\n" + text);
 }
 </script>
 
