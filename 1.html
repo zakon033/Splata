@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Переказ коштів</title>
     <style>
-        /* Основные сбросы и фон */
         * {
             margin: 0;
             padding: 0;
@@ -14,145 +13,126 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, 
-                #1a3a1a 0%, 
-                #2d5a2d 25%, 
-                #1a472a 50%, 
-                #0f3d2d 75%, 
-                #163a1f 100%);
             min-height: 100vh;
             padding: 20px;
-            color: rgba(255, 255, 255, 0.9);
+            color: #fff;
             position: relative;
-            overflow-x: hidden;
-        }
-
-        /* Декоративные элементы фона */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
             background: 
-                radial-gradient(circle at 20% 80%, rgba(120, 200, 120, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(100, 180, 100, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(80, 160, 80, 0.1) 0%, transparent 50%);
-            z-index: -1;
-            pointer-events: none;
+                linear-gradient(rgba(10, 30, 15, 0.85), rgba(5, 20, 10, 0.9)),
+                url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80&blur=100');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
         }
 
-        /* Контейнер */
+        /* Эффект стекла для ВСЕХ элементов */
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(25px) url(#liquidFilter);
+            -webkit-backdrop-filter: blur(25px) url(#liquidFilter);
+            box-shadow: 
+                0 10px 35px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
         .container {
             max-width: 800px;
             margin: 0 auto;
             padding: 30px 20px;
         }
 
-        /* Заголовок */
         h1 {
             text-align: center;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-size: 2.5rem;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            background: linear-gradient(90deg, #ffffff, #e0ffe0);
+            background: linear-gradient(90deg, #fff, #c8ffc8);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
 
         .small {
             text-align: center;
             margin-bottom: 40px;
             font-size: 1.1rem;
-            color: rgba(255, 255, 255, 0.7);
-            letter-spacing: 0.5px;
+            color: rgba(255, 255, 255, 0.8);
         }
 
-        /* Эффект жидкого стекла для секций */
+        /* Секции */
         .section {
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 28px;
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            backdrop-filter: blur(40px) url(#liquidFilter);
-            -webkit-backdrop-filter: blur(40px) url(#liquidFilter);
-            box-shadow: 
-                0 10px 40px rgba(0, 0, 0, 0.25),
-                inset 0 1px 0 rgba(255, 255, 255, 0.15),
-                inset 0 -1px 0 rgba(0, 0, 0, 0.1);
-            padding: 28px;
-            margin-bottom: 24px;
+            padding: 25px;
+            margin-bottom: 25px;
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
         }
 
         .section:hover {
-            background: rgba(255, 255, 255, 0.11);
-            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-3px);
             box-shadow: 
-                0 15px 50px rgba(0, 0, 0, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2),
-                inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+                0 15px 40px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
-        .section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, 
-                transparent, 
-                rgba(255, 255, 255, 0.4), 
-                transparent);
-        }
-
-        /* Кнопки */
+        /* КНОВКИ с эффектом стекла */
         .btn {
             display: inline-block;
-            background: linear-gradient(90deg, #2ecc71, #27ae60);
+            background: rgba(255, 255, 255, 0.15);
             color: white;
             text-decoration: none;
             padding: 18px 28px;
-            border-radius: 18px;
+            border-radius: 16px;
             font-weight: 600;
             font-size: 1.1rem;
             text-align: center;
             margin: 0 12px 16px 0;
             transition: all 0.25s ease;
-            border: none;
-            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(25px) url(#liquidFilter);
+            -webkit-backdrop-filter: blur(25px) url(#liquidFilter);
             box-shadow: 
-                0 6px 20px rgba(46, 204, 113, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3),
-                inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+                0 8px 25px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
             min-width: 180px;
-            letter-spacing: 0.3px;
+        }
+
+        /* Эффект свечения при наведении на кнопки */
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.1), 
+                transparent);
+            transition: left 0.6s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
         }
 
         .btn:hover {
-            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-4px);
             box-shadow: 
-                0 10px 25px rgba(46, 204, 113, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.4),
-                inset 0 -2px 0 rgba(0, 0, 0, 0.1);
-            background: linear-gradient(90deg, #34d178, #2ecc71);
+                0 12px 30px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
         .btn:active {
             transform: translateY(-1px);
-            box-shadow: 
-                0 4px 15px rgba(46, 204, 113, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
-        /* Блоки для копирования */
+        /* Блоки для копирования с эффектом стекла */
         .copy {
-            background: rgba(0, 0, 0, 0.25);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 16px;
             padding: 18px 22px;
             margin-bottom: 14px;
@@ -161,16 +141,15 @@
             align-items: center;
             cursor: pointer;
             transition: all 0.2s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 1.05rem;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(25px) url(#liquidFilter);
+            -webkit-background-filter: blur(25px) url(#liquidFilter);
         }
 
         .copy:hover {
-            background: rgba(0, 0, 0, 0.35);
-            transform: translateX(3px);
-            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.18);
+            transform: translateX(5px);
+            border-color: rgba(255, 255, 255, 0.25);
         }
 
         .copy span:last-child {
@@ -194,8 +173,7 @@
             }
             
             .section {
-                padding: 22px;
-                margin-bottom: 20px;
+                padding: 20px;
             }
             
             .btn {
@@ -203,12 +181,6 @@
                 width: 100%;
                 margin-right: 0;
                 margin-bottom: 12px;
-                min-width: auto;
-            }
-            
-            .copy {
-                padding: 16px 18px;
-                font-size: 1rem;
             }
         }
 
@@ -223,7 +195,6 @@
             
             .section {
                 padding: 18px;
-                border-radius: 22px;
             }
             
             .btn {
@@ -238,7 +209,7 @@
     <svg style="display: none">
         <filter id="liquidFilter">
             <feImage
-                href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAACXBIWXMAAA9hAAAPYQGoP6dpAAAMoElEQVRogZ1a3ZqjyI6MkBJc3XOz7/+g+53pMoq9kJQk2K6Zs0yNGzAG/I9GAijER0IKCSnB37/3QQxyEDvwIB/kF/mwdMvPh/FB2836ZJu5mQ1y0NxoZk4ajQRpJEGSVH4CIkEAFAEBIAgQACWAIAiQAAKABDDADdgFBzCAARjSQ3pAD/AhPcCH8UHbzTawG4cNkiBo9XSSpFvtmNGMRtJgRjOQNCKPSdBkdQMYQQoECRIk6xCYggsEBU0dAAASEERCAAQIgCQpCCQJEVKWIkHIAgQ5OFJSEDAzI+f/dJISS4nTSBpMwBTRjEZKiQ3MT8AIRETXZ8v3Xf0sUe9JYh73eaA1SJklINJ16muUtyVBKIq0rN7SrPy5EKL83EFzq6+3MrOTt3SrACyFPc1wFfZEJUUAhJ1ilgPUQglYZHROhAYoxJACCAURQVdrpA3mYLhxOD0Nd3OauZVd3UtcN7il7dMIBS+it1C/LH/2ghCSOqgNO4VvH4SU1C0Cn0QoIqY/icEPPQMihvzX3A67uftm3ocPc3dLwzNI0gYGEWZ5fmbspvVPZJf07IMT5YeKt0DIhAAOiMrgjs/oGeFxPCkUKQoxzAhJ02j4V2HeUwV3dx9jf+z7Y3s8xv5w38w3s5E2s+kEMiBW6CNdXCq7InDCnCfktOBeKRwZrSleCAhF4Dj8+/v7+H5GBIQgIACBkga/3AknvO37Y/v22B/f+vbY3Ia5p+GZcUhCBgCSzP+J/pZe5GQW26mBVzmLR86UjUaQhAM6hEPxjKfz+5f//Wt//tr3I0SFoIQYMPyrvMmEH4/n9v3b9m27ff9s25e5G83Qq4xK6xnKyWJ2Fm7UNj95UmSmH91kJwQgAPY5FdwRiogjnk98P7b9//YvPB/fQ0RUPAQ0/B2ZiE4zc3Pf9v3b4+v79u3b2PfhbjRDXl7KULUSt+DOHbk886/4nbY36ZnlEIFK6ERKJCmD+/jm/LfFl44YR8QRUQkJAODgV7EjjW4e7uPmPnwM35xu5gYjUFaDEzTNAzWyhbxF9B1bS+66HZ3wmrlk4cJN6qQOHAe/f/v3378eMUKQAIgAIMK/bM0swXcbu3M4t2HbcB9uLpIkuYKc2GF7Q5IyRUK4AP+K3vuo52sBWK3AZAJWx1gqBqgIQUKIMB+323ff7u73YUaSRjMz95z2aZ0GMAQjDY5hj2HD2Z000lJ0k5IrK6JAN8Qr9J+V/95u3SczcX1znhGEohAS9fx+Pn/7/np6hKCIgIQ0gM1T7y36/8/oj4P/eH7/8+0vvL4/35/fn+9v8XzG8+X7M0aEIs2TkBCEpIh5I3VGSa2EViwWc8wF+WotC34iBEGQ8HwpEiPSYqbnMZcQgEjiN3/753795x9//vvPH//9y1+v14T2hBBFgu7jjFDE8Ty+f/v+999//vrrX8+vfz+/vuy1n5USIQESykIAUP9EOSpcmA09f6FcUkkE6+erX2s/2u13ggEgwf8D0E4frwXbENMAAAAASUVORK5CYII="
+                href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAACXBIWXMAAA9hAAAPYQGoP6dpAAAMoElEQVRogZ1a3ZqjyI6MkBJc3XOz7/+g+53pMoq9kJQk2K6Zs0yNGzAG/I9GAijER0IKCSnB37/3QQxyEDvwIB/kF/mwdMvPh/FB2836ZJu5mQ1y0NxoZk4ajQRpJEGSVH4CIkEAFAEBIAgQACWAIAiQAAKABDDADdgFBzCAARjSQ3pAD/AhPcCH8UHbzTawG4cNkiBo9XSSpFvtmNGMRtJgRjOQNCKPSdBkdQMYQQoECRIk6xCYggsEBU0dAAASEURCEAQIgCQpCCQJEVKWIkHIAgQ5OFJSEDAzI+f/dJISS4nTSBpMwBTRjEZKiQ3MT8AIRETXZ8v3Xf0sUe9JYh73eaA1SJklINJ16muUtyVBKIq0rN7SrPy5EKL83EFzq6+3MrOTt3SrACyFPc1wFfZEJUUAhJ1ilgPUQglYZHROhAYoxJACCAURQVdrpA3mYLhxOD0Nd3OauZVd3UtcN7il7dMIBS+it1C/LH/2ghCSOqgNO4VvH4SU1C0Cn0QoIqY/icEPPQMihvzX3A67uftm3ocPc3dLwzNI0gYGEWZ5fmbspvVPZJf07IMT5YeKt0DIhAAOiMrgjs/oGeFxPCkUKQoxzAhJ02j4V2HeUwV3dx9jf+z7Y3s8xv5w38w3s5E2s+kEMiBW6CNdXCq7InDCnCfktOBeKRwZrSleCAhF4Dj8+/v7+H5GBIQgIACBkga/3AknvO37Y/v22B/f+vbY3Ia5p+GZcUhCBgCSzP+J/pZe5GQW26mBVzmLR86UjUaQhAM6hEPxjKfz+5f//Wt//tr3I0SFoIQYMPyrvMmEH4/n9v3b9m27ff9s25e5G83Qq4xK6xnKyWJ2Fm7UNj95UmSmH91kJwQgAPY5FdwRiogjnk98P7b9//YvPB/fQ0RUPAQ0/B2ZiE4zc3Pf9v3b4+v79u3b2PfhbjRDXl7KULUSt+DOHbk886/4nbY36ZnlEIFK6ERKJCmD+/jm/LfFl44YR8QRUQkJAODgV7EjjW4e7uPmPnwM35xu5gYjUFaDEzTNAzWyhbxF9B1bS+66HZ3wmrlk4cJN6qQOHAe/f/v3378eMUKQAIgAIMK/bM0swXcbu3M4t2HbcB9uLpIkuYKc2GF7Q5IyRUK4AP+K3vuo52sBWK3AZAJWx1gqBqgIQUKIMB+323ff7u73YUaSRjMz95z2aZ0GMAQjDY5hj2HD2Z000lJ0k5IrK6JAN8Qr9J+V/95u3SczcX1znhGEohAS9fx+Pn/7/np6hKCIgIQ0gM1T7y36/8/oj4P/eH7/8+0vvL4/35/fn+9v8XzG8+X7M0aEIs2TkBCEpIh5I3VGSa2EViwWc8wF+WotC34iBEGQ8HwpEiPSYqbnMZcQgEjiN3/753795x9//vvPH//9y1+v14T2hBBFgu7jjFDE8Ty+f/v+999//vrrX8+vfz+/vuy1n5USIQESykIAUP9EOSpcmA09f6FcUkkE6+erX2s/2u13ggEgwf8D0E4frwXbENMAAAAASUVORK5CYII="
                 result="noise" />
             <feDisplacementMap
                 in="SourceGraphic"
@@ -254,7 +225,7 @@
         <div class="small">Оберіть зручний спосіб</div>
 
         <!-- Банки -->
-        <div class="section">
+        <div class="section glass-effect">
             <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK" target="_blank" rel="noopener">monobank</a>
             <a class="btn" href="https://www.privat24.ua/send/id4xg" target="_blank" rel="noopener">ПриватБанк</a>
             
@@ -264,19 +235,19 @@
             </div>
         </div>
 
-        <!-- Apple / Google Pay через monobank -->
-        <div class="section">
+        <!-- Apple / Google Pay -->
+        <div class="section glass-effect">
             <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK" target="_blank" rel="noopener"> Apple Pay</a>
             <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK" target="_blank" rel="noopener">Google Pay</a>
         </div>
 
         <!-- Binance -->
-        <div class="section">
+        <div class="section glass-effect">
             <a class="btn" href="https://app.binance.com/uni-qr/LXViL5Hb" target="_blank" rel="noopener">Binance Pay</a>
         </div>
 
         <!-- Crypto -->
-        <div class="section">
+        <div class="section glass-effect">
             <div class="copy" onclick="copyText('bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp')">
                 <span>₿ Bitcoin (BTC)</span>
                 <span>📋</span>
@@ -311,48 +282,43 @@
     <script>
         function copyText(text) {
             navigator.clipboard.writeText(text).then(() => {
-                // Виброотклик на поддерживающих устройствах
+                // Виброотклик
                 if (navigator.vibrate) navigator.vibrate(50);
                 
-                // Временное уведомление вместо alert
+                // Красивое уведомление
                 const notification = document.createElement('div');
-                notification.textContent = 'Скопійовано: ' + text;
+                notification.textContent = '✓ Скопійовано';
                 notification.style.cssText = `
                     position: fixed;
                     top: 20px;
                     right: 20px;
-                    background: rgba(46, 204, 113, 0.95);
+                    background: rgba(30, 60, 40, 0.95);
                     color: white;
-                    padding: 12px 20px;
-                    border-radius: 12px;
+                    padding: 14px 24px;
+                    border-radius: 14px;
                     font-weight: 600;
                     z-index: 1000;
-                    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-                    backdrop-filter: blur(10px);
-                    -webkit-backdrop-filter: blur(10px);
-                    animation: fadeInOut 2.5s ease;
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    backdrop-filter: blur(20px);
+                    -webkit-backdrop-filter: blur(20px);
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                    animation: slideIn 0.3s ease, fadeOut 0.3s ease 2s forwards;
                 `;
                 
                 document.body.appendChild(notification);
                 
-                setTimeout(() => {
-                    notification.style.animation = 'fadeOut 0.5s ease forwards';
-                    setTimeout(() => notification.remove(), 500);
-                }, 2000);
+                setTimeout(() => notification.remove(), 2300);
             }).catch(err => {
-                console.error('Не вдалося скопіювати: ', err);
                 alert('Не вдалося скопіювати. Спробуйте ще раз.');
             });
         }
 
-        // Добавляем стили для анимации уведомления
+        // Добавляем стили для анимации
         const style = document.createElement('style');
         style.textContent = `
-            @keyframes fadeInOut {
-                0% { opacity: 0; transform: translateY(-20px); }
-                15% { opacity: 1; transform: translateY(0); }
-                85% { opacity: 1; transform: translateY(0); }
-                100% { opacity: 0; transform: translateY(-20px); }
+            @keyframes slideIn {
+                from { opacity: 0; transform: translateY(-20px); }
+                to { opacity: 1; transform: translateY(0); }
             }
             @keyframes fadeOut {
                 from { opacity: 1; transform: translateY(0); }
