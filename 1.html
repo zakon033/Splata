@@ -4,143 +4,226 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Переказ коштів</title>
-<style>
-body {
-  margin: 0;
-  padding: 20px;
-  font-family: sans-serif;
-  background: url('https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=1600&blur=50') fixed;
-  background-size: cover;
-  min-height: 100vh;
-}
 
+<style>
+/* Базовые стили для контейнера и секций */
 .container {
   max-width: 600px;
   margin: 0 auto;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 h1 {
   text-align: center;
-  color: white;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-  margin-bottom: 5px;
+  font-size: 2em;
+  margin-bottom: 10px;
+  color: #333;
 }
 
 .small {
   text-align: center;
-  color: rgba(255,255,255,0.8);
+  color: #666;
   margin-bottom: 30px;
+  font-size: 1.1em;
 }
 
-/* ЭФФЕКТ СТЕКЛА - как в статье */
-.glass {
+/* Стили для секций с Liquid Glass */
+.section {
   background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(20px) url(#liquidFilter);
-  -webkit-backdrop-filter: blur(20px) url(#liquidFilter);
-  border-radius: 16px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
   padding: 20px;
-  margin-bottom: 15px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
-/* Кнопки */
+/* Кнопки с Liquid Glass */
 .btn {
   display: block;
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
-  text-decoration: none;
-  padding: 16px;
-  border-radius: 12px;
-  margin-bottom: 10px;
-  text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-}
-
-/* Блоки для копирования */
-.copy {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
+  width: 100%;
   padding: 15px;
   margin-bottom: 10px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  color: #333;
+  text-decoration: none;
+  text-align: center;
+  font-size: 1.1em;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Элементы для копирования */
+.copy {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  margin-bottom: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
   cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.3s ease;
+  color: #333;
+  font-size: 1em;
+}
+
+.copy:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(5px);
+}
+
+.copy span:last-child {
+  font-size: 1.2em;
+}
+
+/* Liquid Glass для всего контейнера (опционально, для фона) */
+.container {
+  position: relative;
+}
+
+/* SVG для displacement map (Liquid Glass эффект) */
+svg {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+}
+
+.bg-liquid-glass {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  background: rgba(255, 255, 255, 0.25);
+}
+
+@supports not (hanging-punctuation: first) {
+  .bg-liquid-glass {
+    backdrop-filter: url(#displacementFilter) blur(2px);
+  }
+}
+
+/* Применяем Liquid Glass к секциям и кнопкам */
+.section,
+.btn,
+.copy {
+  position: relative;
+}
+
+/* Анимация для "жидкости" */
+@keyframes liquid-wave {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(2px); }
+}
+
+.bg-liquid-glass:hover {
+  animation: liquid-wave 2s ease-in-out infinite;
 }
 </style>
 </head>
 
 <body>
-
-<!-- SVG фильтр для жидкого стекла -->
-<svg style="display:none">
-  <filter id="liquidFilter">
-    <feTurbulence type="turbulence" baseFrequency="0.01" numOctaves="1" result="turbulence"/>
-    <feDisplacementMap in2="turbulence" in="SourceGraphic" scale="10" xChannelSelector="R" yChannelSelector="G"/>
+<!-- SVG-фильтр для Liquid Glass (скрытый) -->
+<svg style="display: none">
+  <filter id="displacementFilter">
+    <feImage
+      href="data:image/png;base64,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"
+      preserveAspectRatio="none"/>
+    <feDisplacementMap
+      in="SourceGraphic"
+      in2="turbulence"
+      scale="600"
+      xChannelSelector="R"
+      yChannelSelector="G"
+    />
   </filter>
 </svg>
 
-<div class="container">
-  <h1>💳 Перевести кошти</h1>
-  <div class="small">Оберіть зручний спосіб</div>
+<div class="container bg-liquid-glass">
 
-  <div class="glass">
-    <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">monobank</a>
-    <a class="btn" href="https://www.privat24.ua/send/id4xg">ПриватБанк</a>
-    
-    <div class="copy" onclick="copyText('4441114459954077')">
-      <span>💳 4441 •••• •••• 4077</span>
-      <span>📋</span>
-    </div>
+<h1>💳 Перевести кошти</h1>
+<div class="small">Оберіть зручний спосіб</div>
+
+<!-- Банки -->
+<div class="section bg-liquid-glass">
+  <a class="btn bg-liquid-glass" href="https://send.monobank.ua/5a2bBZvgLK">monobank</a>
+  <a class="btn bg-liquid-glass" href="https://www.privat24.ua/send/id4xg">ПриватБанк</a>
+
+  <div class="copy bg-liquid-glass" onclick="copyText('4441114459954077')">
+    <span>💳 4441 •••• •••• 4077</span>
+    <span>📋</span>
+  </div>
+</div>
+
+<!-- Apple / Google Pay через monobank -->
+<div class="section bg-liquid-glass">
+  <a class="btn bg-liquid-glass" href="https://send.monobank.ua/5a2bBZvgLK"> Apple Pay</a>
+  <a class="btn bg-liquid-glass" href="https://send.monobank.ua/5a2bBZvgLK">Google Pay</a>
+</div>
+
+<!-- Binance -->
+<div class="section bg-liquid-glass">
+  <a class="btn bg-liquid-glass" href="https://app.binance.com/uni-qr/LXViL5Hb">Binance Pay</a>
+</div>
+
+<!-- Crypto -->
+<div class="section bg-liquid-glass">
+  <div class="copy bg-liquid-glass" onclick="copyText('bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp')">
+    ₿ Bitcoin (BTC) <span>📋</span>
   </div>
 
-  <div class="glass">
-    <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK"> Apple Pay</a>
-    <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">Google Pay</a>
+  <div class="copy bg-liquid-glass" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
+    ◆ Ethereum (Ethereum) <span>📋</span>
   </div>
 
-  <div class="glass">
-    <a class="btn" href="https://app.binance.com/uni-qr/LXViL5Hb">Binance Pay</a>
+  <div class="copy bg-liquid-glass" onclick="copyText('TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh')">
+    ₮ USDT Tron <span>📋</span>
   </div>
 
-  <div class="glass">
-    <div class="copy" onclick="copyText('bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp')">
-      <span>₿ Bitcoin (BTC)</span><span>📋</span>
-    </div>
-    <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
-      <span>◆ Ethereum</span><span>📋</span>
-    </div>
-    <div class="copy" onclick="copyText('TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh')">
-      <span>₮ USDT Tron</span><span>📋</span>
-    </div>
-    <div class="copy" onclick="copyText('EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7')">
-      <span>◎ Solana</span><span>📋</span>
-    </div>
-    <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
-      <span>◇ USDC</span><span>📋</span>
-    </div>
-    
-    <a class="btn" href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9&asset=c966_t0x576Cf361711cd940CD9C397BB98C4C896cBd38De">
-      USDC (Polygon · Trust)
-    </a>
+  <div class="copy bg-liquid-glass" onclick="copyText('EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7')">
+    ◎ Solana (SOL) <span>📋</span>
   </div>
+
+  <div class="copy bg-liquid-glass" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
+    ◇ USDC (Polygon) <span>📋</span>
+  </div>
+
+  <a class="btn bg-liquid-glass"
+     href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9&asset=c966_t0x576Cf361711cd940CD9C397BB98C4C896cBd38De"
+     target="_blank" rel="noopener">
+     USDC (Polygon · Trust)
+  </a>
+
+</div>
+
 </div>
 
 <script>
 function copyText(text) {
   navigator.clipboard.writeText(text);
   navigator.vibrate?.(20);
-  
-  // Маленькое уведомление
-  const msg = document.createElement('div');
-  msg.textContent = 'Скопійовано';
-  msg.style.cssText = 'position:fixed; top:20px; right:20px; background:green; color:white; padding:10px 20px; border-radius:8px;';
-  document.body.appendChild(msg);
-  setTimeout(() => msg.remove(), 1500);
+  alert('Скопійовано: ' + text);
 }
 </script>
+
 </body>
 </html>
