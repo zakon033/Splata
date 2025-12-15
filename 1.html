@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Переказ коштів</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+
+
+/* Размытый стеклянный фон */
+.container {
+  width: 100%;
+  max-width: 420px;
+  backdrop-filter: blur(20px) saturate(180%);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.37);
+}
+
+/* Заголовки */
+h1 {
+  font-size: 24px;
+  margin-bottom: 4px;
+  text-align: center;
+  font-weight: 700;
+  text-shadow: 0 1px 5px rgba(0,0,0,0.3);
+}
+
+.small {
+  font-size: 14px;
+  color: rgba(255,255,255,0.7);
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+/* Блоки */
+.section {
+  backdrop-filter: blur(15px) saturate(180%);
+  background: rgba(255,255,255,0.05);
+  border-radius: 20px;
+  padding: 16px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Стеклянные кнопки */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 16px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.2);
+  transition: all 0.25s ease-in-out;
+}
+
+.btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255,255,255,0.1);
+}
+
+/* Элементы для копирования */
+.copy {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.copy:hover {
+  background: rgba(255,255,255,0.2);
+  transform: translateY(-1px);
+}
+
+/* Фоновая надпись */
+body::before {
+  content: "Перевод коштів";
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-30deg);
+  font-size: 80px;
+  color: rgba(255,255,255,0.05);
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>💳 Перевести кошти</h1>
+<div class="small">Оберіть зручний спосіб</div>
+
+<!-- Банки -->
+<div class="section">
+  <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">monobank</a>
+  <a class="btn" href="https://www.privat24.ua/send/id4xg">ПриватБанк</a>
+
+  <div class="copy" onclick="copyText('4441114459954077')">
+    <span>💳 4441 •••• •••• 4077</span>
+    <span>📋</span>
+  </div>
+</div>
+
+<!-- Apple / Google Pay через monobank -->
+<div class="section">
+  <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK"> Apple Pay</a>
+  <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">Google Pay</a>
+</div>
+
+<!-- Binance -->
+<div class="section">
+  <a class="btn" href="https://app.binance.com/uni-qr/LXViL5Hb">Binance Pay</a>
+</div>
+
+<!-- Crypto -->
+<div class="section">
+  <div class="copy" onclick="copyText('bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp')">
+    ₿ Bitcoin (BTC) <span>📋</span>
+  </div>
+
+  <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
+    ◆ Ethereum (Ethereum) <span>📋</span>
+  </div>
+
+  <div class="copy" onclick="copyText('TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh')">
+    ₮ USDT Tron <span>📋</span>
+  </div>
+
+  <div class="copy" onclick="copyText('EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7')">
+    ◎ Solana (SOL) <span>📋</span>
+  </div>
+
+  <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
+    ◇ USDC (Polygon) <span>📋</span>
+  </div>
+
+  <a class="btn"
+     href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9&asset=c966_t0x576Cf361711cd940CD9C397BB98C4C896cBd38De"
+     target="_blank" rel="noopener">
+     USDC (Polygon · Trust)
+  </a>
+
+</div>
+
+</div>
+
+<script>
+function copyText(text) {
+  navigator.clipboard.writeText(text);
+  navigator.vibrate?.(20);
+  alert('Скопійовано: ' + text);
+}
+</script>
+
+</body>
+</html>
