@@ -1,133 +1,365 @@
-Меня есть такой сайт
-
 <!doctype html>
 <html lang="uk">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Переказ коштів</title>
-
-<style>
-.backdrop {
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-
-<svg style="display: none">
-    <filter id="displacementFilter">
-        <feImage
-                href="data:image/png;base64,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"
-                preserveAspectRatio="none"/>
-
-        <feDisplacementMap
-                in="SourceGraphic"
-                in2="turbulence"
-                scale="600"
-                xChannelSelector="R"
-                yChannelSelector="G"
-        />
-    </filter>
-</svg>
-<style>
-    .bg-liquid-glass {
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
-        @apply bg-muted/25;
-    }
-
-    @supports not (hanging-punctuation:first) {
-        .bg-liquid-glass {
-            backdrop-filter: url(#displacementFilter) blur(2px);
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Переказ коштів</title>
+    <style>
+        /* Основные сбросы и фон */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-    }
-</style>
 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, 
+                #1a3a1a 0%, 
+                #2d5a2d 25%, 
+                #1a472a 50%, 
+                #0f3d2d 75%, 
+                #163a1f 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.9);
+            position: relative;
+            overflow-x: hidden;
+        }
 
+        /* Декоративные элементы фона */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 200, 120, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(100, 180, 100, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(80, 160, 80, 0.1) 0%, transparent 50%);
+            z-index: -1;
+            pointer-events: none;
+        }
 
+        /* Контейнер */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
 
-</style>
+        /* Заголовок */
+        h1 {
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(90deg, #ffffff, #e0ffe0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .small {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.7);
+            letter-spacing: 0.5px;
+        }
+
+        /* Эффект жидкого стекла для секций */
+        .section {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(40px) url(#liquidFilter);
+            -webkit-backdrop-filter: blur(40px) url(#liquidFilter);
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+            padding: 28px;
+            margin-bottom: 24px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section:hover {
+            background: rgba(255, 255, 255, 0.11);
+            transform: translateY(-2px);
+            box-shadow: 
+                0 15px 50px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.4), 
+                transparent);
+        }
+
+        /* Кнопки */
+        .btn {
+            display: inline-block;
+            background: linear-gradient(90deg, #2ecc71, #27ae60);
+            color: white;
+            text-decoration: none;
+            padding: 18px 28px;
+            border-radius: 18px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-align: center;
+            margin: 0 12px 16px 0;
+            transition: all 0.25s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 
+                0 6px 20px rgba(46, 204, 113, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+            min-width: 180px;
+            letter-spacing: 0.3px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 10px 25px rgba(46, 204, 113, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4),
+                inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+            background: linear-gradient(90deg, #34d178, #2ecc71);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+            box-shadow: 
+                0 4px 15px rgba(46, 204, 113, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        /* Блоки для копирования */
+        .copy {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 16px;
+            padding: 18px 22px;
+            margin-bottom: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 1.05rem;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .copy:hover {
+            background: rgba(0, 0, 0, 0.35);
+            transform: translateX(3px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .copy span:last-child {
+            font-size: 1.3rem;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .copy:hover span:last-child {
+            opacity: 1;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .section {
+                padding: 22px;
+                margin-bottom: 20px;
+            }
+            
+            .btn {
+                display: block;
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 12px;
+                min-width: auto;
+            }
+            
+            .copy {
+                padding: 16px 18px;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 15px 10px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .section {
+                padding: 18px;
+                border-radius: 22px;
+            }
+            
+            .btn {
+                padding: 16px;
+                font-size: 1rem;
+            }
+        }
+    </style>
 </head>
-
 <body>
-<div class="container">
+    <!-- SVG фильтр для эффекта жидкого стекла -->
+    <svg style="display: none">
+        <filter id="liquidFilter">
+            <feImage
+                href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAACXBIWXMAAA9hAAAPYQGoP6dpAAAMoElEQVRogZ1a3ZqjyI6MkBJc3XOz7/+g+53pMoq9kJQk2K6Zs0yNGzAG/I9GAijER0IKCSnB37/3QQxyEDvwIB/kF/mwdMvPh/FB2836ZJu5mQ1y0NxoZk4ajQRpJEGSVH4CIkEAFAEBIAgQACWAIAiQAAKABDDADdgFBzCAARjSQ3pAD/AhPcCH8UHbzTawG4cNkiBo9XSSpFvtmNGMRtJgRjOQNCKPSdBkdQMYQQoECRIk6xCYggsEBU0dAAASEERCAAQIgCQpCCQJEVKWIkHIAgQ5OFJSEDAzI+f/dJISS4nTSBpMwBTRjEZKiQ3MT8AIRETXZ8v3Xf0sUe9JYh73eaA1SJklINJ16muUtyVBKIq0rN7SrPy5EKL83EFzq6+3MrOTt3SrACyFPc1wFfZEJUUAhJ1ilgPUQglYZHROhAYoxJACCAURQVdrpA3mYLhxOD0Nd3OauZVd3UtcN7il7dMIBS+it1C/LH/2ghCSOqgNO4VvH4SU1C0Cn0QoIqY/icEPPQMihvzX3A67uftm3ocPc3dLwzNI0gYGEWZ5fmbspvVPZJf07IMT5YeKt0DIhAAOiMrgjs/oGeFxPCkUKQoxzAhJ02j4V2HeUwV3dx9jf+z7Y3s8xv5w38w3s5E2s+kEMiBW6CNdXCq7InDCnCfktOBeKRwZrSleCAhF4Dj8+/v7+H5GBIQgIACBkga/3AknvO37Y/v22B/f+vbY3Ia5p+GZcUhCBgCSzP+J/pZe5GQW26mBVzmLR86UjUaQhAM6hEPxjKfz+5f//Wt//tr3I0SFoIQYMPyrvMmEH4/n9v3b9m27ff9s25e5G83Qq4xK6xnKyWJ2Fm7UNj95UmSmH91kJwQgAPY5FdwRiogjnk98P7b9//YvPB/fQ0RUPAQ0/B2ZiE4zc3Pf9v3b4+v79u3b2PfhbjRDXl7KULUSt+DOHbk886/4nbY36ZnlEIFK6ERKJCmD+/jm/LfFl44YR8QRUQkJAODgV7EjjW4e7uPmPnwM35xu5gYjUFaDEzTNAzWyhbxF9B1bS+66HZ3wmrlk4cJN6qQOHAe/f/v3378eMUKQAIgAIMK/bM0swXcbu3M4t2HbcB9uLpIkuYKc2GF7Q5IyRUK4AP+K3vuo52sBWK3AZAJWx1gqBqgIQUKIMB+323ff7u73YUaSRjMz95z2aZ0GMAQjDY5hj2HD2Z000lJ0k5IrK6JAN8Qr9J+V/95u3SczcX1znhGEohAS9fx+Pn/7/np6hKCIgIQ0gM1T7y36/8/oj4P/eH7/8+0vvL4/35/fn+9v8XzG8+X7M0aEIs2TkBCEpIh5I3VGSa2EViwWc8wF+WotC34iBEGQ8HwpEiPSYqbnMZcQgEjiN3/753795x9//vvPH//9y1+v14T2hBBFgu7jjFDE8Ty+f/v+999//vrrX8+vfz+/vuy1n5USIQESykIAUP9EOSpcmA09f6FcUkkE6+erX2s/2u13ggEgwf8D0E4frwXbENMAAAAASUVORK5CYII="
+                result="noise" />
+            <feDisplacementMap
+                in="SourceGraphic"
+                in2="noise"
+                scale="15"
+                xChannelSelector="R"
+                yChannelSelector="G" />
+        </filter>
+    </svg>
 
-<h1>💳 Перевести кошти</h1>
-<div class="small">Оберіть зручний спосіб</div>
+    <div class="container">
+        <h1>💳 Перевести кошти</h1>
+        <div class="small">Оберіть зручний спосіб</div>
 
+        <!-- Банки -->
+        <div class="section">
+            <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK" target="_blank" rel="noopener">monobank</a>
+            <a class="btn" href="https://www.privat24.ua/send/id4xg" target="_blank" rel="noopener">ПриватБанк</a>
+            
+            <div class="copy" onclick="copyText('4441114459954077')">
+                <span>💳 4441 •••• •••• 4077</span>
+                <span>📋</span>
+            </div>
+        </div>
 
-<div class="backdrop">
-  Неоморфизм
-</div>
-<!-- Банки -->
-<div className="bg-liquid-glass>
-  <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">monobank</a>
-  <a class="btn" href="https://www.privat24.ua/send/id4xg">ПриватБанк</a>
+        <!-- Apple / Google Pay через monobank -->
+        <div class="section">
+            <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK" target="_blank" rel="noopener"> Apple Pay</a>
+            <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK" target="_blank" rel="noopener">Google Pay</a>
+        </div>
 
-  <div class="copy" onclick="copyText('4441114459954077')">
-    <span>💳 4441 •••• •••• 4077</span>
-    <span>📋</span>
-  </div>
-</div>
+        <!-- Binance -->
+        <div class="section">
+            <a class="btn" href="https://app.binance.com/uni-qr/LXViL5Hb" target="_blank" rel="noopener">Binance Pay</a>
+        </div>
 
-<!-- Apple / Google Pay через monobank -->
-<div class="section">
-  <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK"> Apple Pay</a>
-  <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">Google Pay</a>
-</div>
+        <!-- Crypto -->
+        <div class="section">
+            <div class="copy" onclick="copyText('bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp')">
+                <span>₿ Bitcoin (BTC)</span>
+                <span>📋</span>
+            </div>
 
-<!-- Binance -->
-<div class="section">
-  <a class="btn" href="https://app.binance.com/uni-qr/LXViL5Hb">Binance Pay</a>
-</div>
+            <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
+                <span>◆ Ethereum (ETH)</span>
+                <span>📋</span>
+            </div>
 
-<!-- Crypto -->
-<div class="section">
-  <div class="copy" onclick="copyText('bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp')">
-    ₿ Bitcoin (BTC) <span>📋</span>
-  </div>
+            <div class="copy" onclick="copyText('TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh')">
+                <span>₮ USDT Tron</span>
+                <span>📋</span>
+            </div>
 
-  <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
-    ◆ Ethereum (Ethereum) <span>📋</span>
-  </div>
+            <div class="copy" onclick="copyText('EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7')">
+                <span>◎ Solana (SOL)</span>
+                <span>📋</span>
+            </div>
 
-  <div class="copy" onclick="copyText('TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh')">
-    ₮ USDT Tron <span>📋</span>
-  </div>
+            <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
+                <span>◇ USDC (Polygon)</span>
+                <span>📋</span>
+            </div>
 
-  <div class="copy" onclick="copyText('EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7')">
-    ◎ Solana (SOL) <span>📋</span>
-  </div>
+            <a class="btn" href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9&asset=c966_t0x576Cf361711cd940CD9C397BB98C4C896cBd38De" target="_blank" rel="noopener">
+                USDC (Polygon · Trust)
+            </a>
+        </div>
+    </div>
 
-  <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
-    ◇ USDC (Polygon) <span>📋</span>
-  </div>
+    <script>
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Виброотклик на поддерживающих устройствах
+                if (navigator.vibrate) navigator.vibrate(50);
+                
+                // Временное уведомление вместо alert
+                const notification = document.createElement('div');
+                notification.textContent = 'Скопійовано: ' + text;
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: rgba(46, 204, 113, 0.95);
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 12px;
+                    font-weight: 600;
+                    z-index: 1000;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                    backdrop-filter: blur(10px);
+                    -webkit-backdrop-filter: blur(10px);
+                    animation: fadeInOut 2.5s ease;
+                `;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.animation = 'fadeOut 0.5s ease forwards';
+                    setTimeout(() => notification.remove(), 500);
+                }, 2000);
+            }).catch(err => {
+                console.error('Не вдалося скопіювати: ', err);
+                alert('Не вдалося скопіювати. Спробуйте ще раз.');
+            });
+        }
 
-  <a class="btn"
-     href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9&asset=c966_t0x576Cf361711cd940CD9C397BB98C4C896cBd38De"
-     target="_blank" rel="noopener">
-     USDC (Polygon · Trust)
-  </a>
-
-</div>
-
-</div>
-
-<script>
-function copyText(text) {
-  navigator.clipboard.writeText(text);
-  navigator.vibrate?.(20);
-  alert('Скопійовано: ' + text);
-}
-</script>
-
+        // Добавляем стили для анимации уведомления
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInOut {
+                0% { opacity: 0; transform: translateY(-20px); }
+                15% { opacity: 1; transform: translateY(0); }
+                85% { opacity: 1; transform: translateY(0); }
+                100% { opacity: 0; transform: translateY(-20px); }
+            }
+            @keyframes fadeOut {
+                from { opacity: 1; transform: translateY(0); }
+                to { opacity: 0; transform: translateY(-20px); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
 </body>
-</html> 
-
-
-Я хочу на этот сайт добавить эффекты и статьи
-
-https://habr.com/ru/articles/974058/
+</html>
