@@ -1,3 +1,100 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Переказ коштів</title>
+  <style>
+    :root {
+      --blur: 8px;
+      --bg: rgba(255, 255, 255, 0.7);
+      --border: 1px solid rgba(255, 255, 255, 0.4);
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #f0f2f5 0%, #e6e9f0 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 25px;
+      background: var(--bg);
+      border-radius: 20px;
+      backdrop-filter: blur(var(--blur));
+      box-shadow: var(--shadow);
+      border: var(--border);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .small {
+      text-align: center;
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .section {
+      margin: 20px 0;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 12px;
+      backdrop-filter: blur(var(--blur));
+      border: var(--border);
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      margin: 8px 0;
+      text-align: center;
+      text-decoration: none;
+      color: #000;
+      font-weight: 600;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.6);
+      border: var(--border);
+      backdrop-filter: blur(var(--blur));
+      box-shadow: var(--shadow);
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.8);
+      transform: translateY(-2px);
+    }
+
+    .copy {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 15px;
+      margin: 8px 0;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 10px;
+      border: var(--border);
+      backdrop-filter: blur(var(--blur));
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .copy:hover {
+      background: rgba(255, 255, 255, 0.6);
+    }
+  </style>
+</head>
+
 <body>
   <div class="container">
     <h1>💳 Перевести кошти</h1>
@@ -13,7 +110,45 @@
       </div>
     </div>
 
-    <!-- Остальные секции остаются без изменений -->
-    ...
+    <!-- Apple / Google Pay -->
+    <div class="section">
+      <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK"> Apple Pay</a>
+      <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">Google Pay</a>
+    </div>
+
+    <!-- Binance -->
+    <div class="section">
+      <a class="btn" href="https://app.binance.com/uni-qr/LXViL5Hb">Binance Pay</a>
+    </div>
+
+    <!-- Crypto -->
+    <div class="section">
+      <div class="copy" onclick="copyText('bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp')">
+        ₿ Bitcoin (BTC) <span>📋</span>
+      </div>
+      <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
+        ◆ Ethereum (Ethereum) <span>📋</span>
+      </div>
+      <div class="copy" onclick="copyText('TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh')">
+        ₮ USDT Tron <span>📋</span>
+      </div>
+      <div class="copy" onclick="copyText('EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7')">
+        ◎ Solana (SOL) <span>📋</span>
+      </div>
+      <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
+        ◇ USDC (Polygon) <span>📋</span>
+      </div>
+      <a class="btn" href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9&asset=c966_t0x576Cf361711cd940CD9C397BB98C4C896cBd38De" target="_blank" rel="noopener">
+        USDC (Polygon · Trust)
+      </a>
+    </div>
   </div>
+
+  <script>
+    function copyText(text) {
+      navigator.clipboard.writeText(text);
+      alert('Скопійовано: ' + text);
+    }
+  </script>
 </body>
+</html>
