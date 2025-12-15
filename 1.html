@@ -3,25 +3,135 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Переказ коштів</title>
+<title>Переказ коштів - Liquid Glass Style</title>
 
 <style>
+/* 1. Фон (для наочності Liquid Glass потрібен видимий фон!) */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  /* Для ефекту скла я додав градієнтний фон */
+  background: linear-gradient(135deg, #1f4287 0%, #1e3c78 50%, #2f61a1 100%); 
+  color: #fff; /* Змінюємо колір тексту на світлий, щоб читався на темному фоні */
+  margin: 0;
+  padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
+/* 2. Стиль Liquid Glass (Скло) */
+.glass-effect {
+  /* Ключові властивості "Скла" */
+  background: rgba(255, 255, 255, 0.15); /* Напівпрозорий білий фон */
+  backdrop-filter: blur(10px); /* Розмиття фону під елементом */
+  -webkit-backdrop-filter: blur(10px); /* Підтримка для Safari */
+  border: 1px solid rgba(255, 255, 255, 0.3); /* Легкий світлий край */
+  border-radius: 12px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); /* Тінь */
+}
 
+.container {
+  max-width: 400px;
+  width: 100%;
+  padding: 25px;
+  /* Застосовуємо скло до контейнера */
+  background: rgba(255, 255, 255, 0.05); /* Ледь помітний фон */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
 
+h1 {
+  color: #e6f7ff; /* Світліший колір для заголовка */
+  text-align: center;
+  margin-bottom: 5px;
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+.small {
+  text-align: center;
+  color: #b3cde6;
+  margin-bottom: 20px;
+  font-size: 0.9em;
+}
 
+.section {
+  margin-bottom: 25px;
+  padding: 15px;
+  /* Застосовуємо скло до секцій */
+  margin-top: 15px; 
+}
 
+/* 3. Стилізація кнопок */
+.btn {
+  display: block;
+  text-decoration: none;
+  background-color: rgba(255, 255, 255, 0.8); /* Напівпрозорий білий для кнопки */
+  color: #1f4287; /* Темний текст */
+  padding: 12px 15px;
+  margin: 10px 0;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border: none; /* Прибираємо стандартний бордер */
+}
+
+/* ЕФЕКТ КНОПКИ: Посилення прозорості та тіні при наведенні */
+.btn:hover, .btn:focus {
+  background-color: rgba(255, 255, 255, 1); /* Повністю непрозорий білий */
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* 4. Стилізація секцій для копіювання */
+.copy {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  /* Стиль "Скло" для копіювання */
+  background-color: rgba(255, 255, 255, 0.1); 
+  color: #fff;
+  padding: 12px 15px;
+  margin: 10px 0;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: background-color 0.2s;
+}
+
+/* ЕФЕКТ КОПІЮВАННЯ: Легке підсвічування при наведенні */
+.copy:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.copy span:last-child {
+  font-size: 1.2em;
+  margin-left: 10px;
+}
+
+/* 5. Розділ "Статті" (як імітація "статті") */
+.article-section h2 {
+    color: #90ee90; /* Світло-зелений */
+    border-bottom: 2px solid #90ee90;
+    padding-bottom: 5px;
+    margin-top: 0;
+}
+.article-section p {
+    font-size: 0.9em;
+    line-height: 1.5;
+    color: #e6f7ff;
+    margin-bottom: 10px;
+}
 </style>
 </head>
 
 <body>
-<div class="container">
+<div class="container glass-effect">
 
 <h1>💳 Перевести кошти</h1>
 <div class="small">Оберіть зручний спосіб</div>
 
-<!-- Банки -->
-<div class="section">
+<div class="section glass-effect">
   <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">monobank</a>
   <a class="btn" href="https://www.privat24.ua/send/id4xg">ПриватБанк</a>
 
@@ -31,19 +141,16 @@
   </div>
 </div>
 
-<!-- Apple / Google Pay через monobank -->
-<div class="section">
+<div class="section glass-effect">
   <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK"> Apple Pay</a>
   <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">Google Pay</a>
 </div>
 
-<!-- Binance -->
-<div class="section">
+<div class="section glass-effect">
   <a class="btn" href="https://app.binance.com/uni-qr/LXViL5Hb">Binance Pay</a>
 </div>
 
-<!-- Crypto -->
-<div class="section">
+<div class="section glass-effect">
   <div class="copy" onclick="copyText('bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp')">
     ₿ Bitcoin (BTC) <span>📋</span>
   </div>
@@ -69,7 +176,16 @@
      target="_blank" rel="noopener">
      USDC (Polygon · Trust)
   </a>
+</div>
 
+<div class="section article-section glass-effect">
+  <h2>ℹ️ Важлива інформація</h2>
+  <p>
+    Ваш внесок є надзвичайно важливим для підтримки нашої роботи та реалізації нових проєктів. Всі кошти використовуються виключно на цілі, зазначені в нашій фінансовій звітності. Дякуємо за Вашу підтримку та довіру!
+  </p>
+  <p>
+    **Зверніть увагу:** при переказі криптовалютою, будь ласка, переконайтеся, що Ви використовуєте правильну мережу, вказану поруч із типом монети.
+  </p>
 </div>
 
 </div>
