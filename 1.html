@@ -1,331 +1,146 @@
 <!doctype html>
 <html lang="uk">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Переказ коштів</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Переказ коштів</title>
+<style>
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: sans-serif;
+  background: url('https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=1600&blur=50') fixed;
+  background-size: cover;
+  min-height: 100vh;
+}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            min-height: 100vh;
-            padding: 20px;
-            color: #fff;
-            position: relative;
-            background: 
-                linear-gradient(rgba(10, 30, 15, 0.85), rgba(5, 20, 10, 0.9)),
-                url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80&blur=100');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-        }
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+}
 
-        /* Эффект стекла для ВСЕХ элементов */
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.12);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(25px) url(#liquidFilter);
-            -webkit-backdrop-filter: blur(25px) url(#liquidFilter);
-            box-shadow: 
-                0 10px 35px rgba(0, 0, 0, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.15);
-        }
+h1 {
+  text-align: center;
+  color: white;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  margin-bottom: 5px;
+}
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 30px 20px;
-        }
+.small {
+  text-align: center;
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 30px;
+}
 
-        h1 {
-            text-align: center;
-            margin-bottom: 10px;
-            font-size: 2.5rem;
-            background: linear-gradient(90deg, #fff, #c8ffc8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
+/* ЭФФЕКТ СТЕКЛА - как в статье */
+.glass {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(20px) url(#liquidFilter);
+  -webkit-backdrop-filter: blur(20px) url(#liquidFilter);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 20px;
+  margin-bottom: 15px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
 
-        .small {
-            text-align: center;
-            margin-bottom: 40px;
-            font-size: 1.1rem;
-            color: rgba(255, 255, 255, 0.8);
-        }
+/* Кнопки */
+.btn {
+  display: block;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  text-decoration: none;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+}
 
-        /* Секции */
-        .section {
-            padding: 25px;
-            margin-bottom: 25px;
-            transition: all 0.3s ease;
-        }
-
-        .section:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-3px);
-            box-shadow: 
-                0 15px 40px rgba(0, 0, 0, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
-        }
-
-        /* КНОВКИ с эффектом стекла */
-        .btn {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-            text-decoration: none;
-            padding: 18px 28px;
-            border-radius: 16px;
-            font-weight: 600;
-            font-size: 1.1rem;
-            text-align: center;
-            margin: 0 12px 16px 0;
-            transition: all 0.25s ease;
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(25px) url(#liquidFilter);
-            -webkit-backdrop-filter: blur(25px) url(#liquidFilter);
-            box-shadow: 
-                0 8px 25px rgba(0, 0, 0, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            position: relative;
-            overflow: hidden;
-            min-width: 180px;
-        }
-
-        /* Эффект свечения при наведении на кнопки */
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, 
-                transparent, 
-                rgba(255, 255, 255, 0.1), 
-                transparent);
-            transition: left 0.6s ease;
-        }
-
-        .btn:hover::before {
-            left: 100%;
-        }
-
-        .btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-4px);
-            box-shadow: 
-                0 12px 30px rgba(0, 0, 0, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
-        }
-
-        .btn:active {
-            transform: translateY(-1px);
-        }
-
-        /* Блоки для копирования с эффектом стекла */
-        .copy {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 18px 22px;
-            margin-bottom: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(25px) url(#liquidFilter);
-            -webkit-background-filter: blur(25px) url(#liquidFilter);
-        }
-
-        .copy:hover {
-            background: rgba(255, 255, 255, 0.18);
-            transform: translateX(5px);
-            border-color: rgba(255, 255, 255, 0.25);
-        }
-
-        .copy span:last-child {
-            font-size: 1.3rem;
-            opacity: 0.8;
-            transition: opacity 0.2s;
-        }
-
-        .copy:hover span:last-child {
-            opacity: 1;
-        }
-
-        /* Адаптивность */
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px 15px;
-            }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .section {
-                padding: 20px;
-            }
-            
-            .btn {
-                display: block;
-                width: 100%;
-                margin-right: 0;
-                margin-bottom: 12px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            body {
-                padding: 15px 10px;
-            }
-            
-            h1 {
-                font-size: 1.8rem;
-            }
-            
-            .section {
-                padding: 18px;
-            }
-            
-            .btn {
-                padding: 16px;
-                font-size: 1rem;
-            }
-        }
-    </style>
+/* Блоки для копирования */
+.copy {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+</style>
 </head>
+
 <body>
-    <!-- SVG фильтр для эффекта жидкого стекла -->
-    <svg style="display: none">
-        <filter id="liquidFilter">
-            <feImage
-                href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAACXBIWXMAAA9hAAAPYQGoP6dpAAAMoElEQVRogZ1a3ZqjyI6MkBJc3XOz7/+g+53pMoq9kJQk2K6Zs0yNGzAG/I9GAijER0IKCSnB37/3QQxyEDvwIB/kF/mwdMvPh/FB2836ZJu5mQ1y0NxoZk4ajQRpJEGSVH4CIkEAFAEBIAgQACWAIAiQAAKABDDADdgFBzCAARjSQ3pAD/AhPcCH8UHbzTawG4cNkiBo9XSSpFvtmNGMRtJgRjOQNCKPSdBkdQMYQQoECRIk6xCYggsEBU0dAAASEURCEAQIgCQpCCQJEVKWIkHIAgQ5OFJSEDAzI+f/dJISS4nTSBpMwBTRjEZKiQ3MT8AIRETXZ8v3Xf0sUe9JYh73eaA1SJklINJ16muUtyVBKIq0rN7SrPy5EKL83EFzq6+3MrOTt3SrACyFPc1wFfZEJUUAhJ1ilgPUQglYZHROhAYoxJACCAURQVdrpA3mYLhxOD0Nd3OauZVd3UtcN7il7dMIBS+it1C/LH/2ghCSOqgNO4VvH4SU1C0Cn0QoIqY/icEPPQMihvzX3A67uftm3ocPc3dLwzNI0gYGEWZ5fmbspvVPZJf07IMT5YeKt0DIhAAOiMrgjs/oGeFxPCkUKQoxzAhJ02j4V2HeUwV3dx9jf+z7Y3s8xv5w38w3s5E2s+kEMiBW6CNdXCq7InDCnCfktOBeKRwZrSleCAhF4Dj8+/v7+H5GBIQgIACBkga/3AknvO37Y/v22B/f+vbY3Ia5p+GZcUhCBgCSzP+J/pZe5GQW26mBVzmLR86UjUaQhAM6hEPxjKfz+5f//Wt//tr3I0SFoIQYMPyrvMmEH4/n9v3b9m27ff9s25e5G83Qq4xK6xnKyWJ2Fm7UNj95UmSmH91kJwQgAPY5FdwRiogjnk98P7b9//YvPB/fQ0RUPAQ0/B2ZiE4zc3Pf9v3b4+v79u3b2PfhbjRDXl7KULUSt+DOHbk886/4nbY36ZnlEIFK6ERKJCmD+/jm/LfFl44YR8QRUQkJAODgV7EjjW4e7uPmPnwM35xu5gYjUFaDEzTNAzWyhbxF9B1bS+66HZ3wmrlk4cJN6qQOHAe/f/v3378eMUKQAIgAIMK/bM0swXcbu3M4t2HbcB9uLpIkuYKc2GF7Q5IyRUK4AP+K3vuo52sBWK3AZAJWx1gqBqgIQUKIMB+323ff7u73YUaSRjMz95z2aZ0GMAQjDY5hj2HD2Z000lJ0k5IrK6JAN8Qr9J+V/95u3SczcX1znhGEohAS9fx+Pn/7/np6hKCIgIQ0gM1T7y36/8/oj4P/eH7/8+0vvL4/35/fn+9v8XzG8+X7M0aEIs2TkBCEpIh5I3VGSa2EViwWc8wF+WotC34iBEGQ8HwpEiPSYqbnMZcQgEjiN3/753795x9//vvPH//9y1+v14T2hBBFgu7jjFDE8Ty+f/v+999//vrrX8+vfz+/vuy1n5USIQESykIAUP9EOSpcmA09f6FcUkkE6+erX2s/2u13ggEgwf8D0E4frwXbENMAAAAASUVORK5CYII="
-                result="noise" />
-            <feDisplacementMap
-                in="SourceGraphic"
-                in2="noise"
-                scale="15"
-                xChannelSelector="R"
-                yChannelSelector="G" />
-        </filter>
-    </svg>
 
-    <div class="container">
-        <h1>💳 Перевести кошти</h1>
-        <div class="small">Оберіть зручний спосіб</div>
+<!-- SVG фильтр для жидкого стекла -->
+<svg style="display:none">
+  <filter id="liquidFilter">
+    <feTurbulence type="turbulence" baseFrequency="0.01" numOctaves="1" result="turbulence"/>
+    <feDisplacementMap in2="turbulence" in="SourceGraphic" scale="10" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
 
-        <!-- Банки -->
-        <div class="section glass-effect">
-            <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK" target="_blank" rel="noopener">monobank</a>
-            <a class="btn" href="https://www.privat24.ua/send/id4xg" target="_blank" rel="noopener">ПриватБанк</a>
-            
-            <div class="copy" onclick="copyText('4441114459954077')">
-                <span>💳 4441 •••• •••• 4077</span>
-                <span>📋</span>
-            </div>
-        </div>
+<div class="container">
+  <h1>💳 Перевести кошти</h1>
+  <div class="small">Оберіть зручний спосіб</div>
 
-        <!-- Apple / Google Pay -->
-        <div class="section glass-effect">
-            <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK" target="_blank" rel="noopener"> Apple Pay</a>
-            <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK" target="_blank" rel="noopener">Google Pay</a>
-        </div>
-
-        <!-- Binance -->
-        <div class="section glass-effect">
-            <a class="btn" href="https://app.binance.com/uni-qr/LXViL5Hb" target="_blank" rel="noopener">Binance Pay</a>
-        </div>
-
-        <!-- Crypto -->
-        <div class="section glass-effect">
-            <div class="copy" onclick="copyText('bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp')">
-                <span>₿ Bitcoin (BTC)</span>
-                <span>📋</span>
-            </div>
-
-            <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
-                <span>◆ Ethereum (ETH)</span>
-                <span>📋</span>
-            </div>
-
-            <div class="copy" onclick="copyText('TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh')">
-                <span>₮ USDT Tron</span>
-                <span>📋</span>
-            </div>
-
-            <div class="copy" onclick="copyText('EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7')">
-                <span>◎ Solana (SOL)</span>
-                <span>📋</span>
-            </div>
-
-            <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
-                <span>◇ USDC (Polygon)</span>
-                <span>📋</span>
-            </div>
-
-            <a class="btn" href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9&asset=c966_t0x576Cf361711cd940CD9C397BB98C4C896cBd38De" target="_blank" rel="noopener">
-                USDC (Polygon · Trust)
-            </a>
-        </div>
+  <div class="glass">
+    <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">monobank</a>
+    <a class="btn" href="https://www.privat24.ua/send/id4xg">ПриватБанк</a>
+    
+    <div class="copy" onclick="copyText('4441114459954077')">
+      <span>💳 4441 •••• •••• 4077</span>
+      <span>📋</span>
     </div>
+  </div>
 
-    <script>
-        function copyText(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                // Виброотклик
-                if (navigator.vibrate) navigator.vibrate(50);
-                
-                // Красивое уведомление
-                const notification = document.createElement('div');
-                notification.textContent = '✓ Скопійовано';
-                notification.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    background: rgba(30, 60, 40, 0.95);
-                    color: white;
-                    padding: 14px 24px;
-                    border-radius: 14px;
-                    font-weight: 600;
-                    z-index: 1000;
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                    backdrop-filter: blur(20px);
-                    -webkit-backdrop-filter: blur(20px);
-                    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-                    animation: slideIn 0.3s ease, fadeOut 0.3s ease 2s forwards;
-                `;
-                
-                document.body.appendChild(notification);
-                
-                setTimeout(() => notification.remove(), 2300);
-            }).catch(err => {
-                alert('Не вдалося скопіювати. Спробуйте ще раз.');
-            });
-        }
+  <div class="glass">
+    <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK"> Apple Pay</a>
+    <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">Google Pay</a>
+  </div>
 
-        // Добавляем стили для анимации
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideIn {
-                from { opacity: 0; transform: translateY(-20px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-            @keyframes fadeOut {
-                from { opacity: 1; transform: translateY(0); }
-                to { opacity: 0; transform: translateY(-20px); }
-            }
-        `;
-        document.head.appendChild(style);
-    </script>
+  <div class="glass">
+    <a class="btn" href="https://app.binance.com/uni-qr/LXViL5Hb">Binance Pay</a>
+  </div>
+
+  <div class="glass">
+    <div class="copy" onclick="copyText('bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp')">
+      <span>₿ Bitcoin (BTC)</span><span>📋</span>
+    </div>
+    <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
+      <span>◆ Ethereum</span><span>📋</span>
+    </div>
+    <div class="copy" onclick="copyText('TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh')">
+      <span>₮ USDT Tron</span><span>📋</span>
+    </div>
+    <div class="copy" onclick="copyText('EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7')">
+      <span>◎ Solana</span><span>📋</span>
+    </div>
+    <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
+      <span>◇ USDC</span><span>📋</span>
+    </div>
+    
+    <a class="btn" href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9&asset=c966_t0x576Cf361711cd940CD9C397BB98C4C896cBd38De">
+      USDC (Polygon · Trust)
+    </a>
+  </div>
+</div>
+
+<script>
+function copyText(text) {
+  navigator.clipboard.writeText(text);
+  navigator.vibrate?.(20);
+  
+  // Маленькое уведомление
+  const msg = document.createElement('div');
+  msg.textContent = 'Скопійовано';
+  msg.style.cssText = 'position:fixed; top:20px; right:20px; background:green; color:white; padding:10px 20px; border-radius:8px;';
+  document.body.appendChild(msg);
+  setTimeout(() => msg.remove(), 1500);
+}
+</script>
 </body>
 </html>
