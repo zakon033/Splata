@@ -1,154 +1,221 @@
 <!doctype html>
 <html lang="uk">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Переказ коштів</title>
-  <style>
-    :root {
-      --blur: 8px;
-      --bg: rgba(255, 255, 255, 0.7);
-      --border: 1px solid rgba(255, 255, 255, 0.4);
-      --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Переказ коштів</title>
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #f0f2f5 0%, #e6e9f0 100%);
-      min-height: 100vh;
-      margin: 0;
-      padding: 20px;
-      color: #333;
-    }
+<style>
+/* ===== СБРОС ===== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
 
-    .container {
-      max-width: 500px;
-      margin: 0 auto;
-      padding: 25px;
-      background: var(--bg);
-      border-radius: 20px;
-      backdrop-filter: blur(var(--blur));
-      box-shadow: var(--shadow);
-      border: var(--border);
-    }
+/* ===== ФОН ===== */
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(1200px 600px at 10% 10%, rgba(0,255,140,.35), transparent 60%),
+    radial-gradient(1000px 500px at 90% 30%, rgba(0,180,90,.35), transparent 60%),
+    linear-gradient(180deg, #0a3f2a, #06281b);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 16px;
+  color: #fff;
+}
 
-    h1 {
-      text-align: center;
-      margin-bottom: 10px;
-    }
+/* Лёгкий blur фона */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: -1;
+}
 
-    .small {
-      text-align: center;
-      color: #666;
-      margin-bottom: 30px;
-      font-size: 14px;
-    }
+/* ===== КОНТЕЙНЕР ===== */
+.container {
+  width: 100%;
+  max-width: 420px;
+}
 
-    .section {
-      margin: 20px 0;
-      padding: 15px;
-      background: rgba(255, 255, 255, 0.4);
-      border-radius: 12px;
-      backdrop-filter: blur(var(--blur));
-      border: var(--border);
-    }
+/* ===== ЗАГОЛОВКИ ===== */
+h1 {
+  text-align: center;
+  font-size: 26px;
+  margin-bottom: 6px;
+}
 
-    .btn {
-      display: block;
-      width: 100%;
-      padding: 14px;
-      margin: 8px 0;
-      text-align: center;
-      text-decoration: none;
-      color: #000;
-      font-weight: 600;
-      border-radius: 10px;
-      background: rgba(255, 255, 255, 0.6);
-      border: var(--border);
-      backdrop-filter: blur(var(--blur));
-      box-shadow: var(--shadow);
-      transition: all 0.2s ease;
-    }
+.small {
+  text-align: center;
+  opacity: .75;
+  margin-bottom: 24px;
+}
 
-    .btn:hover {
-      background: rgba(255, 255, 255, 0.8);
-      transform: translateY(-2px);
-    }
+/* ===== LIQUID GLASS ===== */
+.section {
+  margin-bottom: 16px;
+  padding: 16px;
+  border-radius: 18px;
 
-    .copy {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 15px;
-      margin: 8px 0;
-      background: rgba(255, 255, 255, 0.4);
-      border-radius: 10px;
-      border: var(--border);
-      backdrop-filter: blur(var(--blur));
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
+  background: rgba(255,255,255,0.12);
+  backdrop-filter:
+    blur(12px)
+    saturate(180%);
+  -webkit-backdrop-filter:
+    blur(12px)
+    saturate(180%);
 
-    .copy:hover {
-      background: rgba(255, 255, 255, 0.6);
-    }
-  </style>
+  border: 1px solid rgba(255,255,255,0.22);
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,.35),
+    inset 0 2px 8px rgba(255,255,255,.15);
+
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.section:hover {
+  transform: scale(1.015);
+  box-shadow:
+    0 14px 40px rgba(0,0,0,.45),
+    inset 0 3px 10px rgba(255,255,255,.18);
+}
+
+/* ===== КНОПКИ ===== */
+.btn {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  color: #fff;
+  font-weight: 500;
+
+  padding: 14px;
+  margin-bottom: 10px;
+
+  border-radius: 14px;
+  background: rgba(255,255,255,0.16);
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  border: 1px solid rgba(255,255,255,0.25);
+  transition: background .2s ease, transform .2s ease;
+}
+
+.btn:last-child {
+  margin-bottom: 0;
+}
+
+.btn:hover {
+  background: rgba(255,255,255,0.25);
+  transform: translateY(-1px);
+}
+
+/* ===== COPY BLOCK ===== */
+.copy {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 14px;
+  margin-top: 10px;
+
+  border-radius: 14px;
+  cursor: pointer;
+
+  background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.25);
+
+  transition: background .2s ease;
+}
+
+.copy:hover {
+  background: rgba(255,255,255,0.22);
+}
+
+/* ===== МЕЛКИЙ ТЕКСТ ===== */
+.copy span:last-child {
+  opacity: .8;
+}
+
+/* ===== АДАПТИВ ===== */
+@media (max-width: 360px) {
+  h1 {
+    font-size: 22px;
+  }
+}
+</style>
 </head>
 
 <body>
-  <div class="container">
-    <h1>💳 Перевести кошти</h1>
-    <div class="small">Оберіть зручний спосіб</div>
 
-    <!-- Банки -->
-    <div class="section">
-      <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">monobank</a>
-      <a class="btn" href="https://www.privat24.ua/send/id4xg">ПриватБанк</a>
-      <div class="copy" onclick="copyText('4441114459954077')">
-        <span>💳 4441 •••• •••• 4077</span>
-        <span>📋</span>
-      </div>
-    </div>
+<div class="container">
 
-    <!-- Apple / Google Pay -->
-    <div class="section">
-      <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK"> Apple Pay</a>
-      <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">Google Pay</a>
-    </div>
+<h1>💳 Перевести кошти</h1>
+<div class="small">Оберіть зручний спосіб</div>
 
-    <!-- Binance -->
-    <div class="section">
-      <a class="btn" href="https://app.binance.com/uni-qr/LXViL5Hb">Binance Pay</a>
-    </div>
+<div class="section">
+  <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">monobank</a>
+  <a class="btn" href="https://www.privat24.ua/send/id4xg">ПриватБанк</a>
 
-    <!-- Crypto -->
-    <div class="section">
-      <div class="copy" onclick="copyText('bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp')">
-        ₿ Bitcoin (BTC) <span>📋</span>
-      </div>
-      <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
-        ◆ Ethereum (Ethereum) <span>📋</span>
-      </div>
-      <div class="copy" onclick="copyText('TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh')">
-        ₮ USDT Tron <span>📋</span>
-      </div>
-      <div class="copy" onclick="copyText('EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7')">
-        ◎ Solana (SOL) <span>📋</span>
-      </div>
-      <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
-        ◇ USDC (Polygon) <span>📋</span>
-      </div>
-      <a class="btn" href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9&asset=c966_t0x576Cf361711cd940CD9C397BB98C4C896cBd38De" target="_blank" rel="noopener">
-        USDC (Polygon · Trust)
-      </a>
-    </div>
+  <div class="copy" onclick="copyText('4441114459954077')">
+    <span>💳 4441 •••• •••• 4077</span>
+    <span>📋</span>
+  </div>
+</div>
+
+<div class="section">
+  <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK"> Apple Pay</a>
+  <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">Google Pay</a>
+</div>
+
+<div class="section">
+  <a class="btn" href="https://app.binance.com/uni-qr/LXViL5Hb">Binance Pay</a>
+</div>
+
+<div class="section">
+  <div class="copy" onclick="copyText('bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp')">
+    <span>₿ Bitcoin (BTC)</span><span>📋</span>
   </div>
 
-  <script>
-    function copyText(text) {
-      navigator.clipboard.writeText(text);
-      alert('Скопійовано: ' + text);
-    }
-  </script>
+  <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
+    <span>◆ Ethereum (Ethereum)</span><span>📋</span>
+  </div>
+
+  <div class="copy" onclick="copyText('TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh')">
+    <span>₮ USDT (Tron)</span><span>📋</span>
+  </div>
+
+  <div class="copy" onclick="copyText('EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7')">
+    <span>◎ Solana (SOL)</span><span>📋</span>
+  </div>
+
+  <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
+    <span>◇ USDC (Polygon)</span><span>📋</span>
+  </div>
+
+  <a class="btn"
+     href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9"
+     target="_blank" rel="noopener">
+     USDC (Polygon · Trust)
+  </a>
+</div>
+
+</div>
+
+<script>
+function copyText(text) {
+  navigator.clipboard.writeText(text);
+  navigator.vibrate?.(20);
+  alert('Скопійовано:\n' + text);
+}
+</script>
+
 </body>
 </html>
