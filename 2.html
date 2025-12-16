@@ -49,7 +49,6 @@ body {
   background-position: center center;
   background-attachment: fixed; 
   
-  /* ЗБЕРІГАЄМО ВИПРАВЛЕННЯ: Апаратне прискорення для фіксованого фону */
   transform: translateZ(0); 
   -webkit-transform: translateZ(0);
 
@@ -76,7 +75,6 @@ body {
 
 /* =========================
    3. КОНТЕЙНЕР (ПРОКРУЧУВАНИЙ КОНТЕНТ)
-   ДОДАНО ТРАНСФОРМАЦІЮ ДЛЯ ВИПРАВЛЕННЯ МАСШТАБУ
 ========================= */
 .container {
   max-width: 420px;
@@ -87,10 +85,8 @@ body {
   position: relative;
   z-index: 10; 
   
-  /* ******** НОВЕ ВИПРАВЛЕННЯ: Апаратне прискорення для контенту ******** */
   transform: translateZ(0); 
   -webkit-transform: translateZ(0);
-  /* *************************************************************** */
 
   padding: 
     calc(60px + env(safe-area-inset-top)) 
@@ -106,8 +102,6 @@ h1 {
   margin: 0 0 8px;
   text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
-
-/* ... Решта стилів залишається без змін ... */
 
 .subtitle {
   font-size: 15px;
@@ -143,7 +137,8 @@ h1 {
   
   box-shadow: 0 4px 15px rgba(0,0,0,0.3);
   
-  transition: transform 0.1s, background-color 0.2s;
+  /* Змінений transition, щоб включити border-color та background-color */
+  transition: transform 0.1s, background-color 0.2s, border-color 0.2s; 
   cursor: pointer;
   user-select: none;
 }
@@ -152,9 +147,12 @@ a.btn {
   justify-content: center;
 }
 
+/* СТИЛЬ ПРИ НАТИСКАННІ (ТЕПЕР ДЛЯ ВСІХ) */
 .btn:active {
   transform: scale(0.97);
-  background-color: rgba(255, 255, 255, 0.2); 
+  /* Зберігаємо зелений колір як основний "active" стан */
+  background-color: rgba(46, 204, 113, 0.3);
+  border-color: rgba(46, 204, 113, 0.7);
 }
 
 .icon-copy {
@@ -172,6 +170,7 @@ a.btn {
 <div class="container">
   <h1>💳 Перевести кошти</h1>
   <div class="subtitle">Оберіть зручний спосіб</div>
+
   <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">monobank</a>
   <a class="btn" href="https://www.privat24.ua/send/id4xg">ПриватБанк</a>
   <div class="btn" onclick="copyText('4441114459954077', this)">
@@ -207,7 +206,9 @@ a.btn {
 </div>
 
 <script>
-// JS залишається незмінним
+// JS для копіювання: ВІН ТЕПЕР ПРОСТО ВИКОНУЄ ЛОГІКУ КОПІЮВАННЯ, А НЕ ВІЗУАЛЬНИЙ ЕФЕКТ
+// Візуальний ефект на успішне копіювання ТАКОЖ залишаємо, він буде виглядати так само,
+// але спрацює *після* копіювання.
 function copyText(text, element) {
   if (navigator.clipboard) {
     navigator.clipboard.writeText(text).then(() => animateSuccess(element))
@@ -232,20 +233,27 @@ function fallbackCopy(text, element) {
   document.body.removeChild(ta);
 }
 
+// Функція animateSuccess тепер просто додає і видаляє клас, щоб імітувати
+// "успішну дію" після копіювання.
 function animateSuccess(el) {
   if (!el) return;
-  const oldBg = el.style.backgroundColor;
-  const oldBorder = el.style.borderColor;
-  
-  el.style.backgroundColor = 'rgba(46, 204, 113, 0.3)';
-  el.style.borderColor = 'rgba(46, 204, 113, 0.7)';
+  // Клас `copied` застосовує зелені стилі
+  el.classList.add('copied');
   
   setTimeout(() => {
-    el.style.backgroundColor = oldBg;
-    el.style.borderColor = oldBorder;
+    el.classList.remove('copied');
   }, 250);
 }
 </script>
+
+<style>
+.btn.copied {
+  background-color: rgba(46, 204, 113, 0.3) !important;
+  border-color: rgba(46, 204, 113, 0.7) !important;
+  /* Запобігаємо спрацьовуванню :active стилю, коли цей клас активний */
+  transform: scale(1); 
+}
+</style>
 
 </body>
 </html>
