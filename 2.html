@@ -11,7 +11,7 @@
 
 <style>
 /* =========================
-   1. БАЗОВІ НАЛАШТУВАННЯ ТА ВИПРАВЛЕННЯ СИСТЕМНИХ СМУГ
+   1. БАЗОВІ НАЛАШТУВАННЯ ТА ФОН (ШАР 1)
 ========================= */
 * {
   box-sizing: border-box;
@@ -19,14 +19,20 @@
 }
 
 html {
-  /* ГРАДІЄНТ ДЛЯ "ДНА" БРАУЗЕРА (overscroll) - ВИРІШУЄ ПРОБЛЕМУ КОЛЬОРУ СМУГ */
+  /* ТЕПЕР ФОНОВА КАРТИНКА ТА ГРАДІЄНТ ЖИВУТЬ ТУТ */
   background: 
+    /* 1. Накладаємо градієнт для overscroll і глибини */
     linear-gradient(
       to bottom, 
       #1b1f3b 0%, 
       #3b3e5a 100% 
-    );
-  background-attachment: fixed;
+    ),
+    /* 2. Додаємо фонове зображення */
+    url("./bg-liquid.webp") center center / cover no-repeat;
+    
+  background-attachment: fixed; /* РОБИМО ФОН СТАТИЧНИМ */
+  width: 100%;
+  height: 100%;
 }
 
 body {
@@ -36,28 +42,14 @@ body {
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: #ffffff;
-  /* КРИТИЧНО ВАЖЛИВО: ПОВНА ПРОЗОРІСТЬ BODY */
+  
+  /* ШАР 2: ПОВНІСТЮ ПРОЗОРИЙ */
   background: transparent !important; 
   position: relative;
 }
 
 /* =========================
-   2. ФОНОВЕ ЗОБРАЖЕННЯ
-========================= */
-#background-image {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1; 
-  object-fit: cover;
-  /* ВАЖЛИВО: прибрано зайвий background-color, щоб уникнути конфлікту */
-  transform: translateZ(0); 
-}
-
-/* =========================
-   3. КОНТЕЙНЕР
+   2. КОНТЕНТ (ШАР 3 - ПРОКРУЧУЄТЬСЯ)
 ========================= */
 .container {
   max-width: 420px;
@@ -76,6 +68,11 @@ body {
   text-align: center;
 }
 
+/* Прибираємо елемент img, оскільки фон тепер на html */
+#background-image {
+  display: none;
+}
+
 h1 {
   font-size: 24px;
   font-weight: 700;
@@ -91,7 +88,7 @@ h1 {
 }
 
 /* =========================
-   4. КНОПКИ (BLUR)
+   3. КНОПКИ (BLUR)
 ========================= */
 .btn {
   position: relative;
@@ -131,13 +128,8 @@ a.btn {
   background-color: rgba(255, 255, 255, 0.2); 
 }
 
-.icon-copy {
-  font-size: 18px;
-  opacity: 0.8;
-}
-
 /* =========================
-   5. OVERLAY FADES (ЗАТІНЕННЯ КОНТЕНТУ)
+   4. OVERLAY FADES (ЗАТІНЕННЯ КОНТЕНТУ)
 ========================= */
 /* Градієнт зверху */
 .container::before {
