@@ -13,10 +13,13 @@
   box-sizing: border-box;
 }
 
+/* ФІКС: ВИКОРИСТОВУЄМО 100vh як основу, якщо потрібно більше прокрутки, body розшириться */
 html, body {
   margin: 0;
   padding: 0;
   height: 100%; 
+  /* Додамо 100vh на html, це часто необхідний компроміс для мобільних */
+  min-height: 100vh; 
 }
 
 /* =========================
@@ -29,12 +32,17 @@ body {
   overflow-y: auto; 
 }
 
-/* ФІКС: ФІКСОВАНИЙ ФОН ЧЕРЕЗ PSEUDO-ELEMENT */
+/* !!! ФІКС: ФІКСОВАНИЙ ФОН З ВІД'ЄМНИМ ЗМІЩЕННЯМ ДЛЯ iOS SAFE AREA !!! */
 body::before {
   content: '';
   position: fixed; 
-  inset: 0; 
   z-index: -1; 
+  
+  /* НОВЕ: ВІД'ЄМНІ ВІДСТУПИ, ЩОБ РОЗТЯГНУТИ ФОН ЗА МЕЖІ В'ЮПОРТУ */
+  top: calc(-1 * env(safe-area-inset-top, 0px));
+  bottom: calc(-1 * env(safe-area-inset-bottom, 0px));
+  left: 0;
+  right: 0;
   
   background-color: #1b1f3b; /* fallback */
   background-image: url("./bg-liquid.webp"); 
@@ -51,11 +59,8 @@ body::before {
   max-width: 420px;
   width: 100%; 
   margin: 0 auto;
-  /* !!! ФІНАЛЬНЕ ВИПРАВЛЕННЯ PADDING ДЛЯ iOS SAFE AREA (видаляє білі смуги) !!! */
-  padding: 
-    calc(24px + env(safe-area-inset-top, 0px)) 
-    16px 
-    calc(40px + env(safe-area-inset-bottom, 0px));
+  /* ПОВЕРТАЄМОСЯ ДО ПРОСТИХ PADDING, оскільки фон тепер покриває зони безпеки */
+  padding: 24px 16px 40px; 
 }
 
 /* =========================
