@@ -19,6 +19,7 @@
 }
 
 html {
+  /* Встановлюємо темний колір на найнижчий шар (overscroll/системні смуги) */
   background-color: #1b1f3b; 
 }
 
@@ -29,54 +30,78 @@ body {
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: #ffffff;
+  
+  /* КРИТИЧНО ВАЖЛИВО: ПОВНА ПРОЗОРІСТЬ BODY для видимості фону */
   background: transparent !important; 
   position: relative;
 }
 
 /* =========================
-   2. ФОНОВЕ ЗОБРАЖЕННЯ
+   2. ФОНОВЕ ЗОБРАЖЕННЯ (ТЕПЕР DIV З ГРАДІЄНТНОЮ МАСКОЮ)
 ========================= */
-#background-image {
+#background-image-wrap {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1; 
-  object-fit: cover;
-  transform: translateZ(0); 
+  z-index: -1; /* Завжди під контентом */
+  
+  /* ОСНОВНЕ ЗОБРАЖЕННЯ */
+  background-image: url("./bg-liquid.webp");
+  background-size: cover;
+  background-position: center center;
+  background-attachment: fixed;
+  
+  /* НОВЕ: ГРАДІЄНТНА МАСКА */
+  mask-image: linear-gradient(
+    to bottom, 
+    transparent 0%, /* Починаємо з прозорого (верх) */
+    rgba(0, 0, 0, 0) calc(env(safe-area-inset-top) + 10px), /* Прозорий до початку контенту */
+    black calc(env(safe-area-inset-top) + 60px), /* Повна непрозорість до середини */
+    black calc(100% - 60px - env(safe-area-inset-bottom)), /* Повна непрозорість до кінця */
+    rgba(0, 0, 0, 0) calc(100% - 10px - env(safe-area-inset-bottom)), /* Знову прозорий (низ) */
+    transparent 100% 
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom, 
+    transparent 0%, 
+    rgba(0, 0, 0, 0) calc(env(safe-area-inset-top) + 10px), 
+    black calc(env(safe-area-inset-top) + 60px), 
+    black calc(100% - 60px - env(safe-area-inset-bottom)), 
+    rgba(0, 0, 0, 0) calc(100% - 10px - env(safe-area-inset-bottom)), 
+    transparent 100% 
+  );
+  
+  /* Якщо маскування не підтримується, можна використовувати overlay, але з цією маскою вона працює краще */
 }
 
 /* =========================
    3. КОНТЕЙНЕР (ПРОКРУЧУВАНИЙ КОНТЕНТ)
+   (Без змін)
 ========================= */
 .container {
   max-width: 420px;
   width: 100%;
   margin: 0 auto;
+  
   background-color: transparent; 
   position: relative;
+  z-index: 10; 
   
-  /* ЗБІЛЬШУЄМО Z-INDEX, ЩОБ ПЕРЕКРИТИ ШАР ЗАТІНЕННЯ */
-  z-index: 100; 
-  
-  /* ДОЗВОЛЯЄМО КОНТЕНТУ ПРОКРУЧУВАТИСЯ ВИСОКО */
   padding: 
-    20px 
+    calc(60px + env(safe-area-inset-top)) 
     20px 
     calc(60px + env(safe-area-inset-bottom)); 
     
   text-align: center;
 }
 
-/* КОРЕКЦІЯ: ВИКОРИСТОВУЄМО PADDING НА ЗАГОЛОВКУ, ЩОБ ВІН ПОЧИНАВСЯ ПІСЛЯ СТАТУСБАРУ */
-.container h1 {
-    padding-top: env(safe-area-inset-top); 
-    
-    font-size: 24px;
-    font-weight: 700;
-    margin: 0 0 8px;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+h1 {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 
 .subtitle {
@@ -89,7 +114,6 @@ body {
 /* =========================
    4. КНОПКИ (BLUR) (Без змін)
 ========================= */
-/* ... Стилі кнопок без змін ... */
 .btn {
   position: relative;
   display: flex;
@@ -133,50 +157,17 @@ a.btn {
   opacity: 0.8;
 }
 
-
 /* =========================
-   5. НОВИЙ ШАР ЗАТІНЕННЯ (FADES OVERLAY)
-   Залишаємо його дуже низьким, щоб він лише покривав фон, але був нижче контенту
+   5. OVERLAY FADES (ПОВНІСТЮ ВИДАЛЕНО!)
 ========================= */
-#fades-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%; 
-    
-    /* ЗНИЖУЄМО Z-INDEX. Він має бути вищий за фон (-1), але нижчий за контент (100) */
-    z-index: 5; 
-    pointer-events: none; 
-    
-    background: 
-        /* Верхнє затемнення: Зберігаємо темний колір у зоні статусбару */
-        linear-gradient(
-            to bottom, 
-            #1b1f3b 0%, 
-            rgba(27, 31, 59, 0.8) 
-            calc(env(safe-area-inset-top) + 20px), /* Затемнення до 20px нижче статусбару */
-            transparent 
-            calc(env(safe-area-inset-top) + 60px) /* Перехід у прозорий за 40px */
-        ),
-        /* Нижнє затемнення: Симетрично знизу */
-        linear-gradient(
-            to top, 
-            #1b1f3b 0%, 
-            rgba(27, 31, 59, 0.8) 
-            calc(env(safe-area-inset-bottom) + 20px),
-            transparent 
-            calc(env(safe-area-inset-bottom) + 60px)
-        );
-}
+/* .container::before та .container::after ВИДАЛЕНО */
+
 </style>
 </head>
 
 <body>
 
-<img id="background-image" src="./bg-liquid.webp" alt="Fluid Background">
-
-<div id="fades-overlay"></div>
+<div id="background-image-wrap" role="img" aria-label="Fluid Background"></div>
 
 <div class="container">
   <h1>💳 Перевести кошти</h1>
@@ -225,6 +216,21 @@ function copyText(text, element) {
   } else {
     fallbackCopy(text, element);
   }
+}
+
+function fallbackCopy(text, element) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try {
+    document.execCommand('copy');
+    animateSuccess(element);
+  } catch (e) {}
+  document.body.removeChild(ta);
 }
 
 function animateSuccess(el) {
