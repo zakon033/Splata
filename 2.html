@@ -7,36 +7,38 @@
 
 <style>
 /* =========================
-   1. БАЗОВЫЙ СБРОС
+   БАЗОВЫЙ СБРОС І ВИСОТА
 ========================= */
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-/* ФІКС: HTML задає загальну висоту вьюпорту і керує прокруткою */
 html {
   height: 100%;
-  overflow-y: auto;
+  height: 100dvh; /* для динамічної висоти на мобільних */
 }
 
 body {
-  margin: 0;
-  padding: 0;
-  min-height: 100%;
-  
+  min-height: 100vh;
+  min-height: 100dvh;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
   color: #ffffff;
-  
-  /* Тепер фон винесено в окремий div */
+  overflow-x: hidden;
 }
 
-/* Новий блок для фіксованого фону */
+/* =========================
+   ФІКСОВАНИЙ ФОН — ПОВНЕ ПОКРИТТЯ
+========================= */
 .fixed-bg {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: calc(-1 * env(safe-area-inset-top));
+  left: calc(-1 * env(safe-area-inset-left));
+  right: calc(-1 * env(safe-area-inset-right));
+  bottom: calc(-1 * env(safe-area-inset-bottom));
+  width: auto;
+  height: auto;
   background-color: #1b1f3b; /* fallback */
   background-image: url("./bg-liquid.webp"); 
   background-repeat: no-repeat;
@@ -46,18 +48,23 @@ body {
 }
 
 /* =========================
-   3. КОНТЕЙНЕР
+   КОНТЕЙНЕР — ВРАХОВУЄМО SAFE AREA
 ========================= */
 .container {
   max-width: 420px;
   width: 100%; 
   margin: 0 auto;
-  padding: 24px 16px 40px;
-  position: relative; /* щоб контент був поверх фону */
+  padding-top: max(24px, env(safe-area-inset-top)); /* відступ зверху, не менше 24px */
+  padding-bottom: max(40px, env(safe-area-inset-bottom)); /* знизу */
+  padding-left: 16px;
+  padding-right: 16px;
+  position: relative;
   z-index: 1;
 }
 
-/* Решта стилів без змін */
+/* =========================
+   РЕШТА СТИЛІВ (без змін)
+========================= */
 h1 {
   margin: 0 0 6px;
   font-size: 26px;
@@ -132,7 +139,6 @@ h1 {
 </head>
 
 <body>
-  <!-- Новий фіксований фон -->
   <div class="fixed-bg"></div>
 
   <div class="container">
