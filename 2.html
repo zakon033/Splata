@@ -6,7 +6,7 @@
 <title>Переказ коштів</title>
 
 <meta name="theme-color" content="#1b1f3b"> 
-<meta name="apple-mobile-web-app-app-status-bar-style" content="black-translucent"> 
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> 
 <meta name="apple-mobile-web-app-capable" content="yes"> 
 
 <style>
@@ -137,7 +137,6 @@ h1 {
   
   box-shadow: 0 4px 15px rgba(0,0,0,0.3);
   
-  /* Змінений transition для плавного переходу кольору */
   transition: transform 0.1s, background-color 0.2s, border-color 0.2s; 
   cursor: pointer;
   user-select: none;
@@ -147,7 +146,7 @@ a.btn {
   justify-content: center;
 }
 
-/* СТИЛЬ НАТИСКАННЯ: ЗАРАЗ ТІЛЬКИ ЧЕРЕЗ JS-КЛАС */
+/* СТИЛЬ НАТИСКАННЯ: ЧЕРЕЗ JS-КЛАС */
 .btn.clicked {
   transform: scale(0.97);
   background-color: rgba(46, 204, 113, 0.3);
@@ -159,14 +158,43 @@ a.btn {
   opacity: 0.8;
 }
 
-/* СТИЛЬ УСПІШНОГО КОПІЮВАННЯ (ЗБЕРІГАЄМО) */
+/* СТИЛЬ УСПІШНОГО КОПІЮВАННЯ */
 .btn.copied {
-  /* Забезпечуємо, що успішне копіювання виглядає, як і раніше, але без трансформації */
   transform: scale(1);
   background-color: rgba(46, 204, 113, 0.3) !important;
   border-color: rgba(46, 204, 113, 0.7) !important;
 }
 
+/* =========================
+   5. ТОСТ-УВЕДОМЛЕНИЕ О КОПИРОВАНИИ
+========================= */
+#copy-toast {
+    position: fixed;
+    bottom: calc(20px + env(safe-area-inset-bottom)); /* Отступ от нижнего края */
+    left: 50%;
+    transform: translate(-50%, 100px); /* Скрыто ниже экрана по умолчанию */
+    
+    background-color: rgba(46, 204, 113, 0.95);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    z-index: 1000; /* Поверх всего контента */
+    
+    /* Плавное появление/исчезновение */
+    opacity: 0;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+    
+    /* Убедимся, что фон не размывается */
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+#copy-toast.show {
+    opacity: 1;
+    transform: translate(-50%, 0); /* Выдвигается на экран */
+}
 </style>
 </head>
 
@@ -215,19 +243,22 @@ a.btn {
   </a>
 </div>
 
+<div id="copy-toast">Скопировано!</div>
+
 <script>
 // ===================================
 // УНІВЕРСАЛЬНІ ФУНКЦІЇ ДЛЯ КНОПОК
 // ===================================
 
-const CLICK_ANIMATION_DURATION = 150; // Мінімальний час для відображення кліку (0.15 секунди)
+const CLICK_ANIMATION_DURATION = 150; // Минимальное время для отображения клика
+const TOAST_DISPLAY_DURATION = 2000; // Время отображения тост-уведомления (2 секунды)
 
-// 1. Анімація натискання (універсальна)
+// 1. Анимация нажатия (универсальная)
 function animateClick(element) {
   return new Promise(resolve => {
     element.classList.add('clicked');
     
-    // Затримка, щоб користувач побачив ефект
+    // Задержка, чтобы пользователь увидел эффект
     setTimeout(() => {
       element.classList.remove('clicked');
       resolve();
@@ -235,28 +266,23 @@ function animateClick(element) {
   });
 }
 
-// 2. Обробник для посилань (<a>)
+// 2. Обработчик для ссылок (<a>)
 async function handleLinkClick(element) {
-  // Запобігаємо стандартній дії посилання (браузер не переходить одразу)
   event.preventDefault(); 
   
   const targetURL = element.getAttribute('data-href');
   if (!targetURL) return;
 
-  // 1. Показати анімацію натискання
   await animateClick(element); 
   
-  // 2. Після завершення анімації виконати перехід
   window.location.href = targetURL;
 }
 
 
-// 3. Обробник для копіювання (<div>)
+// 3. Обработчик для копирования (<div>)
 async function handleCopyClick(element, textToCopy) {
-  // 1. Показати анімацію натискання
   await animateClick(element);
   
-  // 2. Виконати копіювання
   if (navigator.clipboard) {
     navigator.clipboard.writeText(textToCopy)
       .then(() => animateSuccess(element))
@@ -266,7 +292,7 @@ async function handleCopyClick(element, textToCopy) {
   }
 }
 
-// 4. Логіка копіювання (залишається майже без змін)
+// 4. Логика копирования (через текстовое поле, для совместимости)
 function fallbackCopy(text, element) {
   const ta = document.createElement('textarea');
   ta.value = text;
@@ -282,14 +308,26 @@ function fallbackCopy(text, element) {
   document.body.removeChild(ta);
 }
 
-// 5. Візуалізація успіху (якщо копіювання спрацювало)
+// 5. Визуализация успеха (если копирование сработало)
 function animateSuccess(el) {
   if (!el) return;
-  el.classList.add('copied');
   
+  // 1. Зеленая вспышка кнопки
+  el.classList.add('copied');
   setTimeout(() => {
     el.classList.remove('copied');
   }, 250);
+
+  // 2. Показ тост-уведомления
+  const toast = document.getElementById('copy-toast');
+  if (toast) {
+    toast.classList.add('show');
+    
+    // Скрываем тост через заданное время
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, TOAST_DISPLAY_DURATION);
+  }
 }
 </script>
 
