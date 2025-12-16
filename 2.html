@@ -118,11 +118,8 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
-  margin-bottom: 12px;
   
-  /* Важливо! Тост не повинен успадковувати всі стилі, тому видаляємо padding та width */
-  /* Ці стилі будуть визначені спеціально для тосту, щоб він був меншим */
+  margin-bottom: 12px;
   
   backdrop-filter: blur(15px); 
   -webkit-backdrop-filter: blur(15px);
@@ -130,7 +127,9 @@ h1 {
   background-color: rgba(255, 255, 255, 0.1); 
   
   border: 1px solid rgba(255, 255, 255, 0.2); 
-  border-radius: 16px;
+  
+  /* ЗМІНЕНО: РАДІУС ЗАКРУГЛЕННЯ 70PX */
+  border-radius: 70px; 
   
   color: #fff;
   text-decoration: none;
@@ -144,10 +143,10 @@ h1 {
   user-select: none;
 }
 
+/* ЗМІНЕНО: PADDING для збільшення висоти в 1.5 рази */
 .btn:not(#copy-toast) {
-    /* Додаємо стилі, які потрібні ТІЛЬКИ для справжніх кнопок */
     width: 100%;
-    padding: 18px 20px;
+    padding: 27px 20px; /* З 18px до 27px */
 }
 
 a.btn {
@@ -181,13 +180,15 @@ a.btn {
     top: 50%; 
     left: 50%;
     
+    /* Тост успадковує border-radius: 70px */
+    
     transform: translate(-50%, calc(-50% - 150px)); 
     
     /* Спеціальні стилі для розміру та тексту тосту */
     padding: 15px 30px; 
     font-size: 20px;     
     font-weight: 600;
-    color: #ffffff; /* Залишаємо білий для контрасту */
+    color: #ffffff; 
     
     z-index: 1000; 
     
@@ -324,10 +325,9 @@ function animateSuccess(el) {
   // 2. Показ тост-уведомления
   const toast = document.getElementById('copy-toast');
   if (toast) {
-    // ДОДАЄМО КЛАСИ .btn та .clicked ДЛЯ УСПАДКУВАННЯ ВСІХ СТИЛІВ КНОПКИ
     toast.classList.add('btn', 'clicked', 'show');
     
-    // Видаляємо класи після закінчення часу
+    // Скрываем тост через заданное время
     setTimeout(() => {
       toast.classList.remove('btn', 'clicked', 'show');
     }, TOAST_DISPLAY_DURATION);
