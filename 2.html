@@ -1,14 +1,3 @@
-<!doctype html>
-<html lang="uk">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Переказ коштів</title>
-
-<meta name="theme-color" content="#1b1f3b"> 
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> 
-<meta name="apple-mobile-web-app-capable" content="yes"> 
-
 <style>
 /* =========================
    1. БАЗОВІ НАЛАШТУВАННЯ ТА ВИПРАВЛЕННЯ СМУГ
@@ -19,7 +8,6 @@
 }
 
 html {
-  /* Встановлюємо темний колір на найнижчий шар (overscroll/системні смуги) */
   background-color: #1b1f3b; 
 }
 
@@ -30,14 +18,13 @@ body {
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: #ffffff;
-  
-  /* КРИТИЧНО ВАЖЛИВО: ПОВНА ПРОЗОРІСТЬ BODY для видимості фону */
   background: transparent !important; 
   position: relative;
 }
 
 /* =========================
    2. ФОНОВЕ ЗОБРАЖЕННЯ (ТЕПЕР DIV З ГРАДІЄНТНОЮ МАСКОЮ)
+   ДОДАНО ТРАНСФОРМАЦІЮ ДЛЯ СТАБІЛІЗАЦІЇ ПРОКРУТКИ
 ========================= */
 #background-image-wrap {
   position: fixed;
@@ -45,22 +32,26 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1; /* Завжди під контентом */
+  z-index: -1; 
   
-  /* ОСНОВНЕ ЗОБРАЖЕННЯ */
   background-image: url("./bg-liquid.webp");
   background-size: cover;
   background-position: center center;
-  background-attachment: fixed;
+  background-attachment: fixed; 
   
+  /* ******** ВИПРАВЛЕННЯ СМИКАННЯ ФОНУ ******** */
+  transform: translateZ(0); 
+  -webkit-transform: translateZ(0);
+  /* *************************************** */
+
   /* НОВЕ: ГРАДІЄНТНА МАСКА */
   mask-image: linear-gradient(
     to bottom, 
-    transparent 0%, /* Починаємо з прозорого (верх) */
-    rgba(0, 0, 0, 0) calc(env(safe-area-inset-top) + 10px), /* Прозорий до початку контенту */
-    black calc(env(safe-area-inset-top) + 60px), /* Повна непрозорість до середини */
-    black calc(100% - 60px - env(safe-area-inset-bottom)), /* Повна непрозорість до кінця */
-    rgba(0, 0, 0, 0) calc(100% - 10px - env(safe-area-inset-bottom)), /* Знову прозорий (низ) */
+    transparent 0%, 
+    rgba(0, 0, 0, 0) calc(env(safe-area-inset-top) + 10px), 
+    black calc(env(safe-area-inset-top) + 60px), 
+    black calc(100% - 60px - env(safe-area-inset-bottom)), 
+    rgba(0, 0, 0, 0) calc(100% - 10px - env(safe-area-inset-bottom)), 
     transparent 100% 
   );
   -webkit-mask-image: linear-gradient(
@@ -72,13 +63,10 @@ body {
     rgba(0, 0, 0, 0) calc(100% - 10px - env(safe-area-inset-bottom)), 
     transparent 100% 
   );
-  
-  /* Якщо маскування не підтримується, можна використовувати overlay, але з цією маскою вона працює краще */
 }
 
 /* =========================
    3. КОНТЕЙНЕР (ПРОКРУЧУВАНИЙ КОНТЕНТ)
-   (Без змін)
 ========================= */
 .container {
   max-width: 420px;
@@ -96,6 +84,7 @@ body {
     
   text-align: center;
 }
+/* ... решта стилів без змін ... */
 
 h1 {
   font-size: 24px;
@@ -112,7 +101,7 @@ h1 {
 }
 
 /* =========================
-   4. КНОПКИ (BLUR) (Без змін)
+   4. КНОПКИ (BLUR)
 ========================= */
 .btn {
   position: relative;
@@ -156,11 +145,6 @@ a.btn {
   font-size: 18px;
   opacity: 0.8;
 }
-
-/* =========================
-   5. OVERLAY FADES (ПОВНІСТЮ ВИДАЛЕНО!)
-========================= */
-/* .container::before та .container::after ВИДАЛЕНО */
 
 </style>
 </head>
