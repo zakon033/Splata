@@ -18,17 +18,19 @@
       overflow: hidden;
     }
 
-    /* Основной фон */
-    body {
+    /* Обёртка для фона */
+    .bg-wrapper {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
       background-color: #1b1f3b;
       background-image: url("./bg-liquid.webp");
       background-repeat: no-repeat;
       background-position: center;
       background-size: cover;
-      background-attachment: fixed;
-      -webkit-transform: translateZ(0);
-      transform: translateZ(0);
-      position: relative;
     }
 
     /* Контейнер с прокруткой */
@@ -42,6 +44,7 @@
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
       -ms-overflow-style: none;
+      position: relative;
     }
 
     .container::-webkit-scrollbar {
@@ -212,6 +215,7 @@
 </head>
 
 <body>
+  <div class="bg-wrapper"></div>
   <div class="container">
     <h1>💳 Перевести кошти</h1>
     <div class="small">Оберіть зручний спосіб</div>
@@ -286,6 +290,14 @@
         }, 300);
       }
     }
+
+    // Динамическое обновление высоты фона
+    function updateBgHeight() {
+      document.querySelector('.bg-wrapper').style.height = window.innerHeight + 'px';
+    }
+
+    window.addEventListener('load', updateBgHeight);
+    window.addEventListener('resize', updateBgHeight);
 
     if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
       document.addEventListener('touchmove', function(e) {
