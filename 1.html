@@ -16,23 +16,23 @@
 html, body {
   margin: 0;
   padding: 0;
-  min-height: 100%;
+  min-height: 100vh; /* ЗМІНЕНО: Використовуємо 100vh для гарантії висоти екрана */
 }
 
 /* =========================
    2. ФОН (ЖИДКОЕ СТЕКЛО)
-   ФАЙЛ: ./bg-liquid.webp
+   ФАЙЛ: ./my-new-background.webp (припустимо, ви конвертували файл і назвали його так)
 ========================= */
 body {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
   color: #ffffff;
 
   background-color: #1b1f3b; /* fallback */
-  background-image: url("./bg-liquid.webp");
+  background-image: url("./my-new-background.webp"); /* ВИКОРИСТОВУЄМО ВАШЕ НОВЕ ЗОБРАЖЕННЯ */
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
-  background-attachment: fixed;
+  background-attachment: fixed; /* Це фіксує фон, вміст прокручується */
 }
 
 /* =========================
@@ -40,7 +40,6 @@ body {
 ========================= */
 .container {
   max-width: 420px;
-  /* Додаємо width: 100% для коректної поведінки padding на мобільних пристроях */
   width: 100%; 
   margin: 0 auto;
   padding: 24px 16px 40px;
@@ -80,8 +79,8 @@ h1 {
   align-items: center;
   justify-content: space-between;
 
-  padding: 24px 18px;
-  border-radius: 40px;
+  padding: 21px 18px; /* ВИСОТА ЗБІЛЬШЕНА ДО 21px */
+  border-radius: 18px;
 
   /* ВАЖНО: фон есть всегда */
   background-color: rgba(255,255,255,0.18);
