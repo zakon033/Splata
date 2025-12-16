@@ -6,7 +6,7 @@
 <title>Переказ коштів</title>
 
 <meta name="theme-color" content="#1b1f3b"> 
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> 
+<meta name="apple-mobile-web-app-app-status-bar-style" content="black-translucent"> 
 <meta name="apple-mobile-web-app-capable" content="yes"> 
 
 <style>
@@ -34,7 +34,7 @@ body {
 }
 
 /* =========================
-   2. ФОНОВЕ ЗОБРАЖЕННЯ (Зі стабілізацією прокрутки)
+   2. ФОНОВЕ ЗОБРАЖЕННЯ 
 ========================= */
 #background-image-wrap {
   position: fixed;
@@ -52,7 +52,7 @@ body {
   transform: translateZ(0); 
   -webkit-transform: translateZ(0);
 
-  /* НОВЕ: ГРАДІЄНТНА МАСКА */
+  /* ГРАДІЄНТНА МАСКА */
   mask-image: linear-gradient(
     to bottom, 
     transparent 0%, 
@@ -137,7 +137,7 @@ h1 {
   
   box-shadow: 0 4px 15px rgba(0,0,0,0.3);
   
-  /* Змінений transition, щоб включити border-color та background-color */
+  /* Змінений transition для плавного переходу кольору */
   transition: transform 0.1s, background-color 0.2s, border-color 0.2s; 
   cursor: pointer;
   user-select: none;
@@ -147,10 +147,9 @@ a.btn {
   justify-content: center;
 }
 
-/* СТИЛЬ ПРИ НАТИСКАННІ (ТЕПЕР ДЛЯ ВСІХ) */
-.btn:active {
+/* СТИЛЬ НАТИСКАННЯ: ЗАРАЗ ТІЛЬКИ ЧЕРЕЗ JS-КЛАС */
+.btn.clicked {
   transform: scale(0.97);
-  /* Зберігаємо зелений колір як основний "active" стан */
   background-color: rgba(46, 204, 113, 0.3);
   border-color: rgba(46, 204, 113, 0.7);
 }
@@ -158,6 +157,14 @@ a.btn {
 .icon-copy {
   font-size: 18px;
   opacity: 0.8;
+}
+
+/* СТИЛЬ УСПІШНОГО КОПІЮВАННЯ (ЗБЕРІГАЄМО) */
+.btn.copied {
+  /* Забезпечуємо, що успішне копіювання виглядає, як і раніше, але без трансформації */
+  transform: scale(1);
+  background-color: rgba(46, 204, 113, 0.3) !important;
+  border-color: rgba(46, 204, 113, 0.7) !important;
 }
 
 </style>
@@ -171,53 +178,95 @@ a.btn {
   <h1>💳 Перевести кошти</h1>
   <div class="subtitle">Оберіть зручний спосіб</div>
 
-  <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">monobank</a>
-  <a class="btn" href="https://www.privat24.ua/send/id4xg">ПриватБанк</a>
-  <div class="btn" onclick="copyText('4441114459954077', this)">
+  <a class="btn" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">monobank</a>
+  <a class="btn" data-href="https://www.privat24.ua/send/id4xg" onclick="handleLinkClick(this)">ПриватБанк</a>
+  
+  <div class="btn" onclick="handleCopyClick(this, '4441114459954077')">
     <span>💳 4441 •••• •••• 4077</span>
     <span class="icon-copy">📋</span>
   </div>
-  <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK"> Apple Pay</a>
-  <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">Google Pay</a>
-  <a class="btn" href="https://app.binance.com/uni-qr/LXViL5Hb">Binance Pay</a>
-  <div class="btn" onclick="copyText('bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp', this)">
+  
+  <a class="btn" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)"> Apple Pay</a>
+  <a class="btn" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">Google Pay</a>
+  <a class="btn" data-href="https://app.binance.com/uni-qr/LXViL5Hb" onclick="handleLinkClick(this)">Binance Pay</a>
+  
+  <div class="btn" onclick="handleCopyClick(this, 'bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp')">
     <span>₿ Bitcoin (BTC)</span>
     <span class="icon-copy">📋</span>
   </div>
-  <div class="btn" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9', this)">
+  <div class="btn" onclick="handleCopyClick(this, '0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
     <span>◆ Ethereum</span>
     <span class="icon-copy">📋</span>
   </div>
-  <div class="btn" onclick="copyText('TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh', this)">
+  <div class="btn" onclick="handleCopyClick(this, 'TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh')">
     <span>₮ USDT Tron</span>
     <span class="icon-copy">📋</span>
   </div>
-  <div class="btn" onclick="copyText('EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7', this)">
+  <div class="btn" onclick="handleCopyClick(this, 'EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7')">
     <span>◎ Solana</span>
     <span class="icon-copy">📋</span>
   </div>
-  <div class="btn" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9', this)">
+  <div class="btn" onclick="handleCopyClick(this, '0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
     <span>◇ USDC (Polygon)</span>
     <span class="icon-copy">📋</span>
   </div>
-  <a class="btn" href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9" target="_blank">
+  <a class="btn" data-href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9" target="_blank" onclick="handleLinkClick(this)">
      USDC (Polygon · Trust)
   </a>
 </div>
 
 <script>
-// JS для копіювання: ВІН ТЕПЕР ПРОСТО ВИКОНУЄ ЛОГІКУ КОПІЮВАННЯ, А НЕ ВІЗУАЛЬНИЙ ЕФЕКТ
-// Візуальний ефект на успішне копіювання ТАКОЖ залишаємо, він буде виглядати так само,
-// але спрацює *після* копіювання.
-function copyText(text, element) {
+// ===================================
+// УНІВЕРСАЛЬНІ ФУНКЦІЇ ДЛЯ КНОПОК
+// ===================================
+
+const CLICK_ANIMATION_DURATION = 150; // Мінімальний час для відображення кліку (0.15 секунди)
+
+// 1. Анімація натискання (універсальна)
+function animateClick(element) {
+  return new Promise(resolve => {
+    element.classList.add('clicked');
+    
+    // Затримка, щоб користувач побачив ефект
+    setTimeout(() => {
+      element.classList.remove('clicked');
+      resolve();
+    }, CLICK_ANIMATION_DURATION);
+  });
+}
+
+// 2. Обробник для посилань (<a>)
+async function handleLinkClick(element) {
+  // Запобігаємо стандартній дії посилання (браузер не переходить одразу)
+  event.preventDefault(); 
+  
+  const targetURL = element.getAttribute('data-href');
+  if (!targetURL) return;
+
+  // 1. Показати анімацію натискання
+  await animateClick(element); 
+  
+  // 2. Після завершення анімації виконати перехід
+  window.location.href = targetURL;
+}
+
+
+// 3. Обробник для копіювання (<div>)
+async function handleCopyClick(element, textToCopy) {
+  // 1. Показати анімацію натискання
+  await animateClick(element);
+  
+  // 2. Виконати копіювання
   if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(() => animateSuccess(element))
-      .catch(() => fallbackCopy(text, element));
+    navigator.clipboard.writeText(textToCopy)
+      .then(() => animateSuccess(element))
+      .catch(() => fallbackCopy(textToCopy, element));
   } else {
-    fallbackCopy(text, element);
+    fallbackCopy(textToCopy, element);
   }
 }
 
+// 4. Логіка копіювання (залишається майже без змін)
 function fallbackCopy(text, element) {
   const ta = document.createElement('textarea');
   ta.value = text;
@@ -233,11 +282,9 @@ function fallbackCopy(text, element) {
   document.body.removeChild(ta);
 }
 
-// Функція animateSuccess тепер просто додає і видаляє клас, щоб імітувати
-// "успішну дію" після копіювання.
+// 5. Візуалізація успіху (якщо копіювання спрацювало)
 function animateSuccess(el) {
   if (!el) return;
-  // Клас `copied` застосовує зелені стилі
   el.classList.add('copied');
   
   setTimeout(() => {
@@ -245,15 +292,6 @@ function animateSuccess(el) {
   }, 250);
 }
 </script>
-
-<style>
-.btn.copied {
-  background-color: rgba(46, 204, 113, 0.3) !important;
-  border-color: rgba(46, 204, 113, 0.7) !important;
-  /* Запобігаємо спрацьовуванню :active стилю, коли цей клас активний */
-  transform: scale(1); 
-}
-</style>
 
 </body>
 </html>
