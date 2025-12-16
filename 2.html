@@ -6,13 +6,12 @@
 <title>Переказ коштів</title>
 
 <meta name="theme-color" content="#1b1f3b"> 
-
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> 
 <meta name="apple-mobile-web-app-capable" content="yes"> 
 
 <style>
 /* =========================
-   1. БАЗОВІ НАЛАШТУВАННЯ ТА ВИПРАВЛЕННЯ БІЛИХ СМУГ
+   1. БАЗОВІ НАЛАШТУВАННЯ ТА ВИПРАВЛЕННЯ СИСТЕМНИХ СМУГ
 ========================= */
 * {
   box-sizing: border-box;
@@ -20,7 +19,7 @@
 }
 
 html {
-  /* Градієнт для "дна" браузера (overscroll) - тепер точно темний */
+  /* ГРАДІЄНТ ДЛЯ "ДНА" БРАУЗЕРА (overscroll) - ВИРІШУЄ ПРОБЛЕМУ КОЛЬОРУ СМУГ */
   background: 
     linear-gradient(
       to bottom, 
@@ -37,8 +36,8 @@ body {
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: #ffffff;
-  /* Це запобігає появі білого кольору, якщо контент занадто короткий */
-  background-color: #1b1f3b; 
+  /* КРИТИЧНО ВАЖЛИВО: ПОВНА ПРОЗОРІСТЬ BODY */
+  background: transparent !important; 
   position: relative;
 }
 
@@ -53,7 +52,7 @@ body {
   height: 100%;
   z-index: -1; 
   object-fit: cover;
-  background-color: #1b1f3b; 
+  /* ВАЖЛИВО: прибрано зайвий background-color, щоб уникнути конфлікту */
   transform: translateZ(0); 
 }
 
@@ -65,12 +64,10 @@ body {
   width: 100%;
   margin: 0 auto;
   
-  /* Контейнер повинен бути прозорим, щоб бачити фон */
   background-color: transparent; 
   position: relative;
   z-index: 10; 
   
-  /* Відступи з урахуванням "чубчика" iPhone */
   padding: 
     calc(40px + env(safe-area-inset-top)) 
     20px 
@@ -94,7 +91,7 @@ h1 {
 }
 
 /* =========================
-   4. КНОПКИ (МАКСИМАЛЬНИЙ BLUR)
+   4. КНОПКИ (BLUR)
 ========================= */
 .btn {
   position: relative;
