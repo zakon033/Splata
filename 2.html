@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"> <!-- ВОТ ЭТО ГЛАВНОЕ ДОБАВЛЕНИЕ -->
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Переказ коштів</title>
 
 <style>
@@ -15,17 +15,19 @@
 html, body {
   height: 100%;
   min-height: 100vh;
-  min-height: -webkit-fill-available; /* дополнительный фикс для полного заполнения на iOS */
+  min-height: -webkit-fill-available;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
   color: #ffffff;
   overflow-x: hidden;
+  
+  /* КЛЮЧЕВОЙ ФИКС: тёмный фон для safe areas */
+  background-color: #1b1f3b;
 }
 
-/* Фиксованный фон — теперь покрывает ВСЁ, включая safe areas */
+/* Фиксованный фон с изображением */
 .fixed-bg {
   position: fixed;
-  inset: 0; /* top:0; left:0; right:0; bottom:0; */
-  background-color: #1b1f3b; /* fallback */
+  inset: 0;
   background-image: url("./bg-liquid.webp");
   background-repeat: no-repeat;
   background-position: center;
@@ -33,7 +35,7 @@ html, body {
   z-index: -1;
 }
 
-/* Контейнер с отступами под safe areas (чтобы контент не залезал под notch/home bar) */
+/* Контейнер */
 .container {
   max-width: 420px;
   width: 100%;
@@ -43,7 +45,7 @@ html, body {
   z-index: 1;
 }
 
-/* Остальные стили без изменений */
+/* Остальные стили */
 h1 {
   margin: 0 0 6px;
   font-size: 26px;
