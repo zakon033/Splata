@@ -13,41 +13,58 @@
   box-sizing: border-box;
 }
 
-/* ФІКС: HTML задає загальну висоту вьюпорту і керує прокруткою */
-html {
-  height: 100%;
-  overflow-y: auto;
-}
-
-body {
+html, body {
   margin: 0;
   padding: 0;
-  min-height: 100%; /* body займає всю висоту html */
+  height: 100%;
+  overflow: hidden; /* Убираем скролл у body */
+}
+
+/* =========================
+   2. ФОН (СТАТИЧНЫЙ)
+========================= */
+body::before {
+  content: "";
+  position: fixed; /* Фиксируем фон */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1; /* Отправляем фон на задний план */
   
-  /* Всі інші стилі фону повертаються сюди */
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
-  color: #ffffff;
-  
-  /* =========================
-     2. ФОН (ЖИДКОЕ СТЕКЛО) ПОВЕРНУТО СЮДИ
-  ========================= */
   background-color: #1b1f3b; /* fallback */
   background-image: url("./bg-liquid.webp"); 
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
-  background-attachment: fixed; /* Властивість, яку ми намагаємося змусити працювати */
+  
+  /* Гарантируем, что фон не будет двигаться */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
-
 /* =========================
-   3. КОНТЕЙНЕР
+   3. КОНТЕЙНЕР С ПРОКРУТКОЙ
 ========================= */
 .container {
   max-width: 420px;
   width: 100%; 
   margin: 0 auto;
   padding: 24px 16px 40px;
+  
+  /* Делаем контейнер прокручиваемым */
+  height: 100vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* Плавный скролл на iOS */
+  
+  /* Убираем полосы прокрутки для чистоты дизайна */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE и Edge */
+}
+
+/* Скрываем скроллбар в Webkit браузерах */
+.container::-webkit-scrollbar {
+  display: none;
 }
 
 /* =========================
@@ -165,6 +182,38 @@ h1 {
 .copy {
   cursor: pointer;
 }
+
+/* =========================
+   11. ДОПОЛНИТЕЛЬНЫЕ СТИЛИ
+========================= */
+/* Улучшение читаемости при прокрутке */
+.container::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background: linear-gradient(to bottom, 
+    rgba(27, 31, 59, 0.8) 0%, 
+    transparent 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.container::after {
+  content: "";
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background: linear-gradient(to top, 
+    rgba(27, 31, 59, 0.6) 0%, 
+    transparent 100%);
+  pointer-events: none;
+  z-index: 1;
+}
 </style>
 </head>
 
@@ -222,6 +271,14 @@ function copyText(text) {
   if (navigator.clipboard) {
     navigator.clipboard.writeText(text);
   }
+}
+
+// Дополнительная обработка для iOS
+if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+  // Убедимся, что фон остается на месте
+  document.addEventListener('scroll', function(e) {
+    e.preventDefault();
+  }, { passive: false });
 }
 </script>
 </body>
