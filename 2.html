@@ -52,7 +52,6 @@ body {
 
 /* =========================
    3. КОНТЕЙНЕР (ПРОКРУЧУВАНИЙ КОНТЕНТ)
-   Зверніть увагу: звідси видалено стилі ::before та ::after!
 ========================= */
 .container {
   max-width: 420px;
@@ -64,7 +63,7 @@ body {
   position: relative;
   z-index: 10; /* Цей шар тепер найвищий */
   
-  /* Зберігаємо відступи */
+  /* ВАЖЛИВО: Зберігаємо відступи, які створюють безпечну зону */
   padding: 
     calc(60px + env(safe-area-inset-top)) 
     20px 
@@ -135,34 +134,38 @@ a.btn {
 
 /* =========================
    5. НОВИЙ ШАР ЗАТІНЕННЯ (FADES OVERLAY)
-   Це фіксований елемент, що знаходиться між фоном (-1) та контентом (10)
+   Ми робимо градієнт дуже коротким і прозорим, щоб він лише затіняв фон,
+   але не перекривав контент у зоні padding.
 ========================= */
 #fades-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%; /* Покриває весь екран */
+    height: 100%; 
     z-index: 5; /* Нижня прошарок */
-    pointer-events: none; /* Дозволяє клікати контент, що прокручується */
+    pointer-events: none; 
     
-    /* Створюємо комбінований градієнт, який затемнює краї */
+    /* Створюємо комбінований градієнт */
     background: 
-        /* Верхнє затемнення */
+        /* Верхнє затемнення: Починається з #1b1f3b і переходить у прозорий 
+           відразу після початку зони padding. */
         linear-gradient(
             to bottom, 
             #1b1f3b 0%, 
             rgba(27, 31, 59, 0.8) 
-            calc(50px + env(safe-area-inset-top)),
-            transparent calc(50px + env(safe-area-inset-top) + 10px) 
+            calc(60px + env(safe-area-inset-top) - 20px), /* Точка зупинки: починаємо затемнення на 20px раніше */
+            transparent 
+            calc(60px + env(safe-area-inset-top) + 5px) /* Швидкий перехід у прозорий (за 5px) */
         ),
-        /* Нижнє затемнення */
+        /* Нижнє затемнення: Симетрично знизу */
         linear-gradient(
             to top, 
             #1b1f3b 0%, 
             rgba(27, 31, 59, 0.8) 
-            calc(60px + env(safe-area-inset-bottom)),
-            transparent calc(60px + env(safe-area-inset-bottom) + 10px)
+            calc(60px + env(safe-area-inset-bottom) - 20px),
+            transparent 
+            calc(60px + env(safe-area-inset-bottom) + 5px)
         );
 }
 </style>
