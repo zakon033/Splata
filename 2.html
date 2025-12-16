@@ -11,7 +11,7 @@
 
 <style>
 /* =========================
-   1. БАЗОВІ НАЛАШТУВАННЯ ТА ФОН (ШАР 1)
+   1. БАЗОВІ НАЛАШТУВАННЯ
 ========================= */
 * {
   box-sizing: border-box;
@@ -19,20 +19,8 @@
 }
 
 html {
-  /* ТЕПЕР ФОНОВА КАРТИНКА ТА ГРАДІЄНТ ЖИВУТЬ ТУТ */
-  background: 
-    /* 1. Накладаємо градієнт для overscroll і глибини */
-    linear-gradient(
-      to bottom, 
-      #1b1f3b 0%, 
-      #3b3e5a 100% 
-    ),
-    /* 2. Додаємо фонове зображення */
-    url("./bg-liquid.webp") center center / cover no-repeat;
-    
-  background-attachment: fixed; /* РОБИМО ФОН СТАТИЧНИМ */
-  width: 100%;
-  height: 100%;
+  /* Забезпечуємо темний колір "дна" */
+  background-color: #1b1f3b; 
 }
 
 body {
@@ -43,19 +31,34 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: #ffffff;
   
-  /* ШАР 2: ПОВНІСТЮ ПРОЗОРИЙ */
-  background: transparent !important; 
+  /* Агресивне затемнення всього, якщо фон не завантажився */
+  background-color: #1b1f3b; 
   position: relative;
 }
 
 /* =========================
-   2. КОНТЕНТ (ШАР 3 - ПРОКРУЧУЄТЬСЯ)
+   2. ФОНОВЕ ЗОБРАЖЕННЯ (НАЙНАДІЙНІШИЙ МЕТОД <img>)
+========================= */
+#background-image {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1; /* Знову відправляємо на задній план */
+  object-fit: cover;
+  transform: translateZ(0); 
+}
+
+/* =========================
+   3. КОНТЕЙНЕР
 ========================= */
 .container {
   max-width: 420px;
   width: 100%;
   margin: 0 auto;
   
+  /* Контейнер повинен бути прозорим, щоб бачити фон */
   background-color: transparent; 
   position: relative;
   z-index: 10; 
@@ -66,11 +69,6 @@ body {
     calc(60px + env(safe-area-inset-bottom));
     
   text-align: center;
-}
-
-/* Прибираємо елемент img, оскільки фон тепер на html */
-#background-image {
-  display: none;
 }
 
 h1 {
@@ -88,7 +86,7 @@ h1 {
 }
 
 /* =========================
-   3. КНОПКИ (BLUR)
+   4. КНОПКИ (BLUR)
 ========================= */
 .btn {
   position: relative;
@@ -128,8 +126,14 @@ a.btn {
   background-color: rgba(255, 255, 255, 0.2); 
 }
 
+.icon-copy {
+  font-size: 18px;
+  opacity: 0.8;
+}
+
 /* =========================
-   4. OVERLAY FADES (ЗАТІНЕННЯ КОНТЕНТУ)
+   5. OVERLAY FADES (ЗАТІНЕННЯ КОНТЕНТУ)
+   ЦЕЙ ЕЛЕМЕНТ МАЄ ПЕРЕКРИТИ БІЛІ СИСТЕМНІ СМУГИ
 ========================= */
 /* Градієнт зверху */
 .container::before {
@@ -144,7 +148,7 @@ a.btn {
   
   background: linear-gradient(
     to bottom, 
-    #1b1f3b 0%, 
+    #1b1f3b 0%, /* Починаємо з темного кольору */
     rgba(27, 31, 59, 0.8) 50%, 
     transparent 100%
   );
