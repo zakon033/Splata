@@ -19,14 +19,8 @@
 }
 
 html {
-  /* Градієнт для "дна" браузера (overscroll) */
-  background: 
-    linear-gradient(
-      to bottom, 
-      #1b1f3b 0%, 
-      #3b3e5a 100% 
-    );
-  background-attachment: fixed;
+  /* Темне "дно" для overscroll */
+  background-color: #1b1f3b; 
 }
 
 body {
@@ -37,7 +31,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: #ffffff;
   
-  /* КРИТИЧНО ВАЖЛИВО: ПОВНА ПРОЗОРІСТЬ BODY ДЛЯ ВИДИМОСТІ ФОНУ */
+  /* КРИТИЧНО ВАЖЛИВО: ПОВНА ПРОЗОРІСТЬ BODY */
   background: transparent !important; 
   position: relative;
 }
@@ -51,26 +45,53 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1; 
+  z-index: 1; /* Змінено з -1 на 1, щоб бути нижче всього */
   object-fit: cover;
   transform: translateZ(0); 
 }
 
 /* =========================
-   3. КОНТЕЙНЕР
+   3. НЕРУХОМІ БЛОКИ (НОВИЙ ШАР)
+   Це вирішує проблему білого статусбару
+========================= */
+.fixed-cover {
+  position: fixed;
+  left: 0;
+  width: 100%;
+  z-index: 100; /* Закриває фон, але залишається під контентом */
+  
+  /* Повністю непрозорий темний колір */
+  background-color: #1b1f3b; 
+}
+
+#top-cover {
+  top: 0;
+  /* Висота має перекривати статусбар і трішки заходити на контент */
+  height: calc(50px + env(safe-area-inset-top)); 
+}
+
+#bottom-cover {
+  bottom: 0;
+  /* Висота має перекривати нижній системний бар */
+  height: calc(60px + env(safe-area-inset-bottom)); 
+}
+
+
+/* =========================
+   4. КОНТЕЙНЕР (ПРОКРУЧУВАНИЙ КОНТЕНТ)
 ========================= */
 .container {
   max-width: 420px;
   width: 100%;
   margin: 0 auto;
   
-  /* Контейнер також прозорий */
   background-color: transparent; 
   position: relative;
-  z-index: 10; 
+  z-index: 200; /* Найвищий шар, щоб бути над каверами */
   
+  /* Встановлюємо додаткові відступи, щоб контент не заходив під темні блоки */
   padding: 
-    calc(40px + env(safe-area-inset-top)) 
+    calc(50px + env(safe-area-inset-top)) 
     20px 
     calc(60px + env(safe-area-inset-bottom));
     
@@ -92,10 +113,9 @@ h1 {
 }
 
 /* =========================
-   4. КНОПКИ (BLUR)
+   5. КНОПКИ (BLUR)
 ========================= */
 .btn {
-  /* ... стилі без змін ... */
   position: relative;
   display: flex;
   align-items: center;
@@ -132,59 +152,15 @@ a.btn {
   transform: scale(0.97);
   background-color: rgba(255, 255, 255, 0.2); 
 }
-
-.icon-copy {
-  font-size: 18px;
-  opacity: 0.8;
-}
-
-/* =========================
-   5. OVERLAY FADES (ЗАТІНЕННЯ КОНТЕНТУ)
-   ТЕПЕР ВОНИ ВІДПОВІДАЮТЬ ЗА ЗАТЕМНЕННЯ СТАТУСБАРУ
-========================= */
-/* Градієнт зверху - Збільшуємо висоту до 70px */
-.container::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 70px; /* Збільшена висота, щоб приховати системну смугу */
-  z-index: 100; 
-  pointer-events: none; 
-  
-  background: linear-gradient(
-    to bottom, 
-    #1b1f3b 0%, /* Починаємо з темного кольору */
-    rgba(27, 31, 59, 0.95) 50%, /* Майже непрозорий темний */
-    transparent 100%
-  );
-}
-
-/* Градієнт знизу - Збільшуємо висоту до 80px */
-.container::after {
-  content: "";
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 80px; /* Збільшена висота, щоб приховати системну смугу */
-  z-index: 100;
-  pointer-events: none;
-  
-  background: linear-gradient(
-    to top, 
-    #1b1f3b 0%, /* Починаємо з темного кольору */
-    rgba(27, 31, 59, 0.95) 50%, /* Майже непрозорий темний */
-    transparent 100%
-  );
-}
 </style>
 </head>
 
 <body>
 
 <img id="background-image" src="./bg-liquid.webp" alt="Fluid Background">
+
+<div id="top-cover" class="fixed-cover"></div>
+<div id="bottom-cover" class="fixed-cover"></div>
 
 <div class="container">
   <h1>💳 Перевести кошти</h1>
