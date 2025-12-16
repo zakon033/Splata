@@ -166,39 +166,41 @@ a.btn {
 }
 
 /* =========================
-   5. ТОСТ-УВЕДОМЛЕНИЕ О КОПИРОВАНИИ (ОНОВЛЕНО)
+   5. ТОСТ-УВЕДОМЛЕНИЕ О КОПИРОВАНИИ (ФІНАЛЬНА ВЕРСІЯ)
 ========================= */
 #copy-toast {
-    /* *** НОВА ПОЗИЦІЯ: ЗВЕРХУ *** */
     position: fixed;
-    top: calc(20px + env(safe-area-inset-top)); /* Відступ від верхнього краю + безпечна зона */
+    top: 50%; /* Початкова позиція в центрі екрана */
     left: 50%;
     
-    /* Сховано над екраном за замовчуванням */
-    transform: translate(-50%, -100px); 
+    /* Сховано над екраном, але тепер використовуємо 3D, щоб не було скачків */
+    transform: translate(-50%, calc(-50% - 150px)); 
     
-    background-color: rgba(46, 204, 113, 0.95);
+    /* *** НОВИЙ СТИЛЬ *** */
+    /* Напівпрозорий зелений фон */
+    background-color: rgba(46, 204, 113, 0.5); 
+    
+    /* Максимальне розмиття фону */
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    /* ******************** */
+    
     color: #fff;
-    
-    /* *** НОВІ РОЗМІРИ *** */
-    padding: 15px 30px; /* Збільшуємо відступи */
-    font-size: 20px;     /* Збільшуємо шрифт */
-    
+    padding: 15px 30px; 
+    font-size: 20px;     
     border-radius: 12px;
     font-weight: 600;
     z-index: 1000; 
     
-    /* Плавне поява/зникнення */
     opacity: 0;
-    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-    
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+    /* Збільшуємо час анімації для більш помітного руху до центру */
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease-out;
 }
 
 #copy-toast.show {
     opacity: 1;
-    transform: translate(-50%, 0); /* Висувається на екран */
+    /* Кінцева позиція: рівно посередині екрана */
+    transform: translate(-50%, -50%); 
 }
 </style>
 </head>
