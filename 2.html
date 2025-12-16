@@ -166,34 +166,39 @@ a.btn {
 }
 
 /* =========================
-   5. ТОСТ-УВЕДОМЛЕНИЕ О КОПИРОВАНИИ
+   5. ТОСТ-УВЕДОМЛЕНИЕ О КОПИРОВАНИИ (ОНОВЛЕНО)
 ========================= */
 #copy-toast {
+    /* *** НОВА ПОЗИЦІЯ: ЗВЕРХУ *** */
     position: fixed;
-    bottom: calc(20px + env(safe-area-inset-bottom)); /* Отступ от нижнего края */
+    top: calc(20px + env(safe-area-inset-top)); /* Відступ від верхнього краю + безпечна зона */
     left: 50%;
-    transform: translate(-50%, 100px); /* Скрыто ниже экрана по умолчанию */
+    
+    /* Сховано над екраном за замовчуванням */
+    transform: translate(-50%, -100px); 
     
     background-color: rgba(46, 204, 113, 0.95);
     color: #fff;
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-size: 15px;
-    font-weight: 600;
-    z-index: 1000; /* Поверх всего контента */
     
-    /* Плавное появление/исчезновение */
+    /* *** НОВІ РОЗМІРИ *** */
+    padding: 15px 30px; /* Збільшуємо відступи */
+    font-size: 20px;     /* Збільшуємо шрифт */
+    
+    border-radius: 12px;
+    font-weight: 600;
+    z-index: 1000; 
+    
+    /* Плавне поява/зникнення */
     opacity: 0;
     transition: transform 0.3s ease-out, opacity 0.3s ease-out;
     
-    /* Убедимся, что фон не размывается */
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
 }
 
 #copy-toast.show {
     opacity: 1;
-    transform: translate(-50%, 0); /* Выдвигается на экран */
+    transform: translate(-50%, 0); /* Висувається на екран */
 }
 </style>
 </head>
@@ -250,15 +255,14 @@ a.btn {
 // УНІВЕРСАЛЬНІ ФУНКЦІЇ ДЛЯ КНОПОК
 // ===================================
 
-const CLICK_ANIMATION_DURATION = 150; // Минимальное время для отображения клика
-const TOAST_DISPLAY_DURATION = 2000; // Время отображения тост-уведомления (2 секунды)
+const CLICK_ANIMATION_DURATION = 150; 
+const TOAST_DISPLAY_DURATION = 2000; 
 
-// 1. Анимация нажатия (универсальная)
+// 1. Анімація натискання (універсальна)
 function animateClick(element) {
   return new Promise(resolve => {
     element.classList.add('clicked');
     
-    // Задержка, чтобы пользователь увидел эффект
     setTimeout(() => {
       element.classList.remove('clicked');
       resolve();
@@ -266,7 +270,7 @@ function animateClick(element) {
   });
 }
 
-// 2. Обработчик для ссылок (<a>)
+// 2. Обробник для посилань (<a>)
 async function handleLinkClick(element) {
   event.preventDefault(); 
   
@@ -279,7 +283,7 @@ async function handleLinkClick(element) {
 }
 
 
-// 3. Обработчик для копирования (<div>)
+// 3. Обробник для копіювання (<div>)
 async function handleCopyClick(element, textToCopy) {
   await animateClick(element);
   
@@ -292,7 +296,7 @@ async function handleCopyClick(element, textToCopy) {
   }
 }
 
-// 4. Логика копирования (через текстовое поле, для совместимости)
+// 4. Логіка копіювання (для сумісності)
 function fallbackCopy(text, element) {
   const ta = document.createElement('textarea');
   ta.value = text;
@@ -308,11 +312,11 @@ function fallbackCopy(text, element) {
   document.body.removeChild(ta);
 }
 
-// 5. Визуализация успеха (если копирование сработало)
+// 5. Візуалізація успіху (включає тост)
 function animateSuccess(el) {
   if (!el) return;
   
-  // 1. Зеленая вспышка кнопки
+  // 1. Зелена вспышка кнопки
   el.classList.add('copied');
   setTimeout(() => {
     el.classList.remove('copied');
