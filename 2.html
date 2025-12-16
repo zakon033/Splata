@@ -2,69 +2,48 @@
 <html lang="uk">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"> <!-- ВОТ ЭТО ГЛАВНОЕ ДОБАВЛЕНИЕ -->
 <title>Переказ коштів</title>
 
 <style>
-/* =========================
-   БАЗОВЫЙ СБРОС І ВИСОТА
-========================= */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-html {
+html, body {
   height: 100%;
-  height: 100dvh; /* для динамічної висоти на мобільних */
-}
-
-body {
   min-height: 100vh;
-  min-height: 100dvh;
+  min-height: -webkit-fill-available; /* дополнительный фикс для полного заполнения на iOS */
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
   color: #ffffff;
   overflow-x: hidden;
 }
 
-/* =========================
-   ФІКСОВАНИЙ ФОН — ПОВНЕ ПОКРИТТЯ
-========================= */
+/* Фиксованный фон — теперь покрывает ВСЁ, включая safe areas */
 .fixed-bg {
   position: fixed;
-  top: calc(-1 * env(safe-area-inset-top));
-  left: calc(-1 * env(safe-area-inset-left));
-  right: calc(-1 * env(safe-area-inset-right));
-  bottom: calc(-1 * env(safe-area-inset-bottom));
-  width: auto;
-  height: auto;
+  inset: 0; /* top:0; left:0; right:0; bottom:0; */
   background-color: #1b1f3b; /* fallback */
-  background-image: url("./bg-liquid.webp"); 
+  background-image: url("./bg-liquid.webp");
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
   z-index: -1;
 }
 
-/* =========================
-   КОНТЕЙНЕР — ВРАХОВУЄМО SAFE AREA
-========================= */
+/* Контейнер с отступами под safe areas (чтобы контент не залезал под notch/home bar) */
 .container {
   max-width: 420px;
-  width: 100%; 
+  width: 100%;
   margin: 0 auto;
-  padding-top: max(24px, env(safe-area-inset-top)); /* відступ зверху, не менше 24px */
-  padding-bottom: max(40px, env(safe-area-inset-bottom)); /* знизу */
-  padding-left: 16px;
-  padding-right: 16px;
+  padding: max(24px, env(safe-area-inset-top)) 16px max(40px, env(safe-area-inset-bottom)) 16px;
   position: relative;
   z-index: 1;
 }
 
-/* =========================
-   РЕШТА СТИЛІВ (без змін)
-========================= */
+/* Остальные стили без изменений */
 h1 {
   margin: 0 0 6px;
   font-size: 26px;
@@ -89,8 +68,8 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 24px 18px; 
-  border-radius: 48px; 
+  padding: 24px 18px;
+  border-radius: 48px;
   background-color: rgba(255,255,255,0.18);
   -webkit-backdrop-filter: blur(18px) saturate(170%);
   backdrop-filter: blur(18px) saturate(170%);
