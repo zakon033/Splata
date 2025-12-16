@@ -22,23 +22,28 @@ html {
 body {
   margin: 0;
   padding: 0;
-  min-height: 100%; /* body займає всю висоту html */
+  min-height: 100%;
   
-  /* Всі інші стилі фону повертаються сюди */
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
   color: #ffffff;
   
-  /* =========================
-     2. ФОН (ЖИДКОЕ СТЕКЛО) ПОВЕРНУТО СЮДИ
-  ========================= */
+  /* Тепер фон винесено в окремий div */
+}
+
+/* Новий блок для фіксованого фону */
+.fixed-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background-color: #1b1f3b; /* fallback */
   background-image: url("./bg-liquid.webp"); 
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
-  background-attachment: fixed; /* Властивість, яку ми намагаємося змусити працювати */
+  z-index: -1;
 }
-
 
 /* =========================
    3. КОНТЕЙНЕР
@@ -48,11 +53,11 @@ body {
   width: 100%; 
   margin: 0 auto;
   padding: 24px 16px 40px;
+  position: relative; /* щоб контент був поверх фону */
+  z-index: 1;
 }
 
-/* =========================
-   4. ЗАГОЛОВКИ
-========================= */
+/* Решта стилів без змін */
 h1 {
   margin: 0 0 6px;
   font-size: 26px;
@@ -65,57 +70,33 @@ h1 {
   margin-bottom: 18px;
 }
 
-/* =========================
-   5. СЕКЦИИ
-========================= */
 .section {
   display: grid;
   gap: 12px;
   margin-bottom: 22px;
 }
 
-/* =========================
-   6. СТЕКЛЯННЫЕ ЭЛЕМЕНТЫ
-========================= */
 .btn,
 .copy {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   padding: 24px 18px; 
   border-radius: 48px; 
-
-  /* ВАЖНО: фон есть всегда */
   background-color: rgba(255,255,255,0.18);
-
-  /* Safari iOS */
   -webkit-backdrop-filter: blur(18px) saturate(170%);
   backdrop-filter: blur(18px) saturate(170%);
-
   color: #ffffff;
   font-size: 16px;
   font-weight: 500;
   text-decoration: none;
-
   border: none;
   outline: none;
-
-  box-shadow:
-    0 10px 28px rgba(0,0,0,0.25),
-    inset 0 1px 1px rgba(255,255,255,0.35);
-
-  transition:
-    transform .15s ease,
-    box-shadow .15s ease;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.25), inset 0 1px 1px rgba(255,255,255,0.35);
+  transition: transform .15s ease, box-shadow .15s ease;
 }
 
-/* =========================
-   7. МАСКА (НЕРОВНЫЙ КРАЙ)
-   ФАЙЛ: ./mask/glass-edge.webp
-   ⚠️ ТОЛЬКИ якщо підтримується
-========================= */
 @supports (-webkit-mask-image: url("")) {
   .btn,
   .copy {
@@ -126,9 +107,6 @@ h1 {
   }
 }
 
-/* =========================
-   8. ПОДСВЕТКА КРАЯ
-========================= */
 .btn::after,
 .copy::after {
   content: "";
@@ -136,32 +114,17 @@ h1 {
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-
-  background:
-    radial-gradient(
-      at 30% 20%,
-      rgba(255,255,255,0.45),
-      transparent 60%
-    );
-
+  background: radial-gradient(at 30% 20%, rgba(255,255,255,0.45), transparent 60%);
   mix-blend-mode: overlay;
   opacity: 0.6;
 }
 
-/* =========================
-   9. НАЖАТИЕ (iOS)
-========================= */
 .btn:active,
 .copy:active {
   transform: scale(0.97);
-  box-shadow:
-    0 6px 16px rgba(0,0,0,0.3),
-    inset 0 1px 2px rgba(255,255,255,0.25);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.3), inset 0 1px 2px rgba(255,255,255,0.25);
 }
 
-/* =========================
-   10. COPY
-========================= */
 .copy {
   cursor: pointer;
 }
@@ -169,53 +132,54 @@ h1 {
 </head>
 
 <body>
-<div class="container">
+  <!-- Новий фіксований фон -->
+  <div class="fixed-bg"></div>
 
-<h1>💳 Перевести кошти</h1>
-<div class="small">Оберіть зручний спосіб</div>
+  <div class="container">
+    <h1>💳 Перевести кошти</h1>
+    <div class="small">Оберіть зручний спосіб</div>
 
-<div class="section">
-  <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">monobank</a>
-  <a class="btn" href="https://www.privat24.ua/send/id4xg">ПриватБанк</a>
+    <div class="section">
+      <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">monobank</a>
+      <a class="btn" href="https://www.privat24.ua/send/id4xg">ПриватБанк</a>
 
-  <div class="copy" onclick="copyText('4441114459954077')">
-    <span>💳 4441 •••• •••• 4077</span>
-    <span>📋</span>
+      <div class="copy" onclick="copyText('4441114459954077')">
+        <span>💳 4441 •••• •••• 4077</span>
+        <span>📋</span>
+      </div>
+
+      <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK"> Apple Pay</a>
+      <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">Google Pay</a>
+      
+      <a class="btn" href="https://app.binance.com/uni-qr/LXViL5Hb">Binance Pay</a>
+
+      <div class="copy" onclick="copyText('bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp')">
+        ₿ Bitcoin (BTC) <span>📋</span>
+      </div>
+
+      <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
+        ◆ Ethereum <span>📋</span>
+      </div>
+
+      <div class="copy" onclick="copyText('TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh')">
+        ₮ USDT Tron <span>📋</span>
+      </div>
+
+      <div class="copy" onclick="copyText('EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7')">
+        ◎ Solana <span>📋</span>
+      </div>
+
+      <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
+        ◇ USDC (Polygon) <span>📋</span>
+      </div>
+
+      <a class="btn"
+         href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9"
+         target="_blank" rel="noopener">
+         USDC (Polygon · Trust)
+      </a>
+    </div>
   </div>
-
-  <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK"> Apple Pay</a>
-  <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">Google Pay</a>
-  
-  <a class="btn" href="https://app.binance.com/uni-qr/LXViL5Hb">Binance Pay</a>
-
-  <div class="copy" onclick="copyText('bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp')">
-    ₿ Bitcoin (BTC) <span>📋</span>
-  </div>
-
-  <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
-    ◆ Ethereum <span>📋</span>
-  </div>
-
-  <div class="copy" onclick="copyText('TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh')">
-    ₮ USDT Tron <span>📋</span>
-  </div>
-
-  <div class="copy" onclick="copyText('EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7')">
-    ◎ Solana <span>📋</span>
-  </div>
-
-  <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
-    ◇ USDC (Polygon) <span>📋</span>
-  </div>
-
-  <a class="btn"
-     href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9"
-     target="_blank" rel="noopener">
-     USDC (Polygon · Trust)
-  </a>
-</div>
-
-</div>
 
 <script>
 function copyText(text) {
