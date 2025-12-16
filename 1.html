@@ -6,139 +6,118 @@
 <title>Переказ коштів</title>
 
 <style>
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-}
-
-/* ===== ФОН (КОНТРАСТНЫЙ И СТАЦИОНАРНЫЙ) ===== */
+/* ===== Общий фон (liquid glass background) ===== */
 body {
-  min-height: 100vh;
-  padding: 40px 16px;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  background: url("/bg-liquid.webp") center / cover no-repeat fixed;
   color: #fff;
-
-  background-image:
-    url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
 }
 
-/* затемнение */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 80, 40, 0.45);
-  z-index: -1;
-}
-
-/* ===== КОНТЕЙНЕР ===== */
+/* ===== Контейнер ===== */
 .container {
   max-width: 420px;
-  margin: auto;
+  margin: 0 auto;
+  padding: 20px 16px 40px;
 }
 
-/* ===== ТЕКСТ ===== */
 h1 {
-  text-align: center;
+  margin: 0 0 6px;
   font-size: 26px;
-  margin-bottom: 6px;
+  font-weight: 600;
 }
 
 .small {
-  text-align: center;
-  opacity: .8;
-  margin-bottom: 24px;
+  opacity: 0.75;
+  font-size: 14px;
+  margin-bottom: 18px;
 }
 
-/* ===== НАСТОЯЩЕЕ LIQUID GLASS ===== */
+/* ===== Секции ===== */
 .section {
-  margin-bottom: 18px;
-  padding: 16px;
-  border-radius: 20px;
+  display: grid;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+/* ===== Стеклянная кнопка ===== */
+.btn,
+.copy {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 14px 18px;
+  border-radius: 18px;
 
   background: rgba(255,255,255,0.18);
 
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(18px) saturate(170%);
+  backdrop-filter: blur(18px) saturate(170%);
 
-  /* КЛЮЧ: SVG-ИСКАЖЕНИЕ */
-  filter: url(#liquid);
+  -webkit-mask-image: url("/mask/glass-edge.webp");
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
 
-  border: 1px solid rgba(255,255,255,0.35);
+  color: #fff;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
 
   box-shadow:
-    0 20px 50px rgba(0,0,0,.35),
-    inset 0 1px 10px rgba(255,255,255,.25);
+    0 10px 30px rgba(0,0,0,0.25),
+    inset 0 1px 1px rgba(255,255,255,0.35);
+
+  transition:
+    transform .15s ease,
+    box-shadow .15s ease,
+    background .15s ease;
 }
 
-/* ===== КНОПКИ ===== */
-.btn {
-  display: block;
-  text-align: center;
-  text-decoration: none;
-  color: #fff;
+/* ===== Подсветка неровного края ===== */
+.btn::after,
+.copy::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
 
-  padding: 14px;
-  margin-bottom: 10px;
-  border-radius: 14px;
+  background:
+    radial-gradient(
+      at 30% 20%,
+      rgba(255,255,255,0.45),
+      transparent 60%
+    );
 
-  background: rgba(255,255,255,0.22);
-  border: 1px solid rgba(255,255,255,0.35);
+  mix-blend-mode: overlay;
+  opacity: 0.6;
 }
 
+/* ===== Активное нажатие (iOS-style) ===== */
+.btn:active,
+.copy:active {
+  transform: scale(0.97);
+  box-shadow:
+    0 6px 18px rgba(0,0,0,0.3),
+    inset 0 1px 2px rgba(255,255,255,0.25);
+}
+
+/* ===== Copy-блок ===== */
 .copy {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  padding: 14px;
-  margin-top: 10px;
-  border-radius: 14px;
   cursor: pointer;
+}
 
-  background: rgba(255,255,255,0.22);
-  border: 1px solid rgba(255,255,255,0.35);
+/* ===== Мелкие улучшения ===== */
+.section:last-child {
+  margin-bottom: 0;
 }
 </style>
 </head>
 
 <body>
-
-<!-- ===== SVG LIQUID FILTER ===== -->
-<svg width="0" height="0">
-  <filter id="liquid">
-    <!-- ШУМ -->
-    <feTurbulence
-      type="fractalNoise"
-      baseFrequency="0.015 0.03"
-      numOctaves="2"
-      seed="2"
-      result="noise">
-      <animate
-        attributeName="baseFrequency"
-        dur="12s"
-        values="
-          0.015 0.03;
-          0.02 0.04;
-          0.015 0.03"
-        repeatCount="indefinite"/>
-    </feTurbulence>
-
-    <!-- ИСКАЖЕНИЕ -->
-    <feDisplacementMap
-      in="SourceGraphic"
-      in2="noise"
-      scale="18"
-      xChannelSelector="R"
-      yChannelSelector="G"/>
-  </filter>
-</svg>
-
 <div class="container">
 
 <h1>💳 Перевести кошти</h1>
@@ -159,15 +138,44 @@ h1 {
   <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">Google Pay</a>
 </div>
 
+<div class="section">
+  <a class="btn" href="https://app.binance.com/uni-qr/LXViL5Hb">Binance Pay</a>
+</div>
+
+<div class="section">
+  <div class="copy" onclick="copyText('bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp')">
+    ₿ Bitcoin (BTC) <span>📋</span>
+  </div>
+
+  <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
+    ◆ Ethereum (Ethereum) <span>📋</span>
+  </div>
+
+  <div class="copy" onclick="copyText('TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh')">
+    ₮ USDT Tron <span>📋</span>
+  </div>
+
+  <div class="copy" onclick="copyText('EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7')">
+    ◎ Solana (SOL) <span>📋</span>
+  </div>
+
+  <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
+    ◇ USDC (Polygon) <span>📋</span>
+  </div>
+
+  <a class="btn"
+     href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9&asset=c966_t0x576Cf361711cd940CD9C397BB98C4C896cBd38De"
+     target="_blank" rel="noopener">
+     USDC (Polygon · Trust)
+  </a>
+</div>
+
 </div>
 
 <script>
 function copyText(text) {
   navigator.clipboard.writeText(text);
-  navigator.vibrate?.(20);
-  alert("Скопійовано:\n" + text);
 }
 </script>
-
 </body>
 </html>
