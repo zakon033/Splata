@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="uk">
 <head>
@@ -20,7 +19,6 @@
 }
 
 html {
-  /* Встановлюємо темний колір на найнижчий шар (overscroll/системні смуги) */
   background-color: #1b1f3b; 
 }
 
@@ -31,24 +29,48 @@ body {
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: #ffffff;
-  
-  /* КРИТИЧНО ВАЖЛИВО: ПОВНА ПРОЗОРІСТЬ BODY для видимості фону */
   background: transparent !important; 
   position: relative;
 }
 
 /* =========================
-   2. ФОНОВЕ ЗОБРАЖЕННЯ
+   2. ФОНОВЕ ЗОБРАЖЕННЯ 
 ========================= */
-#background-image {
+#background-image-wrap {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1; /* Завжди під контентом */
-  object-fit: cover;
+  z-index: -1; 
+  
+  background-image: url("./bg-liquid.webp");
+  background-size: cover;
+  background-position: center center;
+  background-attachment: fixed; 
+  
   transform: translateZ(0); 
+  -webkit-transform: translateZ(0);
+
+  /* ГРАДІЄНТНА МАСКА */
+  mask-image: linear-gradient(
+    to bottom, 
+    transparent 0%, 
+    rgba(0, 0, 0, 0) calc(env(safe-area-inset-top) + 10px), 
+    black calc(env(safe-area-inset-top) + 60px), 
+    black calc(100% - 60px - env(safe-area-inset-bottom)), 
+    rgba(0, 0, 0, 0) calc(100% - 10px - env(safe-area-inset-bottom)), 
+    transparent 100% 
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom, 
+    transparent 0%, 
+    rgba(0, 0, 0, 0) calc(env(safe-area-inset-top) + 10px), 
+    black calc(env(safe-area-inset-top) + 60px), 
+    black calc(100% - 60px - env(safe-area-inset-bottom)), 
+    rgba(0, 0, 0, 0) calc(100% - 10px - env(safe-area-inset-bottom)), 
+    transparent 100% 
+  );
 }
 
 /* =========================
@@ -59,16 +81,17 @@ body {
   width: 100%;
   margin: 0 auto;
   
-  /* Контейнер прозорий, щоб бачити фон */
   background-color: transparent; 
   position: relative;
   z-index: 10; 
   
-  /* ВАЖЛИВО: Збільшені відступи, щоб контент не перекривався статусбаром/панеллю */
+  transform: translateZ(0); 
+  -webkit-transform: translateZ(0);
+
   padding: 
-    calc(60px + env(safe-area-inset-top)) /* Збільшено відступ зверху */
+    calc(60px + env(safe-area-inset-top)) 
     20px 
-    calc(60px + env(safe-area-inset-bottom)); /* Збільшено відступ знизу */
+    calc(60px + env(safe-area-inset-bottom)); 
     
   text-align: center;
 }
@@ -91,21 +114,26 @@ h1 {
    4. КНОПКИ (BLUR)
 ========================= */
 .btn {
+  /* НОВЕ: ПОЗИЦІЯ ТА ОБМЕЖЕННЯ ДЛЯ ПСЕВДОЕЛЕМЕНТІВ */
   position: relative;
+  overflow: hidden; 
+  
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
+  
   margin-bottom: 12px;
-  padding: 18px 20px;
   
   backdrop-filter: blur(15px); 
   -webkit-backdrop-filter: blur(15px);
   
   background-color: rgba(255, 255, 255, 0.1); 
   
-  border: 1px solid rgba(255, 255, 255, 0.2); 
-  border-radius: 16px;
+  /* ЗМІНЕНО: ПРИБИРАЄМО РАМКУ (border), ЩОБ ЗАМІНИТИ ЇЇ НА СВІТІННЯ */
+  border: none; 
+  
+  /* ЗМІНЕНО: РАДІУС ЗАКРУГЛЕННЯ 70PX */
+  border-radius: 70px; 
   
   color: #fff;
   text-decoration: none;
@@ -114,18 +142,92 @@ h1 {
   
   box-shadow: 0 4px 15px rgba(0,0,0,0.3);
   
-  transition: transform 0.1s, background-color 0.2s;
+  transition: transform 0.1s, background-color 0.2s; 
   cursor: pointer;
   user-select: none;
+}
+
+/* НОВИЙ СТИЛЬ: ПСЕВДОЕЛЕМЕНТИ ДЛЯ СВІТІННЯ */
+.btn::before,
+.btn::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 1.5px; /* Товщина лінії */
+    z-index: 1;
+}
+
+/* ВЕРХНЯ ЛІНІЯ (СВІТЛА ВГОРІ) */
+.btn::before {
+    top: 0;
+    /* Білий градієнт, що зникає */
+    background: linear-gradient(
+        to right, 
+        rgba(255, 255, 255, 0) 0%, 
+        rgba(255, 255, 255, 0.3) 25%, 
+        rgba(255, 255, 255, 0.5) 50%, 
+        rgba(255, 255, 255, 0.3) 75%, 
+        rgba(255, 255, 255, 0) 100%
+    );
+}
+
+/* НИЖНЯ ЛІНІЯ (ТРОХИ ТЕМНІША) */
+.btn::after {
+    bottom: 0;
+    /* Градієнт, що імітує ледь помітний відблиск знизу */
+    background: linear-gradient(
+        to right, 
+        rgba(255, 255, 255, 0) 0%, 
+        rgba(255, 255, 255, 0.1) 25%, 
+        rgba(255, 255, 255, 0.2) 50%, 
+        rgba(255, 255, 255, 0.1) 75%, 
+        rgba(255, 255, 255, 0) 100%
+    );
+}
+
+
+.btn:not(#copy-toast) {
+    width: 100%;
+    padding: 27px 20px; 
 }
 
 a.btn {
   justify-content: center;
 }
 
-.btn:active {
+/* СТИЛЬ НАТИСКАННЯ: ЗЕЛЕНЕ СВІТІННЯ (ВИКОРИСТОВУЄТЬСЯ І ДЛЯ ТОСТУ) */
+.btn.clicked {
   transform: scale(0.97);
-  background-color: rgba(255, 255, 255, 0.2); 
+  background-color: rgba(46, 204, 113, 0.3);
+  /* !!! ВАЖЛИВО: додаємо зелені градієнтні рамки при натисканні/успіху !!! */
+}
+
+/* ПЕРЕВИЗНАЧАЄМО СВІТІННЯ ДЛЯ НАТИСНУТОЇ/СКОПІЙОВАНОЇ КНОПКИ */
+.btn.clicked::before, 
+.btn.copied::before {
+    background: linear-gradient(
+        to right, 
+        rgba(46, 204, 113, 0) 0%, 
+        rgba(46, 204, 113, 0.6) 50%, 
+        rgba(46, 204, 113, 0) 100%
+    );
+}
+.btn.clicked::after,
+.btn.copied::after {
+     background: linear-gradient(
+        to right, 
+        rgba(46, 204, 113, 0) 0%, 
+        rgba(46, 204, 113, 0.4) 50%, 
+        rgba(46, 204, 113, 0) 100%
+    );
+}
+
+
+/* СТИЛЬ УСПІШНОГО КОПІЮВАННЯ (ВИКОРИСТОВУЄТЬСЯ І ДЛЯ ТОСТУ) */
+.btn.copied {
+  transform: scale(1);
+  background-color: rgba(46, 204, 113, 0.3) !important;
 }
 
 .icon-copy {
@@ -134,102 +236,127 @@ a.btn {
 }
 
 /* =========================
-   5. OVERLAY FADES (ПОВЕРТАЄМО, АЛЕ БЕЗ ФІКСОВАНИХ БЛОКІВ)
-   Це створює ефект "зникнення" контенту в темний фон.
+   5. ТОСТ-УВЕДОМЛЕНИЕ О КОПИРОВАНИИ
 ========================= */
-.container::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  /* Висота відповідає верхньому padding, щоб не закривати кнопки */
-  height: calc(50px + env(safe-area-inset-top)); 
-  z-index: 100; 
-  pointer-events: none; 
-  
-  background: linear-gradient(
-    to bottom, 
-    #1b1f3b 0%, 
-    rgba(27, 31, 59, 0.8) 50%, 
-    transparent 100%
-  );
+#copy-toast {
+    position: fixed;
+    top: 50%; 
+    left: 50%;
+    
+    transform: translate(-50%, calc(-50% - 150px)); 
+    
+    padding: 15px 30px; 
+    font-size: 20px;     
+    font-weight: 600;
+    color: #ffffff; 
+    
+    z-index: 1000; 
+    
+    opacity: 0;
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease-out;
 }
 
-.container::after {
-  content: "";
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  /* Висота відповідає нижньому padding */
-  height: calc(60px + env(safe-area-inset-bottom)); 
-  z-index: 100;
-  pointer-events: none;
-  
-  background: linear-gradient(
-    to top, 
-    #1b1f3b 0%, 
-    rgba(27, 31, 59, 0.8) 50%,
-    transparent 100%
-  );
+#copy-toast.show {
+    opacity: 1;
+    transform: translate(-50%, -50%); 
 }
 </style>
 </head>
 
 <body>
 
-<img id="background-image" src="./bg-liquid.webp" alt="Fluid Background">
+<div id="background-image-wrap" role="img" aria-label="Fluid Background"></div>
 
 <div class="container">
   <h1>💳 Перевести кошти</h1>
   <div class="subtitle">Оберіть зручний спосіб</div>
 
-  <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">monobank</a>
-  <a class="btn" href="https://www.privat24.ua/send/id4xg">ПриватБанк</a>
-  <div class="btn" onclick="copyText('4441114459954077', this)">
+  <a class="btn" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">monobank</a>
+  <a class="btn" data-href="https://www.privat24.ua/send/id4xg" onclick="handleLinkClick(this)">ПриватБанк</a>
+  
+  <div class="btn" onclick="handleCopyClick(this, '4441114459954077')">
     <span>💳 4441 •••• •••• 4077</span>
     <span class="icon-copy">📋</span>
   </div>
-  <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK"> Apple Pay</a>
-  <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">Google Pay</a>
-  <a class="btn" href="https://app.binance.com/uni-qr/LXViL5Hb">Binance Pay</a>
-  <div class="btn" onclick="copyText('bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp', this)">
+  
+  <a class="btn" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)"> Apple Pay</a>
+  <a class="btn" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">Google Pay</a>
+  <a class="btn" data-href="https://app.binance.com/uni-qr/LXViL5Hb" onclick="handleLinkClick(this)">Binance Pay</a>
+  
+  <div class="btn" onclick="handleCopyClick(this, 'bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp')">
     <span>₿ Bitcoin (BTC)</span>
     <span class="icon-copy">📋</span>
   </div>
-  <div class="btn" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9', this)">
+  <div class="btn" onclick="handleCopyClick(this, '0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
     <span>◆ Ethereum</span>
     <span class="icon-copy">📋</span>
   </div>
-  <div class="btn" onclick="copyText('TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh', this)">
+  <div class="btn" onclick="handleCopyClick(this, 'TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh')">
     <span>₮ USDT Tron</span>
     <span class="icon-copy">📋</span>
   </div>
-  <div class="btn" onclick="copyText('EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7', this)">
+  <div class="btn" onclick="handleCopyClick(this, 'EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7')">
     <span>◎ Solana</span>
     <span class="icon-copy">📋</span>
   </div>
-  <div class="btn" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9', this)">
+  <div class="btn" onclick="handleCopyClick(this, '0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
     <span>◇ USDC (Polygon)</span>
     <span class="icon-copy">📋</span>
   </div>
-  <a class="btn" href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9" target="_blank">
+  <a class="btn" data-href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9" target="_blank" onclick="handleLinkClick(this)">
      USDC (Polygon · Trust)
   </a>
 </div>
 
+<div id="copy-toast">Скопировано!</div>
+
 <script>
-// JS залишається незмінним
-function copyText(text, element) {
+// ===================================
+// УНІВЕРСАЛЬНІ ФУНКЦІЇ ДЛЯ КНОПОК
+// ===================================
+
+const CLICK_ANIMATION_DURATION = 150; 
+const TOAST_DISPLAY_DURATION = 2000; 
+
+// 1. Анімація натискання (універсальна)
+function animateClick(element) {
+  return new Promise(resolve => {
+    element.classList.add('clicked');
+    
+    setTimeout(() => {
+      element.classList.remove('clicked');
+      resolve();
+    }, CLICK_ANIMATION_DURATION);
+  });
+}
+
+// 2. Обробник для посилань (<a>)
+async function handleLinkClick(element) {
+  event.preventDefault(); 
+  
+  const targetURL = element.getAttribute('data-href');
+  if (!targetURL) return;
+
+  await animateClick(element); 
+  
+  window.location.href = targetURL;
+}
+
+
+// 3. Обробник для копіювання (<div>)
+async function handleCopyClick(element, textToCopy) {
+  await animateClick(element);
+  
   if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(() => animateSuccess(element))
-      .catch(() => fallbackCopy(text, element));
+    navigator.clipboard.writeText(textToCopy)
+      .then(() => animateSuccess(element))
+      .catch(() => fallbackCopy(textToCopy, element));
   } else {
-    fallbackCopy(text, element);
+    fallbackCopy(textToCopy, element);
   }
 }
 
+// 4. Логіка копіювання (для сумісності)
 function fallbackCopy(text, element) {
   const ta = document.createElement('textarea');
   ta.value = text;
@@ -245,18 +372,26 @@ function fallbackCopy(text, element) {
   document.body.removeChild(ta);
 }
 
+// 5. Візуалізація успіху (включає тост)
 function animateSuccess(el) {
   if (!el) return;
-  const oldBg = el.style.backgroundColor;
-  const oldBorder = el.style.borderColor;
   
-  el.style.backgroundColor = 'rgba(46, 204, 113, 0.3)';
-  el.style.borderColor = 'rgba(46, 204, 113, 0.7)';
-  
+  // 1. Зелена вспышка кнопки
+  el.classList.add('copied');
   setTimeout(() => {
-    el.style.backgroundColor = oldBg;
-    el.style.borderColor = oldBorder;
+    el.classList.remove('copied');
   }, 250);
+
+  // 2. Показ тост-уведомления
+  const toast = document.getElementById('copy-toast');
+  if (toast) {
+    toast.classList.add('btn', 'clicked', 'show');
+    
+    // Скрываем тост через заданное время
+    setTimeout(() => {
+      toast.classList.remove('btn', 'clicked', 'show');
+    }, TOAST_DISPLAY_DURATION);
+  }
 }
 </script>
 
