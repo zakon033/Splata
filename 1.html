@@ -2,25 +2,51 @@
 <html lang="uk">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Переказ коштів</title>
 
 <style>
-/* ===== Общий фон (liquid glass background) ===== */
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
-  background: url("/bg-liquid.webp") center / cover no-repeat fixed;
-  color: #fff;
+/* =========================
+   1. БАЗОВЫЙ СБРОС
+========================= */
+* {
+  box-sizing: border-box;
 }
 
-/* ===== Контейнер ===== */
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+/* =========================
+   2. ФОН (ЖИДКОЕ СТЕКЛО)
+   ФАЙЛ: ./bg-liquid.webp
+========================= */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  color: #ffffff;
+
+  background-color: #1b1f3b; /* fallback */
+  background-image: url("./bg-liquid.webp");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+/* =========================
+   3. КОНТЕЙНЕР
+========================= */
 .container {
   max-width: 420px;
   margin: 0 auto;
-  padding: 20px 16px 40px;
+  padding: 24px 16px 40px;
 }
 
+/* =========================
+   4. ЗАГОЛОВКИ
+========================= */
 h1 {
   margin: 0 0 6px;
   font-size: 26px;
@@ -28,19 +54,23 @@ h1 {
 }
 
 .small {
-  opacity: 0.75;
   font-size: 14px;
+  opacity: 0.75;
   margin-bottom: 18px;
 }
 
-/* ===== Секции ===== */
+/* =========================
+   5. СЕКЦИИ
+========================= */
 .section {
   display: grid;
   gap: 12px;
   margin-bottom: 22px;
 }
 
-/* ===== Стеклянная кнопка ===== */
+/* =========================
+   6. СТЕКЛЯННЫЕ ЭЛЕМЕНТЫ
+========================= */
 .btn,
 .copy {
   position: relative;
@@ -51,32 +81,48 @@ h1 {
   padding: 14px 18px;
   border-radius: 18px;
 
-  background: rgba(255,255,255,0.18);
+  /* ВАЖНО: фон есть всегда */
+  background-color: rgba(255,255,255,0.18);
 
+  /* Safari iOS */
   -webkit-backdrop-filter: blur(18px) saturate(170%);
   backdrop-filter: blur(18px) saturate(170%);
 
-  -webkit-mask-image: url("/mask/glass-edge.webp");
-  -webkit-mask-size: 100% 100%;
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-
-  color: #fff;
-  text-decoration: none;
+  color: #ffffff;
   font-size: 16px;
   font-weight: 500;
+  text-decoration: none;
+
+  border: none;
+  outline: none;
 
   box-shadow:
-    0 10px 30px rgba(0,0,0,0.25),
+    0 10px 28px rgba(0,0,0,0.25),
     inset 0 1px 1px rgba(255,255,255,0.35);
 
   transition:
     transform .15s ease,
-    box-shadow .15s ease,
-    background .15s ease;
+    box-shadow .15s ease;
 }
 
-/* ===== Подсветка неровного края ===== */
+/* =========================
+   7. МАСКА (НЕРОВНЫЙ КРАЙ)
+   ФАЙЛ: ./mask/glass-edge.webp
+   ⚠️ ТОЛЬКО если поддерживается
+========================= */
+@supports (-webkit-mask-image: url("")) {
+  .btn,
+  .copy {
+    -webkit-mask-image: url("./mask/glass-edge.webp");
+    -webkit-mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+  }
+}
+
+/* =========================
+   8. ПОДСВЕТКА КРАЯ
+========================= */
 .btn::after,
 .copy::after {
   content: "";
@@ -96,23 +142,22 @@ h1 {
   opacity: 0.6;
 }
 
-/* ===== Активное нажатие (iOS-style) ===== */
+/* =========================
+   9. НАЖАТИЕ (iOS)
+========================= */
 .btn:active,
 .copy:active {
   transform: scale(0.97);
   box-shadow:
-    0 6px 18px rgba(0,0,0,0.3),
+    0 6px 16px rgba(0,0,0,0.3),
     inset 0 1px 2px rgba(255,255,255,0.25);
 }
 
-/* ===== Copy-блок ===== */
+/* =========================
+   10. COPY
+========================= */
 .copy {
   cursor: pointer;
-}
-
-/* ===== Мелкие улучшения ===== */
-.section:last-child {
-  margin-bottom: 0;
 }
 </style>
 </head>
@@ -148,7 +193,7 @@ h1 {
   </div>
 
   <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
-    ◆ Ethereum (Ethereum) <span>📋</span>
+    ◆ Ethereum <span>📋</span>
   </div>
 
   <div class="copy" onclick="copyText('TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh')">
@@ -156,7 +201,7 @@ h1 {
   </div>
 
   <div class="copy" onclick="copyText('EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7')">
-    ◎ Solana (SOL) <span>📋</span>
+    ◎ Solana <span>📋</span>
   </div>
 
   <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
@@ -164,7 +209,7 @@ h1 {
   </div>
 
   <a class="btn"
-     href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9&asset=c966_t0x576Cf361711cd940CD9C397BB98C4C896cBd38De"
+     href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9"
      target="_blank" rel="noopener">
      USDC (Polygon · Trust)
   </a>
@@ -174,7 +219,9 @@ h1 {
 
 <script>
 function copyText(text) {
-  navigator.clipboard.writeText(text);
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text);
+  }
 }
 </script>
 </body>
