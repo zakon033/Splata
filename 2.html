@@ -11,7 +11,7 @@
 
 <style>
 /* =========================
-   1. БАЗОВІ НАЛАШТУВАННЯ (ВСЕ ПРОЗОРО)
+   1. БАЗОВІ НАЛАШТУВАННЯ ТА ВИПРАВЛЕННЯ СМУГ
 ========================= */
 * {
   box-sizing: border-box;
@@ -19,7 +19,7 @@
 }
 
 html {
-  /* Темне "дно" для overscroll */
+  /* Встановлюємо темний колір на найнижчий шар (overscroll/системні смуги) */
   background-color: #1b1f3b; 
 }
 
@@ -31,7 +31,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: #ffffff;
   
-  /* КРИТИЧНО ВАЖЛИВО: ПОВНА ПРОЗОРІСТЬ BODY */
+  /* КРИТИЧНО ВАЖЛИВО: ПОВНА ПРОЗОРІСТЬ BODY для видимості фону */
   background: transparent !important; 
   position: relative;
 }
@@ -45,55 +45,29 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 1; /* Змінено з -1 на 1, щоб бути нижче всього */
+  z-index: -1; /* Завжди під контентом */
   object-fit: cover;
   transform: translateZ(0); 
 }
 
 /* =========================
-   3. НЕРУХОМІ БЛОКИ (НОВИЙ ШАР)
-   Це вирішує проблему білого статусбару
-========================= */
-.fixed-cover {
-  position: fixed;
-  left: 0;
-  width: 100%;
-  z-index: 100; /* Закриває фон, але залишається під контентом */
-  
-  /* Повністю непрозорий темний колір */
-  background-color: #1b1f3b; 
-}
-
-#top-cover {
-  top: 0;
-  /* Висота має перекривати статусбар і трішки заходити на контент */
-  height: calc(50px + env(safe-area-inset-top)); 
-}
-
-#bottom-cover {
-  bottom: 0;
-  /* Висота має перекривати нижній системний бар */
-  height: calc(60px + env(safe-area-inset-bottom)); 
-}
-
-
-/* =========================
-   4. КОНТЕЙНЕР (ПРОКРУЧУВАНИЙ КОНТЕНТ)
+   3. КОНТЕЙНЕР (ПРОКРУЧУВАНИЙ КОНТЕНТ)
 ========================= */
 .container {
   max-width: 420px;
   width: 100%;
   margin: 0 auto;
   
+  /* Контейнер прозорий, щоб бачити фон */
   background-color: transparent; 
   position: relative;
-  z-index: 200; /* Найвищий шар, щоб бути над каверами */
+  z-index: 10; 
   
-  /* Встановлюємо додаткові відступи, щоб контент не заходив під темні блоки */
+  /* ВАЖЛИВО: Збільшені відступи, щоб контент не перекривався статусбаром/панеллю */
   padding: 
-    calc(50px + env(safe-area-inset-top)) 
+    calc(60px + env(safe-area-inset-top)) /* Збільшено відступ зверху */
     20px 
-    calc(60px + env(safe-area-inset-bottom));
+    calc(60px + env(safe-area-inset-bottom)); /* Збільшено відступ знизу */
     
   text-align: center;
 }
@@ -113,7 +87,7 @@ h1 {
 }
 
 /* =========================
-   5. КНОПКИ (BLUR)
+   4. КНОПКИ (BLUR)
 ========================= */
 .btn {
   position: relative;
@@ -152,15 +126,59 @@ a.btn {
   transform: scale(0.97);
   background-color: rgba(255, 255, 255, 0.2); 
 }
+
+.icon-copy {
+  font-size: 18px;
+  opacity: 0.8;
+}
+
+/* =========================
+   5. OVERLAY FADES (ПОВЕРТАЄМО, АЛЕ БЕЗ ФІКСОВАНИХ БЛОКІВ)
+   Це створює ефект "зникнення" контенту в темний фон.
+========================= */
+.container::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  /* Висота відповідає верхньому padding, щоб не закривати кнопки */
+  height: calc(50px + env(safe-area-inset-top)); 
+  z-index: 100; 
+  pointer-events: none; 
+  
+  background: linear-gradient(
+    to bottom, 
+    #1b1f3b 0%, 
+    rgba(27, 31, 59, 0.8) 50%, 
+    transparent 100%
+  );
+}
+
+.container::after {
+  content: "";
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  /* Висота відповідає нижньому padding */
+  height: calc(60px + env(safe-area-inset-bottom)); 
+  z-index: 100;
+  pointer-events: none;
+  
+  background: linear-gradient(
+    to top, 
+    #1b1f3b 0%, 
+    rgba(27, 31, 59, 0.8) 50%,
+    transparent 100%
+  );
+}
 </style>
 </head>
 
 <body>
 
 <img id="background-image" src="./bg-liquid.webp" alt="Fluid Background">
-
-<div id="top-cover" class="fixed-cover"></div>
-<div id="bottom-cover" class="fixed-cover"></div>
 
 <div class="container">
   <h1>💳 Перевести кошти</h1>
