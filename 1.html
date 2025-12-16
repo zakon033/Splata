@@ -27,7 +27,7 @@ body {
   padding: 0;
   width: 100%;
   min-height: 100vh;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: #ffffff;
   background: transparent !important; 
   position: relative;
@@ -119,9 +119,10 @@ h1 {
   
   display: flex;
   align-items: center;
-  justify-content: space-between;
   
-  /* ЗМІНЕНО: ІНТЕРВАЛ МІЖ КНОПКАМИ ЗМЕНШЕНО В 2 РАЗИ (з 30px до 15px) */
+  /* ЗМІНЕНО: ЦЕНТРУВАННЯ ВМІСТУ ВЕРТИКАЛЬНО */
+  justify-content: center;
+  
   margin-bottom: 15px; 
   
   backdrop-filter: blur(15px); 
@@ -135,7 +136,9 @@ h1 {
   
   color: #fff;
   text-decoration: none;
-  font-size: 16px;
+  
+  /* ЗМІНЕНО: РОЗМІР ТЕКСТУ ЗБІЛЬШЕНО НА 35% (до 22px) */
+  font-size: 22px;
   font-weight: 500;
   
   box-shadow: 0 4px 15px rgba(0,0,0,0.3);
@@ -186,13 +189,21 @@ h1 {
 /* СТИЛІ РОЗМІРУ ТІЛЬКИ ДЛЯ СПРАВЖНІХ КНОПОК */
 .btn:not(#copy-toast) {
     width: 100%;
-    /* ЗМІНЕНО: ВИСОТА КНОПОК ЗБІЛЬШЕНА НА 8% (з 22px до 24px) */
     padding: 24px 20px; 
 }
 
-a.btn {
-  justify-content: center;
+/* КОРИГУВАННЯ ДЛЯ КНОПОК З ІКОНКОЮ КОПІЮВАННЯ */
+.btn > span {
+    /* Додаємо невеликий відступ, щоб іконка не прилипала до тексту */
+    margin: 0 8px;
 }
+.btn > span:first-child {
+    margin-left: 0;
+}
+.btn > span:last-child {
+    margin-right: 0;
+}
+
 
 /* СТИЛЬ НАТИСКАННЯ: ЗЕЛЕНЕ СВІТІННЯ (ВИКОРИСТОВУЄТЬСІЯ І ДЛЯ ТОСТУ) */
 .btn.clicked {
@@ -228,8 +239,10 @@ a.btn {
 }
 
 .icon-copy {
-  font-size: 18px;
+  /* Збільшуємо розмір іконки відповідно до тексту */
+  font-size: 22px; 
   opacity: 0.8;
+  margin-left: 10px; /* Додаємо чіткий відступ від тексту */
 }
 
 /* =========================
@@ -240,10 +253,12 @@ a.btn {
     top: 50%; 
     left: 50%;
     
+    /* Тост успадковує font-size: 22px та justify-content: center */
+    
     transform: translate(-50%, calc(-50% - 150px)); 
     
     padding: 15px 30px; 
-    font-size: 20px;     
+    font-size: 22px; /* Встановлюємо, щоб не конфліктував, якщо успадкування не спрацює */
     font-weight: 600;
     color: #ffffff; 
     
