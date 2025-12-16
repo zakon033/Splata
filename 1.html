@@ -1,369 +1,264 @@
+
 <!doctype html>
 <html lang="uk">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Переказ коштів</title>
+
+<meta name="theme-color" content="#1b1f3b"> 
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> 
+<meta name="apple-mobile-web-app-capable" content="yes"> 
 
 <style>
 /* =========================
-   1. БАЗОВЫЙ СБРОС
+   1. БАЗОВІ НАЛАШТУВАННЯ ТА ВИПРАВЛЕННЯ СМУГ
 ========================= */
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent; 
 }
 
-html, body {
+html {
+  /* Встановлюємо темний колір на найнижчий шар (overscroll/системні смуги) */
+  background-color: #1b1f3b; 
+}
+
+body {
   margin: 0;
   padding: 0;
-  height: 100%;
-  overflow: hidden; /* Убираем скролл у body */
-}
-
-/* =========================
-   2. ОСНОВНОЙ ФОН
-========================= */
-body {
-  background-color: #1b1f3b; /* fallback цвет */
+  width: 100%;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #ffffff;
+  
+  /* КРИТИЧНО ВАЖЛИВО: ПОВНА ПРОЗОРІСТЬ BODY для видимості фону */
+  background: transparent !important; 
   position: relative;
 }
 
-/* Статичное фоновое изображение */
-body::before {
-  content: "";
-  position: fixed; /* Фиксируем фон */
-  top: -10px; /* Расширяем за пределы экрана */
-  left: -10px;
-  right: -10px;
-  bottom: -10px; /* Убираем белые полосы */
-  z-index: -1; /* Отправляем фон на задний план */
-  
-  background-color: #1b1f3b;
-  background-image: url("./bg-liquid.webp"); 
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: cover;
-  background-attachment: scroll; /* Важно для мобильных */
-  
-  /* Гарантируем, что фон не будет двигаться */
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
+/* =========================
+   2. ФОНОВЕ ЗОБРАЖЕННЯ
+========================= */
+#background-image {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1; /* Завжди під контентом */
+  object-fit: cover;
+  transform: translateZ(0); 
 }
 
 /* =========================
-   3. КОНТЕЙНЕР С ПРОКРУТКОЙ
+   3. КОНТЕЙНЕР (ПРОКРУЧУВАНИЙ КОНТЕНТ)
 ========================= */
 .container {
   max-width: 420px;
-  width: 100%; 
+  width: 100%;
   margin: 0 auto;
-  padding: 24px 16px 40px;
   
-  /* Делаем контейнер прокручиваемым */
-  height: 100vh;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch; /* Плавный скролл на iOS */
+  /* Контейнер прозорий, щоб бачити фон */
+  background-color: transparent; 
+  position: relative;
+  z-index: 10; 
   
-  /* Убираем полосы прокрутки для чистоты дизайна */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE и Edge */
+  /* ВАЖЛИВО: Збільшені відступи, щоб контент не перекривався статусбаром/панеллю */
+  padding: 
+    calc(60px + env(safe-area-inset-top)) /* Збільшено відступ зверху */
+    20px 
+    calc(60px + env(safe-area-inset-bottom)); /* Збільшено відступ знизу */
+    
+  text-align: center;
 }
 
-/* Скрываем скроллбар в Webkit браузерах */
-.container::-webkit-scrollbar {
-  display: none;
-}
-
-/* =========================
-   4. ЗАГОЛОВКИ
-========================= */
 h1 {
-  margin: 0 0 6px;
-  font-size: 26px;
-  font-weight: 600;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 
-.small {
-  font-size: 14px;
-  opacity: 0.85;
-  margin-bottom: 24px;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-}
-
-/* =========================
-   5. СЕКЦИИ
-========================= */
-.section {
-  display: grid;
-  gap: 14px;
+.subtitle {
+  font-size: 15px;
+  opacity: 0.9;
   margin-bottom: 30px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
 
 /* =========================
-   6. СТЕКЛЯННЫЕ ЭЛЕМЕНТЫ
+   4. КНОПКИ (BLUR)
 ========================= */
-.btn,
-.copy {
+.btn {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  padding: 20px 18px; 
-  border-radius: 48px; 
-
-  /* ВАЖНО: фон есть всегда */
-  background-color: rgba(255,255,255,0.15);
-
-  /* Safari iOS */
-  -webkit-backdrop-filter: blur(18px) saturate(170%);
-  backdrop-filter: blur(18px) saturate(170%);
-
-  color: #ffffff;
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 18px 20px;
+  
+  backdrop-filter: blur(15px); 
+  -webkit-backdrop-filter: blur(15px);
+  
+  background-color: rgba(255, 255, 255, 0.1); 
+  
+  border: 1px solid rgba(255, 255, 255, 0.2); 
+  border-radius: 16px;
+  
+  color: #fff;
+  text-decoration: none;
   font-size: 16px;
   font-weight: 500;
-  text-decoration: none;
-
-  border: none;
-  outline: none;
+  
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  
+  transition: transform 0.1s, background-color 0.2s;
   cursor: pointer;
-
-  box-shadow:
-    0 8px 25px rgba(0,0,0,0.25),
-    inset 0 1px 1px rgba(255,255,255,0.25),
-    0 0 0 1px rgba(255,255,255,0.1); /* Легкая обводка */
-
-  transition:
-    transform .15s ease,
-    box-shadow .15s ease,
-    background-color .15s ease;
+  user-select: none;
 }
 
-/* Улучшение для ссылок */
-.btn {
-  text-align: center;
+a.btn {
+  justify-content: center;
 }
 
-/* =========================
-   7. МАСКА (НЕРОВНЫЙ КРАЙ)
-========================= */
-@supports (-webkit-mask-image: url("")) {
-  .btn,
-  .copy {
-    -webkit-mask-image: url("./mask/glass-edge.webp");
-    -webkit-mask-size: 100% 100%;
-    -webkit-mask-repeat: no-repeat;
-    -webkit-mask-position: center;
-  }
-}
-
-/* =========================
-   8. ПОДСВЕТКА КРАЯ
-========================= */
-.btn::after,
-.copy::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-
-  background:
-    radial-gradient(
-      at 30% 20%,
-      rgba(255,255,255,0.35),
-      transparent 60%
-    );
-
-  mix-blend-mode: overlay;
-  opacity: 0.7;
-}
-
-/* =========================
-   9. НАЖАТИЕ (iOS)
-========================= */
-.btn:active,
-.copy:active {
+.btn:active {
   transform: scale(0.97);
-  background-color: rgba(255,255,255,0.12);
-  box-shadow:
-    0 4px 15px rgba(0,0,0,0.3),
-    inset 0 1px 2px rgba(255,255,255,0.2);
+  background-color: rgba(255, 255, 255, 0.2); 
 }
 
-/* =========================
-   10. COPY - специальные стили
-========================= */
-.copy {
-  cursor: pointer;
-}
-
-.copy span:last-child {
-  opacity: 0.8;
+.icon-copy {
   font-size: 18px;
+  opacity: 0.8;
 }
 
 /* =========================
-   11. ПОДСКАЗКИ ПРИ ПРОКРУТКЕ
+   5. OVERLAY FADES (ПОВЕРТАЄМО, АЛЕ БЕЗ ФІКСОВАНИХ БЛОКІВ)
+   Це створює ефект "зникнення" контенту в темний фон.
 ========================= */
-/* Плавное затемнение сверху */
 .container::before {
   content: "";
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 80px;
-  background: linear-gradient(to bottom, 
-    rgba(27, 31, 59, 0.9) 0%, 
-    rgba(27, 31, 59, 0.4) 80%,
-    transparent 100%);
-  pointer-events: none;
-  z-index: 1;
+  /* Висота відповідає верхньому padding, щоб не закривати кнопки */
+  height: calc(50px + env(safe-area-inset-top)); 
+  z-index: 100; 
+  pointer-events: none; 
+  
+  background: linear-gradient(
+    to bottom, 
+    #1b1f3b 0%, 
+    rgba(27, 31, 59, 0.8) 50%, 
+    transparent 100%
+  );
 }
 
-/* Плавное затемнение снизу */
 .container::after {
   content: "";
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 80px;
-  background: linear-gradient(to top, 
-    rgba(27, 31, 59, 0.9) 0%, 
-    rgba(27, 31, 59, 0.4) 80%,
-    transparent 100%);
+  /* Висота відповідає нижньому padding */
+  height: calc(60px + env(safe-area-inset-bottom)); 
+  z-index: 100;
   pointer-events: none;
-  z-index: 1;
-}
-
-/* =========================
-   12. АДАПТИВНЫЕ ПРАВКИ
-========================= */
-@media (max-height: 700px) {
-  .container {
-    padding: 20px 16px 30px;
-  }
   
-  .btn,
-  .copy {
-    padding: 16px 18px;
-  }
-  
-  .section {
-    gap: 12px;
-  }
-}
-
-/* Для очень высоких экранов */
-@media (min-height: 900px) {
-  .container {
-    padding: 32px 16px 50px;
-  }
-  
-  .section {
-    gap: 16px;
-  }
+  background: linear-gradient(
+    to top, 
+    #1b1f3b 0%, 
+    rgba(27, 31, 59, 0.8) 50%,
+    transparent 100%
+  );
 }
 </style>
 </head>
 
 <body>
+
+<img id="background-image" src="./bg-liquid.webp" alt="Fluid Background">
+
 <div class="container">
+  <h1>💳 Перевести кошти</h1>
+  <div class="subtitle">Оберіть зручний спосіб</div>
 
-<h1>💳 Перевести кошти</h1>
-<div class="small">Оберіть зручний спосіб</div>
-
-<div class="section">
   <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">monobank</a>
   <a class="btn" href="https://www.privat24.ua/send/id4xg">ПриватБанк</a>
-
-  <div class="copy" onclick="copyText('4441114459954077')">
+  <div class="btn" onclick="copyText('4441114459954077', this)">
     <span>💳 4441 •••• •••• 4077</span>
-    <span>📋</span>
+    <span class="icon-copy">📋</span>
   </div>
-
   <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK"> Apple Pay</a>
   <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">Google Pay</a>
-  
   <a class="btn" href="https://app.binance.com/uni-qr/LXViL5Hb">Binance Pay</a>
-
-  <div class="copy" onclick="copyText('bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp')">
+  <div class="btn" onclick="copyText('bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp', this)">
     <span>₿ Bitcoin (BTC)</span>
-    <span>📋</span>
+    <span class="icon-copy">📋</span>
   </div>
-
-  <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
+  <div class="btn" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9', this)">
     <span>◆ Ethereum</span>
-    <span>📋</span>
+    <span class="icon-copy">📋</span>
   </div>
-
-  <div class="copy" onclick="copyText('TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh')">
+  <div class="btn" onclick="copyText('TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh', this)">
     <span>₮ USDT Tron</span>
-    <span>📋</span>
+    <span class="icon-copy">📋</span>
   </div>
-
-  <div class="copy" onclick="copyText('EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7')">
+  <div class="btn" onclick="copyText('EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7', this)">
     <span>◎ Solana</span>
-    <span>📋</span>
+    <span class="icon-copy">📋</span>
   </div>
-
-  <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
+  <div class="btn" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9', this)">
     <span>◇ USDC (Polygon)</span>
-    <span>📋</span>
+    <span class="icon-copy">📋</span>
   </div>
-
-  <a class="btn"
-     href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9"
-     target="_blank" rel="noopener">
-     <span>USDC (Polygon · Trust)</span>
+  <a class="btn" href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9" target="_blank">
+     USDC (Polygon · Trust)
   </a>
 </div>
 
-</div>
-
 <script>
-function copyText(text) {
+// JS залишається незмінним
+function copyText(text, element) {
   if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(function() {
-      // Визуальная обратная связь
-      event.target.style.backgroundColor = 'rgba(76, 175, 80, 0.3)';
-      setTimeout(function() {
-        event.target.style.backgroundColor = '';
-      }, 300);
-    });
+    navigator.clipboard.writeText(text).then(() => animateSuccess(element))
+      .catch(() => fallbackCopy(text, element));
   } else {
-    // Fallback для старых браузеров
-    const textArea = document.createElement('textarea');
-    textArea.value = text;
-    document.body.appendChild(textArea);
-    textArea.select();
-    document.execCommand('copy');
-    document.body.removeChild(textArea);
-    
-    // Визуальная обратная связь
-    event.target.style.backgroundColor = 'rgba(76, 175, 80, 0.3)';
-    setTimeout(function() {
-      event.target.style.backgroundColor = '';
-    }, 300);
+    fallbackCopy(text, element);
   }
 }
 
-// Улучшенная обработка для iOS
-if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
-  // Предотвращаем стандартное поведение жестов
-  document.addEventListener('touchmove', function(e) {
-    if (e.target.closest('.container')) {
-      return; // Разрешаем скролл в контейнере
-    }
-  }, { passive: true });
+function fallbackCopy(text, element) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try {
+    document.execCommand('copy');
+    animateSuccess(element);
+  } catch (e) {}
+  document.body.removeChild(ta);
+}
+
+function animateSuccess(el) {
+  if (!el) return;
+  const oldBg = el.style.backgroundColor;
+  const oldBorder = el.style.borderColor;
   
-  // Гарантируем, что фон остается на месте
-  document.body.style.webkitBackfaceVisibility = 'hidden';
-  document.body.style.transform = 'translate3d(0,0,0)';
+  el.style.backgroundColor = 'rgba(46, 204, 113, 0.3)';
+  el.style.borderColor = 'rgba(46, 204, 113, 0.7)';
+  
+  setTimeout(() => {
+    el.style.backgroundColor = oldBg;
+    el.style.borderColor = oldBorder;
+  }, 250);
 }
 </script>
+
 </body>
 </html>
