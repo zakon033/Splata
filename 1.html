@@ -7,14 +7,14 @@
 
 <style>
 /* =========================
-   1. БАЗОВЫЙ СБРОС
+   1. БАЗОВЫЙ СБРОС (СПРОЩЕНО)
 ========================= */
 * {
   box-sizing: border-box;
 }
 
 html {
-  /* НОВЕ ВИПРАВЛЕННЯ: HTML має повну висоту і керує прокруткою */
+  /* Головна фіксація для прокрутки: HTML 100% висоти та керує прокруткою */
   height: 100%;
   overflow-y: auto;
 }
@@ -22,33 +22,24 @@ html {
 body {
   margin: 0;
   padding: 0;
-  min-height: 100%; /* body бере висоту від html */
+  min-height: 100%; /* Body займає всю висоту HTML */
 }
 
 /* =========================
-   2. ФОН (ЖИДКОЕ СТЕКЛО)
-   ФАЙЛ: ./bg-liquid.webp
+   2. ФОН (ЖИДКОЕ СТЕКЛО) (ПОВЕРНУТО ДО BODY)
 ========================= */
 body {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
   color: #ffffff;
-  background-color: transparent; 
-}
-
-/* ФІКС: ФІКСОВАНИЙ ФОН ЧЕРЕЗ PSEUDO-ELEMENT */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0; 
-  z-index: -1; 
   
+  /* ПОВЕРТАЄМО ВСІ СТИЛІ ФОНУ СЮДИ */
   background-color: #1b1f3b; /* fallback */
   background-image: url("./bg-liquid.webp"); 
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
+  background-attachment: fixed; /* ГЛАВНАЯ СВОЙСТВО, КОТОРАЯ ТРЕБУЕТ body/html: {height: 100%} */
 }
-
 
 /* =========================
    3. КОНТЕЙНЕР
