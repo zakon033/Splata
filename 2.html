@@ -11,7 +11,7 @@
 ========================= */
 * {
   box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent; /* Прибирає синій клік на Android */
+  -webkit-tap-highlight-color: transparent; 
 }
 
 html, body {
@@ -21,30 +21,27 @@ html, body {
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   
-  /* Фарбуємо в темний колір, щоб при відтягуванні не було білого */
-  background-color: #1b1f3b;
+  /* Колір, якщо картинка не завантажиться */
+  background-color: #1b1f3b; 
   color: #ffffff;
 }
 
 /* =========================
-   2. ФОНОВЕ ЗОБРАЖЕННЯ
+   2. ФОНОВЕ ЗОБРАЖЕННЯ (НАДІЙНИЙ МЕТОД IMG)
 ========================= */
-.bg-layer {
+#background-image {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1; /* Відправляємо на самий задній план */
+  z-index: -1; 
   
-  /* Вкажіть правильний шлях до картинки */
-  background-image: url("./bg-liquid.webp");
-  background-position: center center;
-  background-size: cover;
-  background-repeat: no-repeat;
+  /* Гарантуємо, що зображення покриє весь екран */
+  object-fit: cover;
   
-  /* Якщо картинки немає, буде просто гарний градієнт */
-  background-color: #1b1f3b; 
+  /* Запобігаємо мерехтінню при скролі */
+  transform: translateZ(0); 
 }
 
 /* =========================
@@ -101,21 +98,17 @@ h1 {
   font-size: 16px;
   font-weight: 500;
   
-  /* Легка тінь */
   box-shadow: 0 4px 6px rgba(0,0,0,0.2);
   
-  /* Плавна анімація */
   transition: transform 0.1s, background-color 0.2s;
   cursor: pointer;
   user-select: none;
 }
 
-/* Центруємо текст у посилань */
 a.btn {
   justify-content: center;
 }
 
-/* Ефект натискання */
 .btn:active {
   transform: scale(0.97);
   background-color: rgba(30, 35, 60, 0.85);
@@ -126,10 +119,9 @@ a.btn {
   opacity: 0.8;
 }
 
-/* Спеціальний стиль для Trust Wallet посилання */
 .btn-trust {
   margin-top: 12px;
-  background-color: rgba(50, 115, 220, 0.2); /* Трохи синюватий */
+  background-color: rgba(50, 115, 220, 0.2); 
   border-color: rgba(50, 115, 220, 0.4);
 }
 </style>
@@ -137,7 +129,7 @@ a.btn {
 
 <body>
 
-<div class="bg-layer"></div>
+<img id="background-image" src="./bg-liquid.webp" alt="Fluid Background">
 
 <div class="container">
   <h1>💳 Перевести кошти</h1>
@@ -186,8 +178,8 @@ a.btn {
 </div>
 
 <script>
+// JS залишається незмінним, він не впливає на фон.
 function copyText(text, element) {
-  // Проста та надійна функція копіювання
   if (navigator.clipboard) {
     navigator.clipboard.writeText(text).then(() => animateSuccess(element))
       .catch(() => fallbackCopy(text, element));
@@ -216,7 +208,6 @@ function animateSuccess(el) {
   const oldBg = el.style.backgroundColor;
   const oldBorder = el.style.borderColor;
   
-  // Зелена індикація
   el.style.backgroundColor = 'rgba(46, 204, 113, 0.5)';
   el.style.borderColor = 'rgba(46, 204, 113, 0.8)';
   
