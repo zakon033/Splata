@@ -5,9 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Переказ коштів</title>
   <style>
-    /* =========================
-       1. БАЗОВЫЙ СБРОС
-    ========================= */
+    /* Базовый сброс */
     * {
       box-sizing: border-box;
     }
@@ -16,27 +14,12 @@
       margin: 0;
       padding: 0;
       height: 100%;
-      min-height: -webkit-fill-available; /* Для iOS */
+      min-height: -webkit-fill-available;
       overflow: hidden;
     }
 
-    /* =========================
-       2. ОСНОВНОЙ ФОН
-    ========================= */
+    /* Основной фон */
     body {
-      background-color: #1b1f3b;
-      position: relative;
-    }
-
-    /* Фиксированный фон */
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      z-index: -1;
       background-color: #1b1f3b;
       background-image: url("./bg-liquid.webp");
       background-repeat: no-repeat;
@@ -45,11 +28,10 @@
       background-attachment: fixed;
       -webkit-transform: translateZ(0);
       transform: translateZ(0);
+      position: relative;
     }
 
-    /* =========================
-       3. КОНТЕЙНЕР С ПРОКРУТКОЙ
-    ========================= */
+    /* Контейнер с прокруткой */
     .container {
       max-width: 420px;
       width: 100%;
@@ -66,9 +48,7 @@
       display: none;
     }
 
-    /* =========================
-       4. ЗАГОЛОВКИ
-    ========================= */
+    /* Заголовки */
     h1 {
       margin: 0 0 6px;
       font-size: 26px;
@@ -83,18 +63,14 @@
       text-shadow: 0 1px 2px rgba(0,0,0,0.2);
     }
 
-    /* =========================
-       5. СЕКЦИИ
-    ========================= */
+    /* Секции */
     .section {
       display: grid;
       gap: 14px;
       margin-bottom: 30px;
     }
 
-    /* =========================
-       6. СТЕКЛЯННЫЕ ЭЛЕМЕНТЫ
-    ========================= */
+    /* Стеклянные элементы */
     .btn,
     .copy {
       position: relative;
@@ -127,9 +103,7 @@
       text-align: center;
     }
 
-    /* =========================
-       7. МАСКА (НЕРОВНЫЙ КРАЙ)
-    ========================= */
+    /* Маска (неровный край) */
     @supports (-webkit-mask-image: url("")) {
       .btn,
       .copy {
@@ -140,9 +114,7 @@
       }
     }
 
-    /* =========================
-       8. ПОДСВЕТКА КРАЯ
-    ========================= */
+    /* Подсветка края */
     .btn::after,
     .copy::after {
       content: "";
@@ -160,9 +132,7 @@
       opacity: 0.7;
     }
 
-    /* =========================
-       9. НАЖАТИЕ (iOS)
-    ========================= */
+    /* Нажатие (iOS) */
     .btn:active,
     .copy:active {
       transform: scale(0.97);
@@ -172,9 +142,7 @@
         inset 0 1px 2px rgba(255,255,255,0.2);
     }
 
-    /* =========================
-       10. COPY - специальные стили
-    ========================= */
+    /* COPY - специальные стили */
     .copy {
       cursor: pointer;
     }
@@ -184,9 +152,7 @@
       font-size: 18px;
     }
 
-    /* =========================
-       11. ПОДСКАЗКИ ПРИ ПРОКРУТКЕ
-    ========================= */
+    /* Подсказки при прокрутке */
     .container::before {
       content: "";
       position: fixed;
@@ -217,9 +183,7 @@
       z-index: 1;
     }
 
-    /* =========================
-       12. АДАПТИВНЫЕ ПРАВКИ
-    ========================= */
+    /* Адаптивные правки */
     @media (max-height: 700px) {
       .container {
         padding: 20px 16px 30px;
