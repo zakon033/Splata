@@ -15,8 +15,14 @@
 }
 
 html {
-  /* Фарбуємо "дно" браузера (overscroll) у колір фону */
-  background-color: #1b1f3b; 
+  /* КРИТИЧНО ВАЖЛИВО: ГРАДІЄНТ для "дна" браузера */
+  background: 
+    linear-gradient(
+      to bottom, 
+      #1b1f3b 0%, /* Верхній колір */
+      #3b3e5a 100% /* Нижній колір */
+    );
+  background-attachment: fixed; /* Забезпечуємо, що градієнт не скролиться */
 }
 
 body {
@@ -26,8 +32,6 @@ body {
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: #ffffff;
-  
-  /* Основний фон залишаємо прозорим, щоб бачити картинку */
   background-color: transparent; 
 }
 
@@ -42,7 +46,7 @@ body {
   height: 100%;
   z-index: -1; 
   object-fit: cover;
-  background-color: #1b1f3b; /* Fallback колір */
+  background-color: #1b1f3b; 
   transform: translateZ(0); 
 }
 
@@ -54,9 +58,8 @@ body {
   width: 100%;
   margin: 0 auto;
   
-  background-color: transparent; /* Прозорий */
+  background-color: transparent; 
   
-  /* Відступи з урахуванням "чубчика" iPhone */
   padding: 
     calc(40px + env(safe-area-inset-top)) 
     20px 
@@ -91,11 +94,9 @@ h1 {
   margin-bottom: 12px;
   padding: 18px 20px;
   
-  /* МАКСИМАЛЬНО ЗБІЛЬШУЄМО BLUR (15px) */
   backdrop-filter: blur(15px); 
   -webkit-backdrop-filter: blur(15px);
   
-  /* Збільшуємо прозорість, щоб ефект блюру був помітніший */
   background-color: rgba(255, 255, 255, 0.1); 
   
   border: 1px solid rgba(255, 255, 255, 0.2); 
@@ -117,10 +118,9 @@ a.btn {
   justify-content: center;
 }
 
-/* Ефект натискання */
 .btn:active {
   transform: scale(0.97);
-  background-color: rgba(255, 255, 255, 0.2); /* Робимо трохи менш прозорим при кліку */
+  background-color: rgba(255, 255, 255, 0.2); 
 }
 
 .icon-copy {
