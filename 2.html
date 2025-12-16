@@ -2,15 +2,24 @@
 <html lang="uk">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>Переказ коштів</title>
 
 <style>
 /* =========================
-   1. БАЗА
+   1. БАЗА ТА ВИПРАВЛЕННЯ БІЛИХ СМУГ
 ========================= */
 * {
   box-sizing: border-box;
+}
+
+html {
+  /* Фарбуємо "дно" браузера в колір вашого фону.
+     Тепер при відтягуванні сторінки не буде білого кольору. */
+  background-color: #1b1f3b; 
+  
+  /* Забороняємо "гумовий" ефект прокрутки (коли сторінка відскакує) */
+  overscroll-behavior-y: none; 
 }
 
 body {
@@ -18,26 +27,30 @@ body {
   padding: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: #ffffff;
-  /* Дозволяємо сторінці скролитися природно */
   min-height: 100vh;
+  /* Підстраховка кольору */
+  background-color: #1b1f3b; 
 }
 
 /* =========================
    2. ФІКСОВАНИЙ ФОН
-   (Найнадійніший метод для iOS/Android)
 ========================= */
 .fixed-bg {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  right: 0;
+  bottom: 0;
   z-index: -1;
+  
   background-color: #1b1f3b;
   background-image: url("./bg-liquid.webp"); 
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
+  
+  /* Цей хак допомагає на деяких мобільних прибрати мерехтіння */
+  transform: translateZ(0); 
 }
 
 /* =========================
@@ -47,7 +60,13 @@ body {
   max-width: 420px;
   width: 100%;
   margin: 0 auto;
-  padding: 40px 20px 60px; /* Відступи зверху і знизу */
+  
+  /* Додаємо відступ для безпечних зон (щоб текст не залазив під чубчик iPhone) */
+  padding: 
+    calc(40px + env(safe-area-inset-top)) 
+    20px 
+    calc(60px + env(safe-area-inset-bottom));
+    
   text-align: center;
 }
 
@@ -55,16 +74,18 @@ h1 {
   margin: 0 0 10px;
   font-size: 24px;
   font-weight: 600;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
 
 .subtitle {
   margin-bottom: 30px;
-  opacity: 0.8;
+  opacity: 0.9;
   font-size: 15px;
+  text-shadow: 0 1px 5px rgba(0,0,0,0.2);
 }
 
 /* =========================
-   4. ЕФЕКТ СКЛА (Glassmorphism)
+   4. ЕФЕКТ СКЛА
 ========================= */
 .glass-btn {
   display: flex;
@@ -75,13 +96,13 @@ h1 {
   margin-bottom: 12px;
   padding: 18px 20px;
   
-  /* Скло */
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  /* Посилюємо фон, щоб текст читався краще */
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
   
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 18px; /* Більш округлі кути */
   
   color: white;
   text-decoration: none;
@@ -89,26 +110,26 @@ h1 {
   font-weight: 500;
   cursor: pointer;
   
-  transition: background 0.2s, transform 0.1s;
-}
-
-/* Ефекти при наведенні/натисканні */
-.glass-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
+  /* Тінь для глибини */
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  
+  transition: all 0.2s ease;
+  
+  /* Забороняємо виділення тексту при кліках */
+  user-select: none;
+  -webkit-user-select: none; 
 }
 
 .glass-btn:active {
-  transform: scale(0.98);
-  background: rgba(255, 255, 255, 0.25);
+  transform: scale(0.97);
+  background: rgba(255, 255, 255, 0.2);
 }
 
-/* Іконка копіювання */
 .icon-copy {
-  opacity: 0.6;
+  opacity: 0.7;
   font-size: 18px;
 }
 
-/* Для посилань центруємо текст, якщо немає іконки праворуч */
 a.glass-btn {
   justify-content: center;
 }
@@ -163,61 +184,44 @@ a.glass-btn {
   <a class="glass-btn" href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9" target="_blank">
      USDC (Polygon · Trust)
   </a>
-
 </div>
 
 <script>
 function copyText(text, element) {
-  // Сучасний API буфера обміну
   if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(() => {
-      showCopiedEffect(element);
-    }).catch(err => {
-      console.error('Не вдалося скопіювати: ', err);
-      fallbackCopyText(text, element);
-    });
+    navigator.clipboard.writeText(text).then(() => showCopiedEffect(element))
+      .catch(() => fallbackCopyText(text, element));
   } else {
     fallbackCopyText(text, element);
   }
 }
 
-// Fallback для старих браузерів
 function fallbackCopyText(text, element) {
   const textArea = document.createElement("textarea");
   textArea.value = text;
-  
-  // Ховаємо поле, щоб не стрибала сторінка
   textArea.style.position = "fixed";
   textArea.style.left = "-9999px";
-  
   document.body.appendChild(textArea);
   textArea.focus();
   textArea.select();
-  
   try {
     document.execCommand('copy');
     showCopiedEffect(element);
-  } catch (err) {
-    console.error('Fallback: Не вдалося скопіювати', err);
-  }
-  
+  } catch (err) {}
   document.body.removeChild(textArea);
 }
 
-// Візуальний ефект успіху
 function showCopiedEffect(element) {
   if (!element) return;
-  
   const originalBackground = element.style.background;
-  const originalBorder = element.style.borderColor;
   
-  // Зеленуватий відтінок
-  element.style.background = 'rgba(76, 175, 80, 0.4)';
-  element.style.borderColor = 'rgba(76, 175, 80, 0.6)';
+  // Зелена індикація
+  element.style.background = 'rgba(76, 175, 80, 0.5)';
+  element.style.borderColor = 'rgba(76, 175, 80, 0.8)';
   
   setTimeout(() => {
-    element.style.background = originalBackground;
-    element.style.borderColor = originalBorder;
+    element.style.background = ''; // Повертаємо стилі CSS
+    element.style.borderColor = '';
   }, 300);
 }
 </script>
