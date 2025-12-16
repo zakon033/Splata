@@ -7,15 +7,19 @@
 
 <style>
 /* =========================
-   1. БАЗОВІ НАЛАШТУВАННЯ ТА СКРОЛЛ
-   (ВСЕ ПОВНІСТЮ ПРОЗОРО)
+   1. БАЗОВІ НАЛАШТУВАННЯ ТА ВИПРАВЛЕННЯ БІЛИХ СМУГ
 ========================= */
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent; 
 }
 
-html, body {
+html {
+  /* Фарбуємо "дно" браузера (overscroll) у колір фону */
+  background-color: #1b1f3b; 
+}
+
+body {
   margin: 0;
   padding: 0;
   width: 100%;
@@ -23,12 +27,12 @@ html, body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: #ffffff;
   
-  /* КРИТИЧНО ВАЖЛИВО: НІЯКИХ ФОНІВ ТУТ */
+  /* Основний фон залишаємо прозорим, щоб бачити картинку */
   background-color: transparent; 
 }
 
 /* =========================
-   2. ФОНОВЕ ЗОБРАЖЕННЯ (IMG-МЕТОД)
+   2. ФОНОВЕ ЗОБРАЖЕННЯ
 ========================= */
 #background-image {
   position: fixed;
@@ -38,22 +42,21 @@ html, body {
   height: 100%;
   z-index: -1; 
   object-fit: cover;
-  /* Фоновий колір, якщо картинка не знайдена */
-  background-color: #1b1f3b; 
+  background-color: #1b1f3b; /* Fallback колір */
   transform: translateZ(0); 
 }
 
 /* =========================
-   3. КОНТЕЙНЕР (ПОВНІСТЮ ПРОЗОРИЙ)
+   3. КОНТЕЙНЕР
 ========================= */
 .container {
   max-width: 420px;
   width: 100%;
   margin: 0 auto;
   
-  /* НІЯКИХ ФОНІВ ТУТ */
-  background-color: transparent; 
+  background-color: transparent; /* Прозорий */
   
+  /* Відступи з урахуванням "чубчика" iPhone */
   padding: 
     calc(40px + env(safe-area-inset-top)) 
     20px 
@@ -77,7 +80,7 @@ h1 {
 }
 
 /* =========================
-   4. КНОПКИ (МАКСИМАЛЬНО ПРОЗОРЕ "СКЛО")
+   4. КНОПКИ (МАКСИМАЛЬНИЙ BLUR)
 ========================= */
 .btn {
   position: relative;
@@ -88,15 +91,14 @@ h1 {
   margin-bottom: 12px;
   padding: 18px 20px;
   
-  /* Змінюємо колір на дуже прозорий білий. Тепер він на 95% прозорий. */
-  background-color: rgba(255, 255, 255, 0.05); 
+  /* МАКСИМАЛЬНО ЗБІЛЬШУЄМО BLUR (15px) */
+  backdrop-filter: blur(15px); 
+  -webkit-backdrop-filter: blur(15px);
   
-  /* Повернемо легкий блюр, щоб імітувати скло, але зробимо його мінімальним 
-     (якщо буде гальмувати, просто видаліть ці два рядки!) */
-  backdrop-filter: blur(2px); 
-  -webkit-backdrop-filter: blur(2px);
+  /* Збільшуємо прозорість, щоб ефект блюру був помітніший */
+  background-color: rgba(255, 255, 255, 0.1); 
   
-  border: 1px solid rgba(255, 255, 255, 0.1); 
+  border: 1px solid rgba(255, 255, 255, 0.2); 
   border-radius: 16px;
   
   color: #fff;
@@ -104,7 +106,7 @@ h1 {
   font-size: 16px;
   font-weight: 500;
   
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3); /* Трішки темніша тінь */
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
   
   transition: transform 0.1s, background-color 0.2s;
   cursor: pointer;
@@ -118,7 +120,7 @@ a.btn {
 /* Ефект натискання */
 .btn:active {
   transform: scale(0.97);
-  background-color: rgba(255, 255, 255, 0.12); /* Трохи менш прозорий */
+  background-color: rgba(255, 255, 255, 0.2); /* Робимо трохи менш прозорим при кліку */
 }
 
 .icon-copy {
