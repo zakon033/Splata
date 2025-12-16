@@ -16,7 +16,9 @@
 html, body {
   margin: 0;
   padding: 0;
-  min-height: 100vh; /* ЗБЕРЕЖЕНА ФІКСАЦІЯ ФОНУ */
+  /* !!! НОВИЙ ФІКС: ВСТАНОВЛЮЄМО ВИСОТУ ВЕЛИЧИНОЮ В ЕКРАН ДЛЯ НАДІЙНОСТІ !!! */
+  height: 100vh; 
+  overflow-y: auto; /* ДОЗВОЛЯЄМО BODY ПРОКРУЧУВАТИСЯ */
 }
 
 /* =========================
@@ -26,21 +28,31 @@ html, body {
 body {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
   color: #ffffff;
+  background-color: transparent; /* ВІДМІНА ФОНУ У BODY */
+}
 
+/* !!! НОВИЙ ФІКС: СТВОРЕННЯ ФІКСОВАНОГО ФОНУ ЧЕРЕЗ PSEUDO-ELEMENT !!! */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0; /* РОЗТЯГУЄМО НА ВЕСЬ ЕКРАН */
+  z-index: -1; /* ПОМІЩУЄМО ПІД КОНТЕНТ */
+  
   background-color: #1b1f3b; /* fallback */
-  background-image: url("./bg-liquid.webp"); /* ПОВЕРНУТО ОРИГІНАЛЬНЕ ІМ'Я ФАЙЛУ */
+  background-image: url("./bg-liquid.webp"); /* ОРИГІНАЛЬНЕ ІМ'Я ФАЙЛУ */
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
-  background-attachment: fixed;
+  /* background-attachment: fixed; тут не потрібен, оскільки position: fixed виконує його роботу */
 }
+
 
 /* =========================
    3. КОНТЕЙНЕР
 ========================= */
 .container {
   max-width: 420px;
-  width: 100%; /* ЗБЕРЕЖЕНА АДАПТИВНІСТЬ */
+  width: 100%; 
   margin: 0 auto;
   padding: 24px 16px 40px;
 }
@@ -79,8 +91,8 @@ h1 {
   align-items: center;
   justify-content: space-between;
 
-  padding: 24px 18px; /* ВИСОТА ЗБІЛЬШЕНА ДО 24px */
-  border-radius: 48px; /* ЗАКРУГЛЕННЯ ЗБІЛЬШЕНО ДО 48px */
+  padding: 24px 18px; /* ВИСОТА 24px */
+  border-radius: 48px; /* ЗАКРУГЛЕННЯ 48px */
 
   /* ВАЖНО: фон есть всегда */
   background-color: rgba(255,255,255,0.18);
