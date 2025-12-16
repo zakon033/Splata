@@ -18,19 +18,14 @@
       overflow: hidden;
     }
 
-    /* Обёртка для фона */
-    .bg-wrapper {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
+    /* Основной фон */
+    body {
       background-color: #1b1f3b;
       background-image: url("./bg-liquid.webp");
       background-repeat: no-repeat;
       background-position: center;
       background-size: cover;
+      position: relative;
     }
 
     /* Контейнер с прокруткой */
@@ -215,7 +210,6 @@
 </head>
 
 <body>
-  <div class="bg-wrapper"></div>
   <div class="container">
     <h1>💳 Перевести кошти</h1>
     <div class="small">Оберіть зручний спосіб</div>
@@ -291,13 +285,13 @@
       }
     }
 
-    // Динамическое обновление высоты фона
-    function updateBgHeight() {
-      document.querySelector('.bg-wrapper').style.height = window.innerHeight + 'px';
+    // Динамическое обновление высоты контейнера
+    function updateContainerHeight() {
+      document.querySelector('.container').style.height = window.innerHeight + 'px';
     }
 
-    window.addEventListener('load', updateBgHeight);
-    window.addEventListener('resize', updateBgHeight);
+    window.addEventListener('load', updateContainerHeight);
+    window.addEventListener('resize', updateContainerHeight);
 
     if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
       document.addEventListener('touchmove', function(e) {
