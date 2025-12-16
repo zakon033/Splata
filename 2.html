@@ -11,7 +11,7 @@
 
 <style>
 /* =========================
-   1. БАЗОВІ НАЛАШТУВАННЯ
+   1. БАЗОВІ НАЛАШТУВАННЯ (ВСЕ ПРОЗОРО)
 ========================= */
 * {
   box-sizing: border-box;
@@ -19,8 +19,14 @@
 }
 
 html {
-  /* Забезпечуємо темний колір "дна" */
-  background-color: #1b1f3b; 
+  /* Градієнт для "дна" браузера (overscroll) */
+  background: 
+    linear-gradient(
+      to bottom, 
+      #1b1f3b 0%, 
+      #3b3e5a 100% 
+    );
+  background-attachment: fixed;
 }
 
 body {
@@ -31,13 +37,13 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: #ffffff;
   
-  /* Агресивне затемнення всього, якщо фон не завантажився */
-  background-color: #1b1f3b; 
+  /* КРИТИЧНО ВАЖЛИВО: ПОВНА ПРОЗОРІСТЬ BODY ДЛЯ ВИДИМОСТІ ФОНУ */
+  background: transparent !important; 
   position: relative;
 }
 
 /* =========================
-   2. ФОНОВЕ ЗОБРАЖЕННЯ (НАЙНАДІЙНІШИЙ МЕТОД <img>)
+   2. ФОНОВЕ ЗОБРАЖЕННЯ
 ========================= */
 #background-image {
   position: fixed;
@@ -45,7 +51,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1; /* Знову відправляємо на задній план */
+  z-index: -1; 
   object-fit: cover;
   transform: translateZ(0); 
 }
@@ -58,7 +64,7 @@ body {
   width: 100%;
   margin: 0 auto;
   
-  /* Контейнер повинен бути прозорим, щоб бачити фон */
+  /* Контейнер також прозорий */
   background-color: transparent; 
   position: relative;
   z-index: 10; 
@@ -89,6 +95,7 @@ h1 {
    4. КНОПКИ (BLUR)
 ========================= */
 .btn {
+  /* ... стилі без змін ... */
   position: relative;
   display: flex;
   align-items: center;
@@ -133,42 +140,42 @@ a.btn {
 
 /* =========================
    5. OVERLAY FADES (ЗАТІНЕННЯ КОНТЕНТУ)
-   ЦЕЙ ЕЛЕМЕНТ МАЄ ПЕРЕКРИТИ БІЛІ СИСТЕМНІ СМУГИ
+   ТЕПЕР ВОНИ ВІДПОВІДАЮТЬ ЗА ЗАТЕМНЕННЯ СТАТУСБАРУ
 ========================= */
-/* Градієнт зверху */
+/* Градієнт зверху - Збільшуємо висоту до 70px */
 .container::before {
   content: "";
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: calc(40px + env(safe-area-inset-top)); 
+  height: 70px; /* Збільшена висота, щоб приховати системну смугу */
   z-index: 100; 
   pointer-events: none; 
   
   background: linear-gradient(
     to bottom, 
     #1b1f3b 0%, /* Починаємо з темного кольору */
-    rgba(27, 31, 59, 0.8) 50%, 
+    rgba(27, 31, 59, 0.95) 50%, /* Майже непрозорий темний */
     transparent 100%
   );
 }
 
-/* Градієнт знизу */
+/* Градієнт знизу - Збільшуємо висоту до 80px */
 .container::after {
   content: "";
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
-  height: calc(60px + env(safe-area-inset-bottom)); 
+  height: 80px; /* Збільшена висота, щоб приховати системну смугу */
   z-index: 100;
   pointer-events: none;
   
   background: linear-gradient(
     to top, 
-    #1b1f3b 0%, 
-    rgba(27, 31, 59, 0.8) 50%,
+    #1b1f3b 0%, /* Починаємо з темного кольору */
+    rgba(27, 31, 59, 0.95) 50%, /* Майже непрозорий темний */
     transparent 100%
   );
 }
