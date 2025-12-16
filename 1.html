@@ -13,7 +13,6 @@
   box-sizing: border-box;
 }
 
-/* ФІКС: ОБИДВА ЕЛЕМЕНТИ ПОВИННІ МАТИ ВИСОТУ 100% */
 html, body {
   margin: 0;
   padding: 0;
@@ -21,20 +20,20 @@ html, body {
 }
 
 /* =========================
-   2. ФОН (ЖИДКОЕ СТЕКЛО) (ПОВЕРНУТО ДО НАДІЙНОГО ФІКСУ)
+   2. ФОН (ЖИДКОЕ СТЕКЛО)
 ========================= */
 body {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
   color: #ffffff;
-  background-color: transparent; /* Видаляємо фон з body */
-  overflow-y: auto; /* body прокручується */
+  background-color: transparent;
+  overflow-y: auto; 
 }
 
-/* !!! ОСНОВНИЙ ФІКС: ФІКСОВАНИЙ ФОН ЧЕРЕЗ PSEUDO-ELEMENT !!! */
+/* ФІКС: ФІКСОВАНИЙ ФОН ЧЕРЕЗ PSEUDO-ELEMENT */
 body::before {
   content: '';
-  position: fixed; /* ГАРАНТІЯ ФІКСАЦІЇ */
-  inset: 0; /* РОЗТЯГУЄМО НА ВЕСЬ ЕКРАН */
+  position: fixed; 
+  inset: 0; 
   z-index: -1; 
   
   background-color: #1b1f3b; /* fallback */
@@ -52,7 +51,11 @@ body::before {
   max-width: 420px;
   width: 100%; 
   margin: 0 auto;
-  padding: 24px 16px 40px;
+  /* !!! ФІНАЛЬНЕ ВИПРАВЛЕННЯ PADDING ДЛЯ iOS SAFE AREA (видаляє білі смуги) !!! */
+  padding: 
+    calc(24px + env(safe-area-inset-top, 0px)) 
+    16px 
+    calc(40px + env(safe-area-inset-bottom, 0px));
 }
 
 /* =========================
