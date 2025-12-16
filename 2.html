@@ -52,6 +52,7 @@ body {
 
 /* =========================
    3. КОНТЕЙНЕР (ПРОКРУЧУВАНИЙ КОНТЕНТ)
+   Зверніть увагу: звідси видалено стилі ::before та ::after!
 ========================= */
 .container {
   max-width: 420px;
@@ -61,13 +62,13 @@ body {
   /* Контейнер прозорий, щоб бачити фон */
   background-color: transparent; 
   position: relative;
-  z-index: 10; 
+  z-index: 10; /* Цей шар тепер найвищий */
   
-  /* ВАЖЛИВО: Збільшені відступи, щоб контент не перекривався статусбаром/панеллю */
+  /* Зберігаємо відступи */
   padding: 
-    calc(60px + env(safe-area-inset-top)) /* Збільшено відступ зверху */
+    calc(60px + env(safe-area-inset-top)) 
     20px 
-    calc(60px + env(safe-area-inset-bottom)); /* Збільшено відступ знизу */
+    calc(60px + env(safe-area-inset-bottom)); 
     
   text-align: center;
 }
@@ -133,45 +134,36 @@ a.btn {
 }
 
 /* =========================
-   5. OVERLAY FADES (ПОВЕРТАЄМО, АЛЕ БЕЗ ФІКСОВАНИХ БЛОКІВ)
-   Це створює ефект "зникнення" контенту в темний фон.
+   5. НОВИЙ ШАР ЗАТІНЕННЯ (FADES OVERLAY)
+   Це фіксований елемент, що знаходиться між фоном (-1) та контентом (10)
 ========================= */
-.container::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  /* Висота відповідає верхньому padding, щоб не закривати кнопки */
-  height: calc(50px + env(safe-area-inset-top)); 
-  z-index: 100; 
-  pointer-events: none; 
-  
-  background: linear-gradient(
-    to bottom, 
-    #1b1f3b 0%, 
-    rgba(27, 31, 59, 0.8) 50%, 
-    transparent 100%
-  );
-}
-
-.container::after {
-  content: "";
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  /* Висота відповідає нижньому padding */
-  height: calc(60px + env(safe-area-inset-bottom)); 
-  z-index: 100;
-  pointer-events: none;
-  
-  background: linear-gradient(
-    to top, 
-    #1b1f3b 0%, 
-    rgba(27, 31, 59, 0.8) 50%,
-    transparent 100%
-  );
+#fades-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%; /* Покриває весь екран */
+    z-index: 5; /* Нижня прошарок */
+    pointer-events: none; /* Дозволяє клікати контент, що прокручується */
+    
+    /* Створюємо комбінований градієнт, який затемнює краї */
+    background: 
+        /* Верхнє затемнення */
+        linear-gradient(
+            to bottom, 
+            #1b1f3b 0%, 
+            rgba(27, 31, 59, 0.8) 
+            calc(50px + env(safe-area-inset-top)),
+            transparent calc(50px + env(safe-area-inset-top) + 10px) 
+        ),
+        /* Нижнє затемнення */
+        linear-gradient(
+            to top, 
+            #1b1f3b 0%, 
+            rgba(27, 31, 59, 0.8) 
+            calc(60px + env(safe-area-inset-bottom)),
+            transparent calc(60px + env(safe-area-inset-bottom) + 10px)
+        );
 }
 </style>
 </head>
@@ -179,6 +171,8 @@ a.btn {
 <body>
 
 <img id="background-image" src="./bg-liquid.webp" alt="Fluid Background">
+
+<div id="fades-overlay"></div>
 
 <div class="container">
   <h1>💳 Перевести кошти</h1>
