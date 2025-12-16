@@ -21,22 +21,29 @@ html, body {
 }
 
 /* =========================
-   2. ФОН (СТАТИЧНЫЙ)
+   2. ОСНОВНОЙ ФОН
 ========================= */
+body {
+  background-color: #1b1f3b; /* fallback цвет */
+  position: relative;
+}
+
+/* Статичное фоновое изображение */
 body::before {
   content: "";
   position: fixed; /* Фиксируем фон */
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: -10px; /* Расширяем за пределы экрана */
+  left: -10px;
+  right: -10px;
+  bottom: -10px; /* Убираем белые полосы */
   z-index: -1; /* Отправляем фон на задний план */
   
-  background-color: #1b1f3b; /* fallback */
+  background-color: #1b1f3b;
   background-image: url("./bg-liquid.webp"); 
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
+  background-attachment: scroll; /* Важно для мобильных */
   
   /* Гарантируем, что фон не будет двигаться */
   -webkit-transform: translateZ(0);
@@ -74,12 +81,14 @@ h1 {
   margin: 0 0 6px;
   font-size: 26px;
   font-weight: 600;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
 
 .small {
   font-size: 14px;
-  opacity: 0.75;
-  margin-bottom: 18px;
+  opacity: 0.85;
+  margin-bottom: 24px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
 /* =========================
@@ -87,8 +96,8 @@ h1 {
 ========================= */
 .section {
   display: grid;
-  gap: 12px;
-  margin-bottom: 22px;
+  gap: 14px;
+  margin-bottom: 30px;
 }
 
 /* =========================
@@ -101,11 +110,11 @@ h1 {
   align-items: center;
   justify-content: space-between;
 
-  padding: 24px 18px; 
+  padding: 20px 18px; 
   border-radius: 48px; 
 
   /* ВАЖНО: фон есть всегда */
-  background-color: rgba(255,255,255,0.18);
+  background-color: rgba(255,255,255,0.15);
 
   /* Safari iOS */
   -webkit-backdrop-filter: blur(18px) saturate(170%);
@@ -118,20 +127,26 @@ h1 {
 
   border: none;
   outline: none;
+  cursor: pointer;
 
   box-shadow:
-    0 10px 28px rgba(0,0,0,0.25),
-    inset 0 1px 1px rgba(255,255,255,0.35);
+    0 8px 25px rgba(0,0,0,0.25),
+    inset 0 1px 1px rgba(255,255,255,0.25),
+    0 0 0 1px rgba(255,255,255,0.1); /* Легкая обводка */
 
   transition:
     transform .15s ease,
-    box-shadow .15s ease;
+    box-shadow .15s ease,
+    background-color .15s ease;
+}
+
+/* Улучшение для ссылок */
+.btn {
+  text-align: center;
 }
 
 /* =========================
    7. МАСКА (НЕРОВНЫЙ КРАЙ)
-   ФАЙЛ: ./mask/glass-edge.webp
-   ⚠️ ТОЛЬКИ якщо підтримується
 ========================= */
 @supports (-webkit-mask-image: url("")) {
   .btn,
@@ -157,12 +172,12 @@ h1 {
   background:
     radial-gradient(
       at 30% 20%,
-      rgba(255,255,255,0.45),
+      rgba(255,255,255,0.35),
       transparent 60%
     );
 
   mix-blend-mode: overlay;
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
 /* =========================
@@ -171,48 +186,86 @@ h1 {
 .btn:active,
 .copy:active {
   transform: scale(0.97);
+  background-color: rgba(255,255,255,0.12);
   box-shadow:
-    0 6px 16px rgba(0,0,0,0.3),
-    inset 0 1px 2px rgba(255,255,255,0.25);
+    0 4px 15px rgba(0,0,0,0.3),
+    inset 0 1px 2px rgba(255,255,255,0.2);
 }
 
 /* =========================
-   10. COPY
+   10. COPY - специальные стили
 ========================= */
 .copy {
   cursor: pointer;
 }
 
+.copy span:last-child {
+  opacity: 0.8;
+  font-size: 18px;
+}
+
 /* =========================
-   11. ДОПОЛНИТЕЛЬНЫЕ СТИЛИ
+   11. ПОДСКАЗКИ ПРИ ПРОКРУТКЕ
 ========================= */
-/* Улучшение читаемости при прокрутке */
+/* Плавное затемнение сверху */
 .container::before {
   content: "";
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 60px;
+  height: 80px;
   background: linear-gradient(to bottom, 
-    rgba(27, 31, 59, 0.8) 0%, 
+    rgba(27, 31, 59, 0.9) 0%, 
+    rgba(27, 31, 59, 0.4) 80%,
     transparent 100%);
   pointer-events: none;
   z-index: 1;
 }
 
+/* Плавное затемнение снизу */
 .container::after {
   content: "";
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 40px;
+  height: 80px;
   background: linear-gradient(to top, 
-    rgba(27, 31, 59, 0.6) 0%, 
+    rgba(27, 31, 59, 0.9) 0%, 
+    rgba(27, 31, 59, 0.4) 80%,
     transparent 100%);
   pointer-events: none;
   z-index: 1;
+}
+
+/* =========================
+   12. АДАПТИВНЫЕ ПРАВКИ
+========================= */
+@media (max-height: 700px) {
+  .container {
+    padding: 20px 16px 30px;
+  }
+  
+  .btn,
+  .copy {
+    padding: 16px 18px;
+  }
+  
+  .section {
+    gap: 12px;
+  }
+}
+
+/* Для очень высоких экранов */
+@media (min-height: 900px) {
+  .container {
+    padding: 32px 16px 50px;
+  }
+  
+  .section {
+    gap: 16px;
+  }
 }
 </style>
 </head>
@@ -238,29 +291,34 @@ h1 {
   <a class="btn" href="https://app.binance.com/uni-qr/LXViL5Hb">Binance Pay</a>
 
   <div class="copy" onclick="copyText('bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp')">
-    ₿ Bitcoin (BTC) <span>📋</span>
+    <span>₿ Bitcoin (BTC)</span>
+    <span>📋</span>
   </div>
 
   <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
-    ◆ Ethereum <span>📋</span>
+    <span>◆ Ethereum</span>
+    <span>📋</span>
   </div>
 
   <div class="copy" onclick="copyText('TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh')">
-    ₮ USDT Tron <span>📋</span>
+    <span>₮ USDT Tron</span>
+    <span>📋</span>
   </div>
 
   <div class="copy" onclick="copyText('EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7')">
-    ◎ Solana <span>📋</span>
+    <span>◎ Solana</span>
+    <span>📋</span>
   </div>
 
   <div class="copy" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
-    ◇ USDC (Polygon) <span>📋</span>
+    <span>◇ USDC (Polygon)</span>
+    <span>📋</span>
   </div>
 
   <a class="btn"
      href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9"
      target="_blank" rel="noopener">
-     USDC (Polygon · Trust)
+     <span>USDC (Polygon · Trust)</span>
   </a>
 </div>
 
@@ -269,16 +327,42 @@ h1 {
 <script>
 function copyText(text) {
   if (navigator.clipboard) {
-    navigator.clipboard.writeText(text);
+    navigator.clipboard.writeText(text).then(function() {
+      // Визуальная обратная связь
+      event.target.style.backgroundColor = 'rgba(76, 175, 80, 0.3)';
+      setTimeout(function() {
+        event.target.style.backgroundColor = '';
+      }, 300);
+    });
+  } else {
+    // Fallback для старых браузеров
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    
+    // Визуальная обратная связь
+    event.target.style.backgroundColor = 'rgba(76, 175, 80, 0.3)';
+    setTimeout(function() {
+      event.target.style.backgroundColor = '';
+    }, 300);
   }
 }
 
-// Дополнительная обработка для iOS
+// Улучшенная обработка для iOS
 if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
-  // Убедимся, что фон остается на месте
-  document.addEventListener('scroll', function(e) {
-    e.preventDefault();
-  }, { passive: false });
+  // Предотвращаем стандартное поведение жестов
+  document.addEventListener('touchmove', function(e) {
+    if (e.target.closest('.container')) {
+      return; // Разрешаем скролл в контейнере
+    }
+  }, { passive: true });
+  
+  // Гарантируем, что фон остается на месте
+  document.body.style.webkitBackfaceVisibility = 'hidden';
+  document.body.style.transform = 'translate3d(0,0,0)';
 }
 </script>
 </body>
