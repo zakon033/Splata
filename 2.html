@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Переказ коштів</title>
 
+<meta name="theme-color" content="#1b1f3b"> 
+
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> 
+<meta name="apple-mobile-web-app-capable" content="yes"> 
+
 <style>
 /* =========================
    1. БАЗОВІ НАЛАШТУВАННЯ ТА ВИПРАВЛЕННЯ БІЛИХ СМУГ
@@ -15,8 +20,7 @@
 }
 
 html {
-  /* Градієнт для "дна" браузера (overscroll). 
-     Це гарантує, що смуги при відтягуванні будуть темними. */
+  /* Градієнт для "дна" браузера (overscroll) - тепер точно темний */
   background: 
     linear-gradient(
       to bottom, 
@@ -33,8 +37,9 @@ body {
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: #ffffff;
-  background-color: transparent; 
-  position: relative; /* Потрібно для Overlay Fades */
+  /* Це запобігає появі білого кольору, якщо контент занадто короткий */
+  background-color: #1b1f3b; 
+  position: relative;
 }
 
 /* =========================
@@ -59,10 +64,13 @@ body {
   max-width: 420px;
   width: 100%;
   margin: 0 auto;
+  
+  /* Контейнер повинен бути прозорим, щоб бачити фон */
   background-color: transparent; 
   position: relative;
-  z-index: 10; /* Контент повинен бути над градієнтами затінення */
+  z-index: 10; 
   
+  /* Відступи з урахуванням "чубчика" iPhone */
   padding: 
     calc(40px + env(safe-area-inset-top)) 
     20px 
@@ -134,41 +142,39 @@ a.btn {
 /* =========================
    5. OVERLAY FADES (ЗАТІНЕННЯ КОНТЕНТУ)
 ========================= */
-/* Фіксуємо градієнти, які перекривають контент зверху */
+/* Градієнт зверху */
 .container::before {
   content: "";
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: calc(40px + env(safe-area-inset-top)); /* Висота як у верхнього padding */
+  height: calc(40px + env(safe-area-inset-top)); 
   z-index: 100; 
-  pointer-events: none; /* Дозволяє клікати під ним */
+  pointer-events: none; 
   
-  /* Градієнт зверху вниз */
   background: linear-gradient(
     to bottom, 
-    #1b1f3b 0%, /* Починаємо з темного кольору */
+    #1b1f3b 0%, 
     rgba(27, 31, 59, 0.8) 50%, 
     transparent 100%
   );
 }
 
-/* Фіксуємо градієнти, які перекривають контент знизу */
+/* Градієнт знизу */
 .container::after {
   content: "";
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
-  height: calc(60px + env(safe-area-inset-bottom)); /* Висота як у нижнього padding */
+  height: calc(60px + env(safe-area-inset-bottom)); 
   z-index: 100;
   pointer-events: none;
   
-  /* Градієнт знизу вгору */
   background: linear-gradient(
     to top, 
-    #1b1f3b 0%, /* Починаємо з темного кольору */
+    #1b1f3b 0%, 
     rgba(27, 31, 59, 0.8) 50%,
     transparent 100%
   );
@@ -186,41 +192,33 @@ a.btn {
 
   <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">monobank</a>
   <a class="btn" href="https://www.privat24.ua/send/id4xg">ПриватБанк</a>
-
   <div class="btn" onclick="copyText('4441114459954077', this)">
     <span>💳 4441 •••• •••• 4077</span>
     <span class="icon-copy">📋</span>
   </div>
-
   <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK"> Apple Pay</a>
   <a class="btn" href="https://send.monobank.ua/5a2bBZvgLK">Google Pay</a>
   <a class="btn" href="https://app.binance.com/uni-qr/LXViL5Hb">Binance Pay</a>
-
   <div class="btn" onclick="copyText('bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp', this)">
     <span>₿ Bitcoin (BTC)</span>
     <span class="icon-copy">📋</span>
   </div>
-
   <div class="btn" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9', this)">
     <span>◆ Ethereum</span>
     <span class="icon-copy">📋</span>
   </div>
-
   <div class="btn" onclick="copyText('TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh', this)">
     <span>₮ USDT Tron</span>
     <span class="icon-copy">📋</span>
   </div>
-
   <div class="btn" onclick="copyText('EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7', this)">
     <span>◎ Solana</span>
     <span class="icon-copy">📋</span>
   </div>
-
   <div class="btn" onclick="copyText('0xCcbD44EA963812ECc7F592a608245284c5cD87D9', this)">
     <span>◇ USDC (Polygon)</span>
     <span class="icon-copy">📋</span>
   </div>
-  
   <a class="btn" href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9" target="_blank">
      USDC (Polygon · Trust)
   </a>
