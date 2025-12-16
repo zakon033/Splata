@@ -120,7 +120,9 @@ h1 {
   justify-content: space-between;
   width: 100%;
   margin-bottom: 12px;
-  padding: 18px 20px;
+  
+  /* Важливо! Тост не повинен успадковувати всі стилі, тому видаляємо padding та width */
+  /* Ці стилі будуть визначені спеціально для тосту, щоб він був меншим */
   
   backdrop-filter: blur(15px); 
   -webkit-backdrop-filter: blur(15px);
@@ -142,15 +144,28 @@ h1 {
   user-select: none;
 }
 
+.btn:not(#copy-toast) {
+    /* Додаємо стилі, які потрібні ТІЛЬКИ для справжніх кнопок */
+    width: 100%;
+    padding: 18px 20px;
+}
+
 a.btn {
   justify-content: center;
 }
 
-/* СТИЛЬ НАТИСКАННЯ: ЧЕРЕЗ JS-КЛАС */
+/* СТИЛЬ НАТИСКАННЯ: ЗЕЛЕНЕ СВІТІННЯ (ВИКОРИСТОВУЄТЬСЯ І ДЛЯ ТОСТУ) */
 .btn.clicked {
   transform: scale(0.97);
   background-color: rgba(46, 204, 113, 0.3);
   border-color: rgba(46, 204, 113, 0.7);
+}
+
+/* СТИЛЬ УСПІШНОГО КОПІЮВАННЯ (ВИКОРИСТОВУЄТЬСЯ І ДЛЯ ТОСТУ) */
+.btn.copied {
+  transform: scale(1);
+  background-color: rgba(46, 204, 113, 0.3) !important;
+  border-color: rgba(46, 204, 113, 0.7) !important;
 }
 
 .icon-copy {
@@ -158,15 +173,8 @@ a.btn {
   opacity: 0.8;
 }
 
-/* СТИЛЬ УСПІШНОГО КОПІЮВАННЯ */
-.btn.copied {
-  transform: scale(1);
-  background-color: rgba(46, 204, 113, 0.3) !important;
-  border-color: rgba(46, 204, 113, 0.7) !important;
-}
-
 /* =========================
-   5. ТОСТ-УВЕДОМЛЕНИЕ О КОПИРОВАНИИ (ФІНАЛЬНА ВЕРСІЯ В СТИЛІ КНОПКИ)
+   5. ТОСТ-УВЕДОМЛЕНИЕ О КОПИРОВАНИИ (ТІЛЬКИ ПОЗИЦІОНУВАННЯ ТА АНІМАЦІЯ)
 ========================= */
 #copy-toast {
     position: fixed;
@@ -175,20 +183,12 @@ a.btn {
     
     transform: translate(-50%, calc(-50% - 150px)); 
     
-    /* СТИЛІ ВЗЯТІ З КЛАСУ .btn */
-    backdrop-filter: blur(15px); 
-    -webkit-backdrop-filter: blur(15px);
-    
-    background-color: rgba(255, 255, 255, 0.1); /* Прозорий білий */
-    border: 1px solid rgba(255, 255, 255, 0.2); 
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    border-radius: 16px; /* Як у кнопок */
-    
-    /* Інші параметри */
-    color: #2ecc71; /* Використовуємо зелений колір для тексту, щоб підкреслити успіх */
+    /* Спеціальні стилі для розміру та тексту тосту */
     padding: 15px 30px; 
     font-size: 20px;     
     font-weight: 600;
+    color: #ffffff; /* Залишаємо білий для контрасту */
+    
     z-index: 1000; 
     
     opacity: 0;
@@ -197,7 +197,6 @@ a.btn {
 
 #copy-toast.show {
     opacity: 1;
-    /* Кінцева позиція: рівно посередині екрана */
     transform: translate(-50%, -50%); 
 }
 </style>
@@ -325,11 +324,12 @@ function animateSuccess(el) {
   // 2. Показ тост-уведомления
   const toast = document.getElementById('copy-toast');
   if (toast) {
-    toast.classList.add('show');
+    // ДОДАЄМО КЛАСИ .btn та .clicked ДЛЯ УСПАДКУВАННЯ ВСІХ СТИЛІВ КНОПКИ
+    toast.classList.add('btn', 'clicked', 'show');
     
-    // Скрываем тост через заданное время
+    // Видаляємо класи після закінчення часу
     setTimeout(() => {
-      toast.classList.remove('show');
+      toast.classList.remove('btn', 'clicked', 'show');
     }, TOAST_DISPLAY_DURATION);
   }
 }
