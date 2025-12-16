@@ -31,7 +31,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: #ffffff;
   
-  /* ПОВНА ПРОЗОРІСТЬ BODY для видимості фону */
+  /* КРИТИЧНО ВАЖЛИВО: ПОВНА ПРОЗОРІСТЬ BODY для видимості фону */
   background: transparent !important; 
   position: relative;
 }
@@ -65,9 +65,9 @@ body {
   
   /* ВАЖЛИВО: Збільшені відступи, щоб контент не перекривався статусбаром/панеллю */
   padding: 
-    calc(60px + env(safe-area-inset-top)) 
+    calc(60px + env(safe-area-inset-top)) /* Збільшено відступ зверху */
     20px 
-    calc(60px + env(safe-area-inset-bottom)); 
+    calc(60px + env(safe-area-inset-bottom)); /* Збільшено відступ знизу */
     
   text-align: center;
 }
@@ -87,7 +87,7 @@ h1 {
 }
 
 /* =========================
-   4. КНОПКИ (МАКСИМАЛЬНИЙ BLUR)
+   4. КНОПКИ (BLUR)
 ========================= */
 .btn {
   position: relative;
@@ -98,7 +98,6 @@ h1 {
   margin-bottom: 12px;
   padding: 18px 20px;
   
-  /* BLUR залишається лише на кнопках */
   backdrop-filter: blur(15px); 
   -webkit-backdrop-filter: blur(15px);
   
@@ -134,8 +133,46 @@ a.btn {
 }
 
 /* =========================
-   5. OVERLAY FADES (ВИДАЛЕНО)
+   5. OVERLAY FADES (ПОВЕРТАЄМО, АЛЕ БЕЗ ФІКСОВАНИХ БЛОКІВ)
+   Це створює ефект "зникнення" контенту в темний фон.
 ========================= */
+.container::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  /* Висота відповідає верхньому padding, щоб не закривати кнопки */
+  height: calc(50px + env(safe-area-inset-top)); 
+  z-index: 100; 
+  pointer-events: none; 
+  
+  background: linear-gradient(
+    to bottom, 
+    #1b1f3b 0%, 
+    rgba(27, 31, 59, 0.8) 50%, 
+    transparent 100%
+  );
+}
+
+.container::after {
+  content: "";
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  /* Висота відповідає нижньому padding */
+  height: calc(60px + env(safe-area-inset-bottom)); 
+  z-index: 100;
+  pointer-events: none;
+  
+  background: linear-gradient(
+    to top, 
+    #1b1f3b 0%, 
+    rgba(27, 31, 59, 0.8) 50%,
+    transparent 100%
+  );
+}
 </style>
 </head>
 
