@@ -13,12 +13,16 @@
   box-sizing: border-box;
 }
 
-html, body {
+html {
+  /* НОВЕ ВИПРАВЛЕННЯ: HTML має повну висоту і керує прокруткою */
+  height: 100%;
+  overflow-y: auto;
+}
+
+body {
   margin: 0;
   padding: 0;
-  /* !!! НОВИЙ ФІКС: ВСТАНОВЛЮЄМО ВИСОТУ ВЕЛИЧИНОЮ В ЕКРАН ДЛЯ НАДІЙНОСТІ !!! */
-  height: 100vh; 
-  overflow-y: auto; /* ДОЗВОЛЯЄМО BODY ПРОКРУЧУВАТИСЯ */
+  min-height: 100%; /* body бере висоту від html */
 }
 
 /* =========================
@@ -28,22 +32,21 @@ html, body {
 body {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
   color: #ffffff;
-  background-color: transparent; /* ВІДМІНА ФОНУ У BODY */
+  background-color: transparent; 
 }
 
-/* !!! НОВИЙ ФІКС: СТВОРЕННЯ ФІКСОВАНОГО ФОНУ ЧЕРЕЗ PSEUDO-ELEMENT !!! */
+/* ФІКС: ФІКСОВАНИЙ ФОН ЧЕРЕЗ PSEUDO-ELEMENT */
 body::before {
   content: '';
   position: fixed;
-  inset: 0; /* РОЗТЯГУЄМО НА ВЕСЬ ЕКРАН */
-  z-index: -1; /* ПОМІЩУЄМО ПІД КОНТЕНТ */
+  inset: 0; 
+  z-index: -1; 
   
   background-color: #1b1f3b; /* fallback */
-  background-image: url("./bg-liquid.webp"); /* ОРИГІНАЛЬНЕ ІМ'Я ФАЙЛУ */
+  background-image: url("./bg-liquid.webp"); 
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
-  /* background-attachment: fixed; тут не потрібен, оскільки position: fixed виконує його роботу */
 }
 
 
@@ -91,8 +94,8 @@ h1 {
   align-items: center;
   justify-content: space-between;
 
-  padding: 24px 18px; /* ВИСОТА 24px */
-  border-radius: 48px; /* ЗАКРУГЛЕННЯ 48px */
+  padding: 24px 18px; 
+  border-radius: 48px; 
 
   /* ВАЖНО: фон есть всегда */
   background-color: rgba(255,255,255,0.18);
