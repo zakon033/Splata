@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes"> 
 
 <style>
-/* ... (Секції 1, 2, 3 залишаються без змін) ... */
+/* ... (Базові стилі залишаються без змін) ... */
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent; 
@@ -36,54 +36,44 @@ body {
 }
 h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
 .subtitle { font-size: 15px; opacity: 0.9; margin-bottom: 30px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+
 /* =========================
-   4. КНОПКИ (Вирівняно по краях)
+   4. КНОПКИ (ЗМЕНШЕНА ВИСОТА З СИМЕТРІЄЮ)
 ========================= */
 .btn {
   position: relative;
   overflow: hidden; 
-  
-  /* FLEXBOX: Вирівнювання вліво */
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  
   width: 100%;
   
-  /* === ВАЖЛИВА ЗМІНА: ЗБІЛЬШУЄМО ГОРИЗОНТАЛЬНИЙ ПАДІНГ КНОПКИ === */
-  /* Вертикальний падінг 24px, як був раніше. Горизонтальний падінг встановлюємо
-     таким чином, щоб досягти бажаного відступу M (24px) до лівого краю іконки. */
-  padding: 24px; /* Новий падінг: 24px з усіх боків */
+  /* === КЛЮЧОВА ЗМІНА: ЗМЕНШУЄМО УНІВЕРСАЛЬНИЙ ПАДІНГ ДО 16PX === */
+  padding: 16px; 
   
   margin-bottom: 15px; 
-  
   backdrop-filter: blur(15px); 
   -webkit-backdrop-filter: blur(15px);
   background-color: rgba(255, 255, 255, 0.1); 
-  
   border: none; 
   border-radius: 70px; 
-  
   color: #fff;
   text-decoration: none;
   font-size: 22px; 
   font-weight: 500;
-  
   box-shadow: 0 4px 15px rgba(0,0,0,0.3);
   transition: transform 0.1s, background-color 0.2s; 
   cursor: pointer;
   user-select: none;
 }
 
-/* === ЗМІНА ТУТ: МІСЦЕ ПІД ЛОГОТИП === */
+/* === РОЗМІР ЛОГОТИПА: 58PX (1.8x) — БЕЗ ЗМІН === */
 .btn-icon {
   width: 58px;  
   height: 58px; 
-  
-  /* МІНЯЄМО: Оскільки падінг кнопки 24px, то відступ icon-container
-     від лівого краю кнопки (24px) вже встановлений. */
+  /* margin-left: 0, бо відступ 16px вже встановлений падінгом кнопки */
   margin-right: 15px; 
-  margin-left: 0; /* Видаляємо марджин зліва, бо його замінює падінг кнопки */
+  margin-left: 0; 
   
   display: flex;
   align-items: center;
@@ -93,7 +83,7 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
   font-size: 38px; 
 }
 
-/* Стилі для SVG всередині збільшеного контейнера */
+/* Стилі для SVG всередині контейнера */
 .btn-icon svg {
     width: 100%; 
     height: 100%; 
@@ -102,7 +92,7 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
     opacity: 0.9;
 }
 
-/* ... (Інші стилі залишаються без змін) ... */
+/* ... (Інші стилі для тексту, ефектів та тосту залишаються без змін) ... */
 .btn-text {
   text-align: left;
   white-space: nowrap;
