@@ -51,8 +51,8 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
   align-items: center; 
   width: 100%;
   
-  /* ИСПОЛЬЗУЕМ ПАДДИНГИ ДЛЯ ИДЕАЛЬНОЙ СИММЕТРИИ */
-  padding: 15px 25px; 
+  /* УМЕНЬШИЛ ЛЕВЫЙ ОТСТУП С 25 ДО 12 ДЛЯ СДВИГА ВЛЕВО */
+  padding: 15px 20px 15px 12px; 
   min-height: 90px; 
   
   margin-bottom: 15px; 
@@ -80,12 +80,12 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
 .btn::before { top: 0; background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent); }
 .btn::after { bottom: 0; background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent); }
 
-/* Убираем системные отступы у всех картинок */
 .btn img { display: block; }
 
 /* ТИП 1: ЛОГОТИП ПО ЦЕНТРУ */
 .btn-full-logo {
     justify-content: center;
+    padding-left: 20px; /* Сброс сдвига для кнопок, где только логотип */
 }
 .btn-full-logo img {
     height: 44px; 
@@ -101,11 +101,13 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
 .btn-icon {
     width: 66px; 
     height: 66px;
-    margin-right: 15px;
+    margin-right: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    /* Оптическая коррекция: чуть-чуть опускаем контейнер иконки */
+    margin-top: 2px;
 }
 .btn-icon img {
     width: 100%;
@@ -122,6 +124,7 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
 /* ТИП 3: НОМЕР КАРТЫ */
 .btn-card {
     justify-content: center;
+    padding-left: 20px; /* Сброс сдвига */
 }
 .card-number-font {
     font-family: 'Consolas', 'Courier New', monospace;
