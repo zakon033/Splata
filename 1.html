@@ -128,13 +128,26 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
   transform: scale(1); background-color: rgba(46, 204, 113, 0.3) !important;
 }
 #copy-toast {
-    position: fixed; top: 50%; left: 50%; transform: translate(-50%, calc(-50% - 150px)); 
-    padding: 15px 30px; font-size: 22px; font-weight: 600; color: #ffffff; 
-    z-index: 1000; opacity: 0;
+    position: fixed;
+    top: 50%; 
+    left: 50%;
+    
+    transform: translate(-50%, calc(-50% - 150px)); 
+    
+    padding: 15px 30px; 
+    font-size: 22px; 
+    font-weight: 600;
+    color: #ffffff; 
+    
+    z-index: 1000; 
+    
+    opacity: 0;
     transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease-out;
 }
+
 #copy-toast.show {
-    opacity: 1; transform: translate(-50%, -50%); 
+    opacity: 1;
+    transform: translate(-50%, -50%);
 }
 </style>
 </head>
