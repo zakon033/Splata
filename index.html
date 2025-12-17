@@ -38,8 +38,8 @@ body {
   text-align: center;
 }
 
-h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-.subtitle { font-size: 15px; opacity: 0.9; margin-bottom: 30px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+.subtitle { font-size: 22px; opacity: 0.9; margin-bottom: 30px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
 
 /* =========================
    ОБЩИЙ СТИЛЬ КНОПОК
@@ -50,8 +50,8 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
   display: flex;
   align-items: center; 
   width: 100%;
-  height: 80px; /* Фиксированная высота как ты просил */
-  padding: 0 20px 0 12px; /* Уменьшен левый отступ для сдвига иконок */
+  height: 80px; 
+  padding: 0 12px; /* Симметричные отступы для кнопок с иконками */
   margin-bottom: 15px; 
   backdrop-filter: blur(15px); 
   -webkit-backdrop-filter: blur(15px);
@@ -60,7 +60,7 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
   border-radius: 70px; 
   color: #fff;
   text-decoration: none;
-  font-size: 22px; /* Чуть уменьшил шрифт под высоту 80px */
+  font-size: 22px; 
   font-weight: 500;
   box-shadow: 0 4px 15px rgba(0,0,0,0.2);
   transition: transform 0.1s, background-color 0.2s; 
@@ -82,10 +82,9 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
 /* ТИП 1: ЛОГОТИП ПО ЦЕНТРУ */
 .btn-full-logo {
     justify-content: center;
-    padding-left: 20px;
 }
 .btn-full-logo img {
-    height: 38px; /* Оптимальный размер логотипа для кнопки 80px */
+    height: 38px; 
     width: auto;
     max-width: 80%;
     object-fit: contain;
@@ -95,43 +94,76 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
 .btn-with-text {
     justify-content: flex-start;
 }
-.btn-icon {
+
+/* КОНТЕЙНЕРЫ ИКОНОК (ЛЕВАЯ И ПРАВАЯ) */
+.btn-icon, .btn-icon-right {
     width: 54px; 
-    height: 100%; /* Контейнер на всю высоту кнопки для центровки */
-    margin-right: 12px;
+    height: 100%; 
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    padding-top: 2px; 
 }
-.btn-icon img {
+
+.btn-icon { margin-right: 12px; }
+.btn-icon-right { margin-left: 12px; }
+
+.btn-icon img, .btn-icon-right img {
     width: 100%;
     height: auto;
     max-height: 54px;
     object-fit: contain;
 }
+
+/* ТЕКСТ */
 .btn-text {
     white-space: nowrap;
     height: 100%;
     display: flex;
-    align-items: center; /* Текст строго в центре по вертикали */
+    align-items: center; 
     line-height: 1; 
+    padding-top: 2px; 
+    flex-grow: 1; /* Чтобы текст занимал пространство и позволял иконкам разойтись */
 }
 
 /* ТИП 3: НОМЕР КАРТЫ */
 .btn-card {
     justify-content: center;
-    padding-left: 20px;
 }
 .card-number-font {
     font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 24px; 
+    font-weight: 500;
     letter-spacing: 2px;
-    color: rgba(255, 255, 255, 0.9);
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    
+    /* Основной цвет текста сделаем чуть темнее чисто-белого, 
+       чтобы светлая тень была видна на его фоне */
+    color: #e0e0e0; 
+    
+    /* ЭФФЕКТ ОБЪЕМА:
+       -7px -4px 6px ...  — Светлая тень (блик) влево и вверх
+       7px 4px 6px ...   — Темная тень (глубина) вправо и вниз
+    */
+    text-shadow: 
+        -2px -2px 3px rgba(255, 255, 255, 0.4), 
+         2px 2px 3px rgba(0, 0, 0, 0.9);
+        
     height: 100%;
     display: flex;
     align-items: center;
     line-height: 1;
+}
+
+
+
+
+/* КНОПКА С ДВУМЯ ИКОНКАМИ */
+.btn-triple {
+    justify-content: space-between;
+}
+.btn-triple .btn-text {
+    justify-content: left; /* Центрируем текст внутри тройной кнопки */
 }
 
 /* =========================
@@ -227,9 +259,10 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
     <span class="btn-text">USDC (Polygon)</span>
   </div>
 
-  <a class="btn btn-with-text" data-href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9" target="_blank" onclick="handleLinkClick(this)">
+  <a class="btn btn-triple" data-href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9" target="_blank" onclick="handleLinkClick(this)">
      <div class="btn-icon"><img src="img/usdc.svg" alt="usdc"></div> 
-     <span class="btn-text">USDC (Polygon) · Trust</span>
+     <span class="btn-text">USDC (Polygon)</span>
+     <div class="btn-icon-right"><img src="img/trust.svg" alt="trust"></div> 
   </a>
 </div>
 
