@@ -48,10 +48,10 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
   position: relative;
   overflow: hidden; 
   display: flex;
-  align-items: center; /* Центрирование по вертикали */
+  align-items: center; 
   width: 100%;
-  height: 90px; /* Твоя новая высота */
-  padding: 0 20px; 
+  height: 80px; 
+  padding: 0 12px; /* Симметричные отступы для кнопок с иконками */
   margin-bottom: 15px; 
   backdrop-filter: blur(15px); 
   -webkit-backdrop-filter: blur(15px);
@@ -60,7 +60,7 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
   border-radius: 70px; 
   color: #fff;
   text-decoration: none;
-  font-size: 24px; 
+  font-size: 22px; 
   font-weight: 500;
   box-shadow: 0 4px 15px rgba(0,0,0,0.2);
   transition: transform 0.1s, background-color 0.2s; 
@@ -77,50 +77,57 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
 .btn::before { top: 0; background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent); }
 .btn::after { bottom: 0; background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent); }
 
-/* =========================
-   ТИП 1: ЛОГОТИП ПО ЦЕНТРУ
-========================= */
+.btn img { display: block; }
+
+/* ТИП 1: ЛОГОТИП ПО ЦЕНТРУ */
 .btn-full-logo {
     justify-content: center;
 }
 .btn-full-logo img {
-    max-height: 44px; /* Увеличено для баланса с высотой 90px */
+    height: 38px; 
+    width: auto;
     max-width: 80%;
     object-fit: contain;
-    display: block;
 }
 
-/* =========================
-   ТИП 2: ИКОНКА СЛЕВА + ТЕКСТ
-========================= */
+/* ТИП 2: ИКОНКА СЛЕВА + ТЕКСТ */
 .btn-with-text {
     justify-content: flex-start;
 }
-.btn-icon {
-    width: 60px; /* Фиксированный квадрат для иконки */
-    height: 60px;
-    margin-right: 15px;
+
+/* КОНТЕЙНЕРЫ ИКОНОК (ЛЕВАЯ И ПРАВАЯ) */
+.btn-icon, .btn-icon-right {
+    width: 54px; 
+    height: 100%; 
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-}
-.btn-icon img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: block;
-}
-.btn-text {
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    line-height: 1; /* Убирает лишние отступы шрифта */
+    padding-top: 2px; 
 }
 
-/* =========================
-   ТИП 3: НОМЕР КАРТЫ (ПО ЦЕНТРУ)
-========================= */
+.btn-icon { margin-right: 12px; }
+.btn-icon-right { margin-left: 12px; }
+
+.btn-icon img, .btn-icon-right img {
+    width: 100%;
+    height: auto;
+    max-height: 54px;
+    object-fit: contain;
+}
+
+/* ТЕКСТ */
+.btn-text {
+    white-space: nowrap;
+    height: 100%;
+    display: flex;
+    align-items: center; 
+    line-height: 1; 
+    padding-top: 2px; 
+    flex-grow: 1; /* Чтобы текст занимал пространство и позволял иконкам разойтись */
+}
+
+/* ТИП 3: НОМЕР КАРТЫ */
 .btn-card {
     justify-content: center;
 }
@@ -129,27 +136,51 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
     letter-spacing: 2px;
     color: rgba(255, 255, 255, 0.9);
     text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    height: 100%;
     display: flex;
     align-items: center;
     line-height: 1;
 }
 
+/* КНОПКА С ДВУМЯ ИКОНКАМИ */
+.btn-triple {
+    justify-content: space-between;
+}
+.btn-triple .btn-text {
+    justify-content: center; /* Центрируем текст внутри тройной кнопки */
+}
+
 /* =========================
-   TOAST
+   ВОССТАНОВЛЕННЫЙ TOAST
 ========================= */
 #copy-toast {
     position: fixed;
     top: 50%; left: 50%;
     transform: translate(-50%, calc(-50% - 150px)); 
-    padding: 16px 32px;           
+    padding: 18px 36px;           
     border-radius: 70px;          
     background-color: rgba(255, 255, 255, 0.1); 
     backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-    font-size: 20px; font-weight: 500; color: #ffffff; 
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    overflow: hidden; 
+    font-size: 22px; font-weight: 600; color: #ffffff; 
     z-index: 1000; opacity: 0; pointer-events: none;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease-out, background-color 0.2s;
 }
-#copy-toast.show { opacity: 1; transform: translate(-50%, -50%); background-color: rgba(46, 204, 113, 0.3); }
+
+#copy-toast::before, #copy-toast::after {
+    content: ''; position: absolute; left: 0; width: 100%; height: 2px; z-index: 1;
+}
+#copy-toast::before { top: 0; background: linear-gradient(to right, rgba(46, 204, 113, 0), rgba(46, 204, 113, 0.8), rgba(46, 204, 113, 0)); }
+#copy-toast::after { bottom: 0; background: linear-gradient(to right, rgba(46, 204, 113, 0), rgba(46, 204, 113, 0.5), rgba(46, 204, 113, 0)); }
+
+#copy-toast.show {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+    background-color: rgba(46, 204, 113, 0.25);
+    box-shadow: 0 0 20px rgba(46, 204, 113, 0.3);
+}
 
 </style>
 </head>
@@ -212,9 +243,10 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
     <span class="btn-text">USDC (Polygon)</span>
   </div>
 
-  <a class="btn btn-with-text" data-href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9" target="_blank" onclick="handleLinkClick(this)">
+  <a class="btn btn-triple" data-href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9" target="_blank" onclick="handleLinkClick(this)">
      <div class="btn-icon"><img src="img/usdc.svg" alt="usdc"></div> 
-     <span class="btn-text">USDC (Polygon) · Trust</span>
+     <span class="btn-text">USDC (Polygon)</span>
+     <div class="btn-icon-right"><img src="img/trust.svg" alt="trust"></div> 
   </a>
 </div>
 
