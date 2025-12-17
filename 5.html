@@ -50,8 +50,8 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
   display: flex;
   align-items: center; 
   width: 100%;
-  height: 80px; /* Фиксированная высота как ты просил */
-  padding: 0 20px 0 12px; /* Уменьшен левый отступ для сдвига иконок */
+  height: 80px; 
+  padding: 0 20px 0 12px; 
   margin-bottom: 15px; 
   backdrop-filter: blur(15px); 
   -webkit-backdrop-filter: blur(15px);
@@ -60,7 +60,7 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
   border-radius: 70px; 
   color: #fff;
   text-decoration: none;
-  font-size: 22px; /* Чуть уменьшил шрифт под высоту 80px */
+  font-size: 22px; 
   font-weight: 500;
   box-shadow: 0 4px 15px rgba(0,0,0,0.2);
   transition: transform 0.1s, background-color 0.2s; 
@@ -85,7 +85,7 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
     padding-left: 20px;
 }
 .btn-full-logo img {
-    height: 38px; /* Оптимальный размер логотипа для кнопки 80px */
+    height: 38px; 
     width: auto;
     max-width: 80%;
     object-fit: contain;
@@ -96,13 +96,15 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
     justify-content: flex-start;
 }
 .btn-icon {
-    width: 60px; 
-    height: 100%; /* Контейнер на всю высоту кнопки для центровки */
+    width: 54px; 
+    height: 100%; 
     margin-right: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    /* Оптическое смещение вниз на 2 пикселя */
+    padding-top: 2px; 
 }
 .btn-icon img {
     width: 100%;
@@ -114,8 +116,10 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
     white-space: nowrap;
     height: 100%;
     display: flex;
-    align-items: center; /* Текст строго в центре по вертикали */
+    align-items: center; 
     line-height: 1; 
+    /* Оптическое смещение текста вместе с иконкой */
+    padding-top: 2px; 
 }
 
 /* ТИП 3: НОМЕР КАРТЫ */
