@@ -50,8 +50,11 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
   display: flex;
   align-items: center; 
   width: 100%;
-  height: 90px; 
-  padding: 0 20px; 
+  
+  /* ИСПОЛЬЗУЕМ ПАДДИНГИ ДЛЯ ИДЕАЛЬНОЙ СИММЕТРИИ */
+  padding: 15px 25px; 
+  min-height: 90px; 
+  
   margin-bottom: 15px; 
   backdrop-filter: blur(15px); 
   -webkit-backdrop-filter: blur(15px);
@@ -77,22 +80,21 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
 .btn::before { top: 0; background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent); }
 .btn::after { bottom: 0; background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent); }
 
-/* =========================
-   ТИП 1: ЛОГОТИП ПО ЦЕНТРУ
-========================= */
+/* Убираем системные отступы у всех картинок */
+.btn img { display: block; }
+
+/* ТИП 1: ЛОГОТИП ПО ЦЕНТРУ */
 .btn-full-logo {
     justify-content: center;
 }
 .btn-full-logo img {
-    max-height: 44px; 
+    height: 44px; 
+    width: auto;
     max-width: 80%;
     object-fit: contain;
-    display: block;
 }
 
-/* =========================
-   ТИП 2: ИКОНКА СЛЕВА + ТЕКСТ
-========================= */
+/* ТИП 2: ИКОНКА СЛЕВА + ТЕКСТ */
 .btn-with-text {
     justify-content: flex-start;
 }
@@ -109,7 +111,6 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
     width: 100%;
     height: 100%;
     object-fit: contain;
-    display: block;
 }
 .btn-text {
     white-space: nowrap;
@@ -118,9 +119,7 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
     line-height: 1; 
 }
 
-/* =========================
-   ТИП 3: НОМЕР КАРТЫ (ПО ЦЕНТРУ)
-========================= */
+/* ТИП 3: НОМЕР КАРТЫ */
 .btn-card {
     justify-content: center;
 }
