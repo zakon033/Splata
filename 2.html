@@ -18,13 +18,12 @@ html { background-color: #1b1f3b; }
 body {
   margin: 0; padding: 0; width: 100%; min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  color: #ffffff; background: transparent !important; position: relative;
+  color: #ffffff; background: transparent !important;
 }
 #background-image-wrap {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; 
   background-image: url("./bg-liquid.webp"); background-size: cover;
   background-position: center center; background-attachment: fixed; 
-  transform: translateZ(0); 
   mask-image: linear-gradient(to bottom, transparent 0%, black 80px, black calc(100% - 80px), transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 80px, black calc(100% - 80px), transparent 100%);
 }
@@ -34,9 +33,8 @@ body {
   text-align: center;
 }
 h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-.subtitle { font-size: 15px; opacity: 0.9; margin-bottom: 30px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+.subtitle { font-size: 15px; opacity: 0.9; margin-bottom: 30px; }
 
-/* Базовый стиль кнопки */
 .btn {
   position: relative;
   overflow: hidden; 
@@ -44,8 +42,8 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
   align-items: center;
   justify-content: flex-start;
   width: 100%;
-  height: 64px; /* Фиксированная высота для всех кнопок */
-  padding: 0 24px; 
+  height: 65px; /* Единая высота для всех кнопок */
+  padding: 0 20px; 
   margin-bottom: 15px; 
   backdrop-filter: blur(15px); 
   -webkit-backdrop-filter: blur(15px);
@@ -61,52 +59,40 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
   cursor: pointer;
 }
 
-/* Центрированная кнопка специально для Привата */
-.btn-center {
-  justify-content: center;
-  padding: 0;
-}
+.btn-center { justify-content: center; }
 
 .btn-icon {
-  width: 40px; height: 40px; margin-right: 15px;
+  width: 45px; height: 45px; margin-right: 15px;
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
-
 .btn-icon svg { width: 100%; height: 100%; }
 
-/* Контейнер для SVG Привата */
-.privat-svg-container {
+/* Контейнер для исправленного логотипа ПриватБанка */
+.privat-logo-box {
     width: 100%;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
 }
-
-.privat-svg-container svg {
-    height: 38px; /* Оптимальный размер, чтобы не ломать кнопку */
+.privat-logo-box svg {
+    height: 32px; /* Высота логотипа внутри кнопки */
     width: auto;
-    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
 }
 
-.card-number-font {
-    font-family: 'Consolas', 'Courier New', monospace;
-    letter-spacing: 1px;
-}
+.card-num { font-family: monospace; letter-spacing: 1px; font-size: 19px; }
 
-/* Эффекты нажатия */
 .btn.clicked { transform: scale(0.97); background-color: rgba(255, 255, 255, 0.2); }
 .btn.copied { background-color: rgba(46, 204, 113, 0.3) !important; }
 
 #copy-toast {
     position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-    padding: 12px 24px; background: rgba(0,0,0,0.8); border-radius: 50px;
+    padding: 12px 25px; background: rgba(0,0,0,0.85); border-radius: 50px;
     z-index: 1000; opacity: 0; visibility: hidden; transition: 0.3s;
 }
 #copy-toast.show { opacity: 1; visibility: visible; }
 </style>
 </head>
-
 <body>
 
 <div id="background-image-wrap"></div>
@@ -118,8 +104,8 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
   <a class="btn" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">
     <div class="btn-icon">
         <svg viewBox="0 0 32 32">
-            <defs><linearGradient id="g" x1="0%" x2="100%" y1="0%" y2="100%"><stop offset="0%" stop-color="#FF3A83"/><stop offset="100%" stop-color="#9C27B0"/></linearGradient></defs>
-            <circle cx="16" cy="16" r="15" fill="url(#g)"/>
+            <defs><linearGradient id="m" x1="0%" x2="100%" y1="0%" y2="100%"><stop offset="0%" stop-color="#FF3A83"/><stop offset="100%" stop-color="#9C27B0"/></linearGradient></defs>
+            <circle cx="16" cy="16" r="15" fill="url(#m)"/>
             <path fill="#fff" d="M10 20c0 1.2.9 1.8 2.8 1.8s2.8-1 2.8-2.6v-5h-2v4.6c0 .3-.1.5-.4.5s-.4-.2-.4-.5v-4.6h-2V25h2v-4.6c.3 0 .4.2.4.6 0 .9.4 1.6 2.2 1.6 1.1 0 2-.6 2-1.6 0-1-1.2-1.6-2.2-1.6-.2 0-.4-.1-.4-.4V14c0-2.2-1.7-3.4-4.6-3.4H10V25h2v-9c0-1.2.8-1.9 2.3-1.9 1.5 0 2.3.7 2.3 1.9v12h2v-13h-2zM25 11h2v14h-2V11z" transform="scale(0.6) translate(10, 8)"/>
         </svg>
     </div> 
@@ -127,40 +113,52 @@ h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
   </a>
 
   <a class="btn btn-center" data-href="https://www.privat24.ua/send/id4xg" onclick="handleLinkClick(this)">
-    <div class="privat-svg-container">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="1200 1500 5600 800">
-            <defs>
-                <style>.pgreen {fill:#60B238;} .pblack {fill:#373435;}</style>
-            </defs>
-            <polygon class="pgreen" points="2290,2211 2154,2211 2154,1731 2643,1731 2643,2211 2507,2211 2507,1825 2290,1825"/>
-            <path class="pgreen" d="M2709 1863v475h125v-162c41 45 110 48 126 48 119 0 192-76 192-186 0-115-72-187-190-187-29 0-87 4-134 54l-2 0 1-41h-118zm119 173c0-97 60-116 97-116 37 0 97 19 97 116 0 60-25 117-97 117-73 0-97-57-97-117z"/>
-            <path class="pgreen" d="M3463 2170c-46 43-90 54-139 54-134 0-139-101-139-143v-218h125v201c0 69 23 89 69 89 78 0 84-70 84-96v-195h125v348h-125v-41z"/>
-            <path class="pgreen" d="M3767 2065h76c59 0 71 17 71 41 0 15-8 35-69 35h-78v-76zm-125-201v348h248c90 0 153-17 153-89 0-54-30-78-99-91v-2c45-6 84-34 84-81 0-84-98-84-137-84h-249zm125 69h67c35 0 65 5 65 34 0 31-47 32-68 32h-64v-66z"/>
-            <path class="pgreen" d="M4202 1975c0-51 54-55 76-55 14 0 65 0 67 45v9c-2 34-35 27-127 39-75 10-155 29-155 109 0 28 12 100 145 100 51 0 106-13 139-47l2 0 10 34h131v-6c-23-4-25-28-24-65l2-159c0-40-3-130-191-130-45 0-190 4-196 125h119zm144 91c0 69-60 87-91 87-23 0-64-7-64-40 0-39 46-46 73-50 48-6 44-4 82-18v21z"/>
-            <polygon class="pgreen" points="4485,1933 4485,1863 4886,1863 4886,1933 4748,1933 4748,2211 4623,2211 4623,1933"/>
-            <path class="pgreen" d="M5046 1825h311v-93h-447v479h274c133 0 218-46 218-144 0-153-171-157-218-157h-138v-85zm0 178h112c32 0 98 3 98 61 0 45-47 54-101 54h-110v-115z"/>
-            <polygon class="pblack" points="1246,2213 1559,2213 1559,1899 1246,1899"/>
-            <path class="pgreen" d="M1882 1577v469h-63c-27-232-173-378-406-405v-63h469zm-635-165v389h82c217 0 328 110 328 328v82h389v-801h-801z"/>
+    <div class="privat-logo-box">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="1200 1350 5600 1000">
+            <path fill="#60B238" d="M2290 2211h-136v-480h489v480h-136v-386h-217v386z"/>
+            <path fill="#60B238" d="M2709 1863v475h125v-162c41 45 110 48 126 48 119 0 192-76 192-186 0-115-72-187-190-187-29 0-87 4-134 54l-2 0 1-41h-118zm119 173c0-97 60-116 97-116 37 0 97 19 97 116 0 60-25 117-97 117-73 0-97-57-97-117z"/>
+            <path fill="#60B238" d="M3463 2170c-46 43-90 54-139 54-134 0-139-101-139-143v-218h125v201c0 69 23 89 69 89 78 0 84-70 84-96v-195h125v348h-125v-41z"/>
+            <path fill="#60B238" d="M3767 2065h76c59 0 71 17 71 41 0 15-8 35-69 35h-78v-76zm-125-201v348h248c90 0 153-17 153-89 0-54-30-78-99-91v-2c45-6 84-34 84-81 0-84-98-84-137-84h-249zm125 69h67c35 0 65 5 65 34 0 31-47 32-68 32h-64v-66z"/>
+            <path fill="#60B238" d="M4202 1975c0-51 54-55 76-55 14 0 65 0 67 45v9c-2 34-35 27-127 39-75 10-155 29-155 109 0 28 12 100 145 100 51 0 106-13 139-47l2 0 10 34h131v-6c-23-4-25-28-24-65l2-159c0-40-3-130-191-130-45 0-190 4-196 125h119zm144 91c0 69-60 87-91 87-23 0-64-7-64-40 0-39 46-46 73-50 48-6 44-4 82-18v21z"/>
+            <path fill="#60B238" d="M4485 1933v-70h401v70h-138v278h-125v-278z"/>
+            <path fill="#60B238" d="M5046 1825h311v-93h-447v479h274c133 0 218-46 218-144 0-153-171-157-218-157h-138v-85zm0 178h112c32 0 98 3 98 61 0 45-47 54-101 54h-110v-115z"/>
+            <rect fill="#373435" x="1246" y="1899" width="313" height="314"/>
+            <path fill="#60B238" d="M1882 1577v469h-63c-27-232-173-378-406-405v-63h469zm-635-165v389h82c217 0 328 110 328 328v82h389v-801h-801z"/>
         </svg>
     </div>
   </a>
   
   <div class="btn" onclick="handleCopyClick(this, '4441114459954077')">
     <div class="btn-icon">💳</div>
-    <span class="card-number-font">4441 •••• •••• 4077</span>
+    <span class="card-num">4441 •••• •••• 4077</span>
   </div>
   
-  <a class="btn" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">
-    <div class="btn-icon"></div>
-    <span>Apple Pay</span>
-  </a>
-
   <a class="btn" data-href="https://app.binance.com/uni-qr/LXViL5Hb" onclick="handleLinkClick(this)">
     <div class="btn-icon">
-        <svg viewBox="0 0 32 32"><g fill="none"><circle cx="16" cy="15" r="15" fill="#F3BA2F"/><path fill="#FFF" d="M12 13.4L16 9.5l3.8 3.8 2.2-2.2L16 5l-6.1 6.1 2.2 2.2zM5.8 15L8.2 12.7l2.2 2.2-2.2 2.2L5.8 15zm6.3 1.5L16 20.4l3.8-3.8 2.2 2.2L16 25l-6.1-6.1 2.2-2.2zm9.3-1.5l2.2-2.2 2.2 2.2-2.2 2.2-2.2-2.2z"/></g></svg>
+        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="15" fill="#F3BA2F"/><path fill="#FFF" d="M12 13.4L16 9.5l4 4 2.2-2.2L16 5l-6.2 6.2 2.2 2.2zM6 15l2.4-2.4 2.3 2.4-2.3 2.3L6 15zm6.2 1.5L16 20.4l3.8-3.8 2.2 2.2L16 25l-6.2-6.2 2.4-2.3zm9.3-1.5l2.2-2.2 2.3 2.2-2.3 2.3-2.2-2.3z"/></svg>
     </div>
     <span>Binance Pay</span>
   </a>
+
+  <div class="btn" onclick="handleCopyClick(this, 'TPr99...')">
+    <div class="btn-icon">💰</div>
+    <span>USDT (TRC20)</span>
+  </div>
+
+  <div class="btn" onclick="handleCopyClick(this, '0x7b...')">
+    <div class="btn-icon">💎</div>
+    <span>Ethereum (ETH)</span>
+  </div>
+
+  <div class="btn" onclick="handleCopyClick(this, 'bc1q...')">
+    <div class="btn-icon">₿</div>
+    <span>Bitcoin (BTC)</span>
+  </div>
+
+  <div class="btn" onclick="handleCopyClick(this, 'TPr99...')">
+    <div class="btn-icon">🌀</div>
+    <span>Tron (TRX)</span>
+  </div>
 
 </div>
 
