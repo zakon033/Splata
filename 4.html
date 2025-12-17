@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Переказ коштів</title>
+
+<meta name="theme-color" content="#1b1f3b"> 
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> 
+<meta name="apple-mobile-web-app-capable" content="yes"> 
+
+<style>
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent; 
+}
+
+html { background-color: #1b1f3b; }
+
+body {
+  margin: 0; padding: 0; width: 100%; min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
+  color: #ffffff; background: transparent !important; position: relative;
+}
+
+#background-image-wrap {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; 
+  background-image: url("./bg-liquid.webp"); background-size: cover;
+  background-position: center center; background-attachment: fixed; 
+  transform: translateZ(0); 
+  mask-image: linear-gradient(to bottom, transparent 0%, black 80px, black calc(100% - 80px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 80px, black calc(100% - 80px), transparent 100%);
+}
+
+.container {
+  max-width: 420px; width: 100%; margin: 0 auto; position: relative;
+  z-index: 10; padding: calc(60px + env(safe-area-inset-top)) 20px calc(60px + env(safe-area-inset-bottom)); 
+  text-align: center;
+}
+
+h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+.subtitle { font-size: 15px; opacity: 0.9; margin-bottom: 30px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+
+/* =========================
+   ОБЩИЙ СТИЛЬ КНОПОК
+========================= */
+.btn {
+  position: relative;
+  overflow: hidden; 
+  display: flex;
+  align-items: center; 
+  width: 100%;
+  height: 90px; 
+  padding: 0 20px; 
+  margin-bottom: 15px; 
+  backdrop-filter: blur(15px); 
+  -webkit-backdrop-filter: blur(15px);
+  background-color: rgba(255, 255, 255, 0.1); 
+  border: 1px solid rgba(255, 255, 255, 0.1); 
+  border-radius: 70px; 
+  color: #fff;
+  text-decoration: none;
+  font-size: 24px; 
+  font-weight: 500;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  transition: transform 0.1s, background-color 0.2s; 
+  cursor: pointer;
+  user-select: none;
+}
+
+.btn.clicked { transform: scale(0.97); background-color: rgba(46, 204, 113, 0.3); }
+.btn.copied { background-color: rgba(46, 204, 113, 0.3) !important; }
+
+.btn::before, .btn::after {
+    content: ''; position: absolute; left: 0; width: 100%; height: 1.5px; z-index: 1;
+}
+.btn::before { top: 0; background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent); }
+.btn::after { bottom: 0; background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent); }
+
+/* =========================
+   ТИП 1: ЛОГОТИП ПО ЦЕНТРУ
+========================= */
+.btn-full-logo {
+    justify-content: center;
+}
+.btn-full-logo img {
+    max-height: 44px; 
+    max-width: 80%;
+    object-fit: contain;
+    display: block;
+}
+
+/* =========================
+   ТИП 2: ИКОНКА СЛЕВА + ТЕКСТ
+========================= */
+.btn-with-text {
+    justify-content: flex-start;
+}
+.btn-icon {
+    width: 60px; 
+    height: 60px;
+    margin-right: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.btn-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+.btn-text {
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    line-height: 1; 
+}
+
+/* =========================
+   ТИП 3: НОМЕР КАРТЫ (ПО ЦЕНТРУ)
+========================= */
+.btn-card {
+    justify-content: center;
+}
+.card-number-font {
+    font-family: 'Consolas', 'Courier New', monospace;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    line-height: 1;
+}
+
+/* =========================
+   ВОССТАНОВЛЕННЫЙ TOAST
+========================= */
+#copy-toast {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, calc(-50% - 150px)); 
+    padding: 18px 36px;           
+    border-radius: 70px;          
+    background-color: rgba(255, 255, 255, 0.1); 
+    backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    overflow: hidden; 
+    font-size: 22px; font-weight: 600; color: #ffffff; 
+    z-index: 1000; opacity: 0; pointer-events: none;
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease-out, background-color 0.2s;
+}
+
+#copy-toast::before, #copy-toast::after {
+    content: ''; position: absolute; left: 0; width: 100%; height: 2px; z-index: 1;
+}
+#copy-toast::before { top: 0; background: linear-gradient(to right, rgba(46, 204, 113, 0), rgba(46, 204, 113, 0.8), rgba(46, 204, 113, 0)); }
+#copy-toast::after { bottom: 0; background: linear-gradient(to right, rgba(46, 204, 113, 0), rgba(46, 204, 113, 0.5), rgba(46, 204, 113, 0)); }
+
+#copy-toast.show {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+    background-color: rgba(46, 204, 113, 0.25);
+    box-shadow: 0 0 20px rgba(46, 204, 113, 0.3);
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="background-image-wrap"></div>
+
+<div class="container">
+  <h1>💳 Переказати кошти</h1>
+  <div class="subtitle">Оберіть зручний спосіб</div>
+
+  <a class="btn btn-full-logo" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">
+    <img src="img/monobank.svg" alt="monobank">
+  </a>
+
+  <a class="btn btn-full-logo" data-href="https://www.privat24.ua/send/id4xg" onclick="handleLinkClick(this)">
+    <img src="img/PrivatBank.svg" alt="PrivatBank">
+  </a>
+
+  <div class="btn btn-card" onclick="handleCopyClick(this, '4441114459954077')">
+    <span class="card-number-font">4441 •••• •••• 4077</span>
+  </div>
+  
+  <a class="btn btn-full-logo" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">
+     <img src="img/apple_pay.svg" alt="apple_pay">
+  </a>
+
+  <a class="btn btn-full-logo" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">
+    <img src="img/google_pay.svg" alt="google_pay">
+  </a>
+  
+  <a class="btn btn-with-text" data-href="https://app.binance.com/uni-qr/LXViL5Hb" onclick="handleLinkClick(this)">
+    <div class="btn-icon"><img src="img/bnb.svg" alt="binance"></div>
+    <span class="btn-text">Binance Pay</span>
+  </a>
+
+  <div class="btn btn-with-text" onclick="handleCopyClick(this, 'bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp')">
+    <div class="btn-icon"><img src="img/btc.svg" alt="btc"></div>
+    <span class="btn-text">Bitcoin (BTC)</span>
+  </div>
+  
+  <div class="btn btn-with-text" onclick="handleCopyClick(this, '0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
+    <div class="btn-icon"><img src="img/eth.svg" alt="eth"></div>
+    <span class="btn-text">Ethereum (ETH)</span>
+  </div>
+  
+  <div class="btn btn-with-text" onclick="handleCopyClick(this, 'TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh')">
+    <div class="btn-icon"><img src="img/usdt.svg" alt="usdt"></div>
+    <span class="btn-text">USDT (Tether)</span>
+  </div>
+  
+  <div class="btn btn-with-text" onclick="handleCopyClick(this, 'EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7')">
+    <div class="btn-icon"><img src="img/sol.svg" alt="sol"></div>
+    <span class="btn-text">Solana (SOL)</span>
+  </div>
+  
+  <div class="btn btn-with-text" onclick="handleCopyClick(this, '0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
+    <div class="btn-icon"><img src="img/usdc.svg" alt="usdc"></div>
+    <span class="btn-text">USDC (Polygon)</span>
+  </div>
+
+  <a class="btn btn-with-text" data-href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9" target="_blank" onclick="handleLinkClick(this)">
+     <div class="btn-icon"><img src="img/usdc.svg" alt="usdc"></div> 
+     <span class="btn-text">USDC (Polygon) · Trust</span>
+  </a>
+</div>
+
+<div id="copy-toast">Скопійовано!</div>
+
+<script>
+const CLICK_ANIMATION_DURATION = 150; 
+const TOAST_DISPLAY_DURATION = 2000; 
+
+function animateClick(element) {
+  return new Promise(resolve => {
+    element.classList.add('clicked');
+    setTimeout(() => {
+      element.classList.remove('clicked');
+      resolve();
+    }, CLICK_ANIMATION_DURATION);
+  });
+}
+
+async function handleLinkClick(element) {
+  event.preventDefault(); 
+  const targetURL = element.getAttribute('data-href');
+  if (!targetURL) return;
+  await animateClick(element); 
+  window.location.href = targetURL;
+}
+
+async function handleCopyClick(element, textToCopy) {
+  await animateClick(element);
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(textToCopy)
+      .then(() => animateSuccess(element))
+      .catch(() => fallbackCopy(textToCopy, element));
+  } else {
+    fallbackCopy(textToCopy, element);
+  }
+}
+
+function animateSuccess(el) {
+  if (!el) return;
+  el.classList.add('copied');
+  setTimeout(() => el.classList.remove('copied'), 250);
+  
+  const toast = document.getElementById('copy-toast');
+  if (toast) {
+    toast.classList.add('show'); 
+    setTimeout(() => toast.classList.remove('show'), TOAST_DISPLAY_DURATION);
+  }
+}
+
+function fallbackCopy(text, element) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+  animateSuccess(element);
+}
+</script>
+
+</body>
+</html>
