@@ -26,12 +26,11 @@ body {
 
 #background-image-wrap {
     position: fixed;
-    /* Делаем блок чуть больше экрана (на 10%), чтобы при оттягивании 
-       края картинки всегда оставались за пределами видимости */
-    top: -5%;
-    left: -5%;
-    width: 110%;
-    height: 110%;
+    /* Возвращаем строго по размеру экрана */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     
     z-index: -1;
     background-image: url("./bg-liquid.webp");
@@ -39,19 +38,22 @@ body {
     background-position: center;
     background-repeat: no-repeat;
     
-    /* Отключаем любые события мыши/тача для фона, 
-       чтобы браузер не думал, что фон нужно тянуть */
-    pointer-events: none; 
-    
-    /* Жесткая фиксация слоя в памяти телефона */
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    -webkit-transform: translate3d(0,0,0);
-    transform: translate3d(0,0,0);
+    /* Убираем fixed отсюда, так как блок и так fixed. 
+       Это предотвратит "прыжки" при скрытии адресной строки */
+    background-attachment: scroll; 
 
+    /* Игнорируем касания фона */
+    pointer-events: none; 
+
+    /* Фиксируем слой в памяти */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+
+    /* Возвращаем маску строго на место */
     mask-image: linear-gradient(to bottom, transparent 0%, black 80px, black calc(100% - 80px), transparent 100%);
     -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 80px, black calc(100% - 80px), transparent 100%);
 }
+
 
 
 .container {
