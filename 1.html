@@ -25,24 +25,34 @@ body {
 }
 
 #background-image-wrap {
-    position: fixed; /* ГЛАВНОЕ: фиксирует фон относительно экрана, а не страницы */
-    inset: 0;        /* Растягивает на всю ширину и высоту */
-    z-index: -1; 
-    background-image: url("./bg-liquid.webp"); 
-    background-size: 100% 100%; 
+    position: fixed;
+    /* Делаем блок чуть больше экрана (на 10%), чтобы при оттягивании 
+       края картинки всегда оставались за пределами видимости */
+    top: -5%;
+    left: -5%;
+    width: 110%;
+    height: 110%;
+    
+    z-index: -1;
+    background-image: url("./bg-liquid.webp");
+    background-size: 100% 100%;
     background-position: center;
     background-repeat: no-repeat;
     
-    /* Убираем зависимость от прокрутки */
-    background-attachment: scroll; 
+    /* Отключаем любые события мыши/тача для фона, 
+       чтобы браузер не думал, что фон нужно тянуть */
+    pointer-events: none; 
     
-    /* Фиксируем слой для iOS, чтобы не дергался */
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0); 
+    /* Жесткая фиксация слоя в памяти телефона */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-transform: translate3d(0,0,0);
+    transform: translate3d(0,0,0);
 
     mask-image: linear-gradient(to bottom, transparent 0%, black 80px, black calc(100% - 80px), transparent 100%);
     -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 80px, black calc(100% - 80px), transparent 100%);
 }
+
 
 .container {
   max-width: 420px; width: 100%; margin: 0 auto; position: relative;
