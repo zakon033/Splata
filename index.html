@@ -9,6 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> 
 <meta name="apple-mobile-web-app-capable" content="yes"> 
 
+
 <style>
 * {
   box-sizing: border-box;
@@ -24,13 +25,28 @@ body {
 }
 
 #background-image-wrap {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; 
-  background-image: url("./bg-liquid.webp"); background-size: cover;
-  background-position: center center; background-attachment: fixed; 
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 100%; 
+  z-index: -1; 
+  background-image: url("./bg-liquid.webp"); 
+  
+  /* РАСТЯГИВАНИЕ:
+     Первая 100% — по ширине, вторая 100% — по высоте.
+     Это заставит картинку принимать форму экрана, даже если он очень длинный или широкий.
+  */
+  background-size: 100% 100%; 
+  
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed; 
   transform: translateZ(0); 
   mask-image: linear-gradient(to bottom, transparent 0%, black 80px, black calc(100% - 80px), transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 80px, black calc(100% - 80px), transparent 100%);
 }
+
 
 .container {
   max-width: 420px; width: 100%; margin: 0 auto; position: relative;
@@ -90,6 +106,12 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
 .btn-full-logo { justify-content: center; }
 .btn-full-logo img { height: 38px; width: auto; max-width: 80%; object-fit: contain; }
 
+/* Уменьшаем логотипы Pay в 1.3 раза (38px / 1.3 ≈ 29px) */
+.btn-pay-small img {
+    height: 28px !important;
+}
+
+
 .btn-with-text { justify-content: flex-start; }
 
 .btn-icon, .btn-icon-right {
@@ -106,9 +128,10 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
 .btn-card { justify-content: center; }
 .card-number-font {
     font-family: 'Consolas', 'Courier New', monospace;
-    font-size: 24px; 
+    /* Адаптивный размер: минимум 16px, оптимум 6vw, максимум 26px */
+    font-size: clamp(16px, 6vw, 26px); 
     font-weight: 500;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
     color: #e0e0e0; 
     text-shadow: 
         -2px -2px 3px rgba(255, 255, 255, 0.4), 
@@ -117,7 +140,10 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
     display: flex;
     align-items: center;
     line-height: 1;
+    white-space: nowrap; /* Строгий запрет переноса на вторую строку */
+    overflow: hidden;    /* Защита от вылета текста за края */
 }
+
 
 .btn-triple { justify-content: space-between; }
 .btn-triple .btn-text { justify-content: left; }
@@ -199,11 +225,11 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
     <span class="card-number-font">4441 •••• •••• 4077</span>
   </div>
   
-  <a class="btn btn-full-logo" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">
+  <a class="btn btn-full-logo btn-pay-small" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">
      <img src="img/apple_pay.svg" alt="apple_pay">
   </a>
 
-  <a class="btn btn-full-logo" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">
+  <a class="btn btn-full-logo btn-pay-small" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">
     <img src="img/google_pay.svg" alt="google_pay">
   </a>
   
