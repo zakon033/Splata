@@ -4,53 +4,65 @@
 <style>
   body { margin: 0; background: #000; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
   
-  .iphone-stage {
+  .container {
     position: relative;
     width: 800px; height: 600px;
     background: linear-gradient(135deg, #1a0033, #c1272d, #4a148c);
     display: flex; justify-content: center; align-items: center;
-    /* Фильтр теперь ссылается на внешний SVG */
-    filter: url(#lens-refraction);
   }
 
-  .text {
+  /* Слой 1: Чистый текст */
+  .base-text {
+    position: absolute;
     color: white; font-family: sans-serif; font-size: 110px; font-weight: 900;
-    letter-spacing: -5px; pointer-events: none;
+    letter-spacing: -5px; opacity: 0.3;
   }
 
-  /* Мы не будем анимировать через SVG, мы будем двигать эти невидимые точки */
-  .lens-tracker { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  /* Слой 2: Искаженный текст (виден только через линзы) */
+  .distorted-layer {
+    position: absolute;
+    width: 100%; height: 100%;
+    display: flex; justify-content: center; align-items: center;
+    filter: url(#lens-warp); /* Применяем искажение здесь */
+    clip-path: url(#lens-mask); /* Вырезаем по форме линз */
+    -webkit-clip-path: url(#lens-mask);
+  }
+
+  .dist-text {
+    color: white; font-family: sans-serif; font-size: 110px; font-weight: 900;
+    letter-spacing: -5px;
+  }
 </style>
 </head>
 <body>
 
-<div class="iphone-stage">
-  <div class="text">IPHONE 16</div>
+<div class="container">
+  <div class="base-text">IPHONE 16</div>
+
+  <div class="distorted-layer">
+    <div class="dist-text">IPHONE 16</div>
+  </div>
 </div>
 
-<svg width="0" height="0">
-  <filter id="lens-refraction" x="-20%" y="-20%" width="140%" height="140%">
-    <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" result="noise" />
-    
-    <feOffset dx="0" dy="0" result="movedNoise">
-      <animate attributeName="dx" dur="5s" values="0; 100; 0" repeatCount="indefinite" />
-      <animate attributeName="dy" dur="7s" values="0; 50; 0" repeatCount="indefinite" />
-    </feOffset>
+<svg width="0" height="0" style="position: absolute;">
+  <defs>
+    <filter id="lens-warp">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="100" />
+    </filter>
 
-    <feDisplacementMap in="SourceGraphic" in2="movedNoise" scale="80" xChannelSelector="R" yChannelSelector="G" />
-  </filter>
+    <clipPath id="lens-mask" clipPathUnits="objectBoundingBox">
+      <circle cx="0.5" cy="0.5" r="0.2" transform="translate(-0.2, -0.1)">
+        <animateTransform attributeName="transform" type="translate" dur="7s" 
+          values="-0.3,-0.1; 0.3,0.2; -0.3,-0.1" repeatCount="indefinite" additive="sum" />
+      </circle>
+      <circle cx="0.5" cy="0.5" r="0.15" transform="translate(0.1, 0.2)">
+        <animateTransform attributeName="transform" type="translate" dur="5s" 
+          values="0.3,0.1; -0.3,-0.2; 0.3,0.1" repeatCount="indefinite" additive="sum" />
+      </circle>
+    </clipPath>
+  </defs>
 </svg>
-
-<script>
-  // Этот микро-скрипт просто "дергает" Safari, чтобы он не засыпал
-  const stage = document.querySelector('.iphone-stage');
-  function pokeSafari() {
-    // Минимальное изменение стиля заставляет WebKit перерисовать фильтр
-    stage.style.opacity = stage.style.opacity === "0.999" ? "1" : "0.999";
-    requestAnimationFrame(pokeSafari);
-  }
-  pokeSafari();
-</script>
 
 </body>
 </html>
