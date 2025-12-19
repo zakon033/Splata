@@ -1,34 +1,37 @@
-<svg width="100%" height="100%" viewBox="0 0 2560 1600" xmlns="http://www.w3.org/2000/svg">
+<svg width="100%" height="100%" viewBox="0 0 6400 3552" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
   <defs>
-    <!-- Нижний круг (синий) -->
-    <radialGradient id="grad1" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-      <stop offset="0%" style="stop-color:#00ddff; stop-opacity:1" />
-      <stop offset="40%" style="stop-color:#0044ff; stop-opacity:0.8" />
-      <stop offset="70%" style="stop-color:#001133; stop-opacity:0.6" />
-      <stop offset="100%" style="stop-color:#000000; stop-opacity:0" />
+    <!-- Радиальный градиент для нижнего (синего) эллипса -->
+    <radialGradient id="grad-blue" cx="50%" cy="50%" r="65%" fx="45%" fy="55%">
+      <stop offset="0%" stop-color="#00ffff" stop-opacity="0.8"/>
+      <stop offset="20%" stop-color="#0088ff" stop-opacity="0.7"/>
+      <stop offset="45%" stop-color="#0022aa" stop-opacity="0.5"/>
+      <stop offset="70%" stop-color="#000033" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
     </radialGradient>
-    
-    <!-- Средний круг (фиолетовый) -->
-    <radialGradient id="grad2" cx="50%" cy="50%" r="50%" fx="50%" fy="40%">
-      <stop offset="0%" style="stop-color:#ff88ff; stop-opacity:0.9" />
-      <stop offset="35%" style="stop-color:#8844ff; stop-opacity:0.7" />
-      <stop offset="65%" style="stop-color:#221144; stop-opacity:0.5" />
-      <stop offset="100%" style="stop-color:#000000; stop-opacity:0" />
+
+    <!-- Радиальный градиент для среднего (фиолетового) эллипса -->
+    <radialGradient id="grad-purple" cx="50%" cy="50%" r="65%" fx="50%" fy="45%">
+      <stop offset="0%" stop-color="#ff00ff" stop-opacity="0.6"/>
+      <stop offset="20%" stop-color="#aa00aa" stop-opacity="0.6"/>
+      <stop offset="40%" stop-color="#550088" stop-opacity="0.5"/>
+      <stop offset="65%" stop-color="#220044" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
     </radialGradient>
-    
-    <!-- Верхний круг (серый) -->
-    <radialGradient id="grad3" cx="50%" cy="50%" r="50%" fx="50%" fy="60%">
-      <stop offset="0%" style="stop-color:#ffffff; stop-opacity:0.6" />
-      <stop offset="30%" style="stop-color:#aaaaaa; stop-opacity:0.7" />
-      <stop offset="60%" style="stop-color:#444444; stop-opacity:0.6" />
-      <stop offset="100%" style="stop-color:#000000; stop-opacity:0" />
+
+    <!-- Радиальный градиент для верхнего (серо-фиолетового) эллипса -->
+    <radialGradient id="grad-gray" cx="50%" cy="50%" r="65%" fx="55%" fy="60%">
+      <stop offset="0%" stop-color="#dddddd" stop-opacity="0.5"/>
+      <stop offset="25%" stop-color="#8888aa" stop-opacity="0.5"/>
+      <stop offset="50%" stop-color="#444466" stop-opacity="0.4"/>
+      <stop offset="75%" stop-color="#111122" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
     </radialGradient>
-    
-    <!-- Свечение по краям (для имитации неонового контура) -->
-    <filter id="glow">
-      <feGaussianBlur stdDeviation="20" result="blur"/>
-      <feFlood flood-color="#00ccff" flood-opacity="0.8"/>
-      <feComposite in="blur" in2="SourceGraphic" operator="in"/>
+
+    <!-- Фильтр для мягкого неонового свечения по краям -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="40" result="blur"/>
+      <feFlood flood-color="#00ffff" flood-opacity="0.4"/>
+      <feComposite in2="blur" operator="in"/>
       <feMerge>
         <feMergeNode/>
         <feMergeNode in="SourceGraphic"/>
@@ -36,22 +39,20 @@
     </filter>
   </defs>
 
-  <!-- Фон (глубокий чёрный с лёгким градиентом) -->
-  <rect width="2560" height="1600" fill="#000000"/>
-  
-  <!-- Нижний круг -->
-  <ellipse cx="1400" cy="1200" rx="900" ry="1400" fill="url(#grad1)" opacity="0.9">
-    <animate attributeName="opacity" values="0.9;0.95;0.9" dur="8s" repeatCount="indefinite"/>
-  </ellipse>
-  
-  <!-- Средний круг -->
-  <ellipse cx="1100" cy="700" rx="800" ry="1300" fill="url(#grad2)" opacity="0.85"/>
-  
-  <!-- Верхний круг -->
-  <ellipse cx="800" cy="300" rx="750" ry="1200" fill="url(#grad3)" opacity="0.8"/>
-  
-  <!-- Дополнительные слои свечения для реалистичности -->
-  <ellipse cx="1400" cy="1200" rx="920" ry="1420" fill="none" stroke="#00eeff" stroke-width="40" opacity="0.4" filter="url(#glow)"/>
-  <ellipse cx="1100" cy="700" rx="820" ry="1320" fill="none" stroke="#cc88ff" stroke-width="30" opacity="0.3" filter="url(#glow)"/>
-  <ellipse cx="800" cy="300" rx="770" ry="1220" fill="none" stroke="#ffffff" stroke-width="20" opacity="0.2" filter="url(#glow)"/>
+  <!-- Тёмный фон -->
+  <rect width="6400" height="3552" fill="#000000"/>
+
+  <!-- Нижний синий эллипс (самый большой, снизу) -->
+  <ellipse cx="3800" cy="2800" rx="2200" ry="3200" fill="url(#grad-blue)" opacity="0.95"/>
+
+  <!-- Средний фиолетовый эллипс -->
+  <ellipse cx="3200" cy="1800" rx="2000" ry="3000" fill="url(#grad-purple)" opacity="0.9"/>
+
+  <!-- Верхний серый эллипс (слева сверху) -->
+  <ellipse cx="2400" cy="1000" rx="1800" ry="2800" fill="url(#grad-gray)" opacity="0.85"/>
+
+  <!-- Дополнительное свечение по контурам для реалистичности -->
+  <ellipse cx="3800" cy="2800" rx="2250" ry="3250" fill="none" stroke="#00eeff" stroke-width="80" opacity="0.5" filter="url(#glow)"/>
+  <ellipse cx="3200" cy="1800" rx="2050" ry="3050" fill="none" stroke="#aa00ff" stroke-width="60" opacity="0.4" filter="url(#glow)"/>
+  <ellipse cx="2400" cy="1000" rx="1850" ry="2850" fill="none" stroke="#8888ff" stroke-width="50" opacity="0.3" filter="url(#glow)"/>
 </svg>
