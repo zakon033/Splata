@@ -1,30 +1,57 @@
-<svg width="400" height="600" viewBox="0 0 400 600" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-        <!-- Радиальный градиент для первой линзы -->
-        <radialGradient id="lensGradient1" cx="50%" cy="50%" r="70%">
-            <stop offset="0%" stop-color="#00a2ff" stop-opacity="0.8"/>
-            <stop offset="100%" stop-color="#003399" stop-opacity="0.3"/>
-        </radialGradient>
+<svg width="100%" height="100%" viewBox="0 0 2560 1600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Нижний круг (синий) -->
+    <radialGradient id="grad1" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" style="stop-color:#00ddff; stop-opacity:1" />
+      <stop offset="40%" style="stop-color:#0044ff; stop-opacity:0.8" />
+      <stop offset="70%" style="stop-color:#001133; stop-opacity:0.6" />
+      <stop offset="100%" style="stop-color:#000000; stop-opacity:0" />
+    </radialGradient>
+    
+    <!-- Средний круг (фиолетовый) -->
+    <radialGradient id="grad2" cx="50%" cy="50%" r="50%" fx="50%" fy="40%">
+      <stop offset="0%" style="stop-color:#ff88ff; stop-opacity:0.9" />
+      <stop offset="35%" style="stop-color:#8844ff; stop-opacity:0.7" />
+      <stop offset="65%" style="stop-color:#221144; stop-opacity:0.5" />
+      <stop offset="100%" style="stop-color:#000000; stop-opacity:0" />
+    </radialGradient>
+    
+    <!-- Верхний круг (серый) -->
+    <radialGradient id="grad3" cx="50%" cy="50%" r="50%" fx="50%" fy="60%">
+      <stop offset="0%" style="stop-color:#ffffff; stop-opacity:0.6" />
+      <stop offset="30%" style="stop-color:#aaaaaa; stop-opacity:0.7" />
+      <stop offset="60%" style="stop-color:#444444; stop-opacity:0.6" />
+      <stop offset="100%" style="stop-color:#000000; stop-opacity:0" />
+    </radialGradient>
+    
+    <!-- Свечение по краям (для имитации неонового контура) -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="20" result="blur"/>
+      <feFlood flood-color="#00ccff" flood-opacity="0.8"/>
+      <feComposite in="blur" in2="SourceGraphic" operator="in"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
 
-        <!-- Радиальный градиент для второй линзы -->
-        <radialGradient id="lensGradient2" cx="50%" cy="50%" r="70%">
-            <stop offset="0%" stop-color="#0066cc" stop-opacity="0.8"/>
-            <stop offset="100%" stop-color="#001a33" stop-opacity="0.3"/>
-        </radialGradient>
-
-        <!-- Радиальный градиент для третьей линзы -->
-        <radialGradient id="lensGradient3" cx="50%" cy="50%" r="70%">
-            <stop offset="0%" stop-color="#003366" stop-opacity="0.8"/>
-            <stop offset="100%" stop-color="#000d1a" stop-opacity="0.3"/>
-        </radialGradient>
-    </defs>
-
-    <!-- Первая линза -->
-    <ellipse cx="200" cy="200" rx="120" ry="80" fill="url(#lensGradient1)" />
-
-    <!-- Вторая линза -->
-    <ellipse cx="230" cy="300" rx="120" ry="80" fill="url(#lensGradient2)" />
-
-    <!-- Третья линза -->
-    <ellipse cx="170" cy="350" rx="120" ry="80" fill="url(#lensGradient3)" />
+  <!-- Фон (глубокий чёрный с лёгким градиентом) -->
+  <rect width="2560" height="1600" fill="#000000"/>
+  
+  <!-- Нижний круг -->
+  <ellipse cx="1400" cy="1200" rx="900" ry="1400" fill="url(#grad1)" opacity="0.9">
+    <animate attributeName="opacity" values="0.9;0.95;0.9" dur="8s" repeatCount="indefinite"/>
+  </ellipse>
+  
+  <!-- Средний круг -->
+  <ellipse cx="1100" cy="700" rx="800" ry="1300" fill="url(#grad2)" opacity="0.85"/>
+  
+  <!-- Верхний круг -->
+  <ellipse cx="800" cy="300" rx="750" ry="1200" fill="url(#grad3)" opacity="0.8"/>
+  
+  <!-- Дополнительные слои свечения для реалистичности -->
+  <ellipse cx="1400" cy="1200" rx="920" ry="1420" fill="none" stroke="#00eeff" stroke-width="40" opacity="0.4" filter="url(#glow)"/>
+  <ellipse cx="1100" cy="700" rx="820" ry="1320" fill="none" stroke="#cc88ff" stroke-width="30" opacity="0.3" filter="url(#glow)"/>
+  <ellipse cx="800" cy="300" rx="770" ry="1220" fill="none" stroke="#ffffff" stroke-width="20" opacity="0.2" filter="url(#glow)"/>
 </svg>
