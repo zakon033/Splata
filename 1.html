@@ -2,91 +2,88 @@
 <html>
 <head>
 <style>
-  :root { --bg: linear-gradient(135deg, #1a0033, #c1272d, #ff9a9e); }
-  
-  body { margin: 0; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
-  
-  .iphone-screen {
+  body { margin: 0; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+
+  .scene {
     position: relative;
     width: 800px;
     height: 600px;
-    background: var(--bg);
+    background: linear-gradient(135deg, #1a0033 0%, #c1272d 50%, #4a148c 100%);
     overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    /* Применяем фильтр "слияния" ко всей сцене */
+    filter: url(#gooey);
   }
 
-  .bg-content {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    font-size: 120px;
-    font-weight: 900;
-    color: white;
-    opacity: 0.4;
-    letter-spacing: -5px;
-    user-select: none;
-  }
-
-  /* Линза */
-  .lens-container {
+  .bg-text {
     position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none;
+    width: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;
+    font-family: sans-serif;
+    font-size: 110px;
+    font-weight: 900;
+    text-align: center;
+    opacity: 0.6;
   }
 
+  /* Линзы */
   .lens {
     position: absolute;
+    background: white;
     border-radius: 50%;
-    /* В Safari это создает эффект матового стекла */
-    -webkit-backdrop-filter: blur(20px) brightness(1.2) contrast(1.1);
-    backdrop-filter: blur(20px) brightness(1.2) contrast(1.1);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.2);
-    /* Эффект увеличения контента под линзой */
-    transform: scale(1.1); 
+    /* Добавляем размытие самим объектам, чтобы фильтр в SVG их "склеил" */
+    filter: blur(20px);
   }
 
-  /* Анимация движения линз */
   .lens-1 {
-    width: 250px;
-    height: 250px;
-    animation: move1 12s infinite alternate ease-in-out;
+    width: 200px;
+    height: 200px;
+    left: 200px;
+    top: 200px;
+    animation: move1 8s infinite alternate ease-in-out;
   }
 
   .lens-2 {
-    width: 200px;
-    height: 200px;
-    animation: move2 9s infinite alternate ease-in-out;
+    width: 180px;
+    height: 180px;
+    left: 400px;
+    top: 250px;
+    animation: move2 6s infinite alternate ease-in-out;
+    opacity: 0.8;
   }
 
   @keyframes move1 {
-    0% { transform: translate(100px, 100px) scale(1.1); }
-    100% { transform: translate(450px, 250px) scale(1.2); }
+    from { transform: translate(0, 0); }
+    to { transform: translate(250px, 50px); }
   }
 
   @keyframes move2 {
-    0% { transform: translate(500px, 350px) scale(1.2); }
-    100% { transform: translate(150px, 50px) scale(1.1); }
-  }
-
-  /* Эффект свечения при наложении (screen) */
-  .lenses-layer {
-    position: absolute;
-    width: 100%; height: 100%;
-    mix-blend-mode: screen;
+    from { transform: translate(0, 0); }
+    to { transform: translate(-200px, -100px); }
   }
 </style>
 </head>
 <body>
 
-<div class="iphone-screen">
-  <div class="bg-content">IPHONE 16</div>
-
-  <div class="lenses-layer">
-    <div class="lens lens-1"></div>
-    <div class="lens lens-2"></div>
-  </div>
+<div class="scene">
+  <div class="bg-text">IPHONE 16</div>
+  <div class="lens lens-1"></div>
+  <div class="lens lens-2"></div>
 </div>
+
+<svg width="0" height="0" style="position:absolute;">
+  <defs>
+    <filter id="gooey">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="15" result="blur" />
+      <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  
+                                                       0 1 0 0 0  
+                                                       0 0 1 0 0  
+                                                       0 0 0 30 -12" result="goo" />
+      <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+    </filter>
+  </defs>
+</svg>
 
 </body>
 </html>
