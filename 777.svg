@@ -1,44 +1,44 @@
 <svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" style="background: #000;">
   <defs>
-    <g id="lensesMap">
-      <rect width="800" height="800" fill="#808080" /> <circle r="150" fill="white">
-        <animateMotion dur="10s" repeatCount="indefinite" path="M300,400 Q400,300 500,400 T300,400" />
-      </circle>
+    <filter id="iphoneLens" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" result="noise" />
       
-      <circle r="130" fill="white" opacity="0.6">
-        <animateMotion dur="7s" repeatCount="indefinite" path="M500,400 Q400,500 300,400 T500,400" />
-      </circle>
-
-      <circle r="140" fill="white" opacity="0.4">
-        <animateMotion dur="12s" repeatCount="indefinite" path="M400,300 L400,500 Z" />
-      </circle>
-    </g>
-
-    <filter id="iphone16Filter" x="-20%" y="-20%" width="140%" height="140%">
-      <feSpawnableImage result="map">
-         </feSpawnableImage>
+      <feFlood flood-color="black" result="blackBG" />
       
-      <feDisplacementMap in="SourceGraphic" in2="SourceGraphic" scale="50" xChannelSelector="R" yChannelSelector="B" />
+      <feImage result="lens1" width="300" height="300" 
+               xlink:href="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3CradialGradient id='g'%3E%3Cstop offset='0%25' stop-color='white'/%3E%3Cstop offset='100%25' stop-color='black'/%3E%3C/radialGradient%3E%3Ccircle cx='50' cy='50' r='50' fill='url(%23g)'/%3E%3C/svg%3E">
+        <animateMotion dur="8s" repeatCount="indefinite" path="M100,200 Q400,100 700,200 T100,200" />
+      </feImage>
+
+      <feImage result="lens2" width="250" height="250" 
+               xlink:href="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3CradialGradient id='g'%3E%3Cstop offset='0%25' stop-color='white'/%3E%3Cstop offset='100%25' stop-color='black'/%3E%3C/radialGradient%3E%3Ccircle cx='50' cy='50' r='50' fill='url(%23g)'/%3E%3C/svg%3E">
+        <animateMotion dur="6s" repeatCount="indefinite" path="M700,400 Q400,500 100,400 T700,400" />
+      </feImage>
+
+      <feComposite in="lens1" in2="lens2" operator="arithmetic" k2="1" k3="1" result="combinedMap" />
+      
+      <feDisplacementMap in="SourceGraphic" in2="combinedMap" scale="80" xChannelSelector="R" yChannelSelector="R" />
     </filter>
-    
-    <filter id="distort" filterUnits="userSpaceOnUse">
-      <feTurbulence type="fractalNoise" baseFrequency="0.01" numOctaves="1" result="noise" />
-      <feDisplacementMap in="SourceGraphic" in2="noise" scale="20" />
-    </filter>
+
+    <linearGradient id="appleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2c003e" />
+      <stop offset="50%" stop-color="#c1272d" />
+      <stop offset="100%" stop-color="#ee9ca7" />
+    </linearGradient>
   </defs>
 
-  <g filter="url(#distort)">
-    <rect width="100%" height="100%" fill="#1a0033" />
-    <circle cx="400" cy="400" r="300" fill="rgba(100,0,255,0.4)" />
-    <rect x="0" y="380" width="800" height="40" fill="rgba(255,100,0,0.3)" />
+  <g filter="url(#iphoneLens)">
+    <rect width="800" height="800" fill="url(#appleGrad)" />
+    <text x="50%" y="50%" font-family="Arial" font-weight="bold" font-size="80" fill="white" text-anchor="middle" opacity="0.8">APPLE EVENT</text>
+    <circle cx="400" cy="400" r="150" stroke="white" stroke-width="2" fill="none" opacity="0.3" />
   </g>
-
-  <g style="mix-blend-mode: overlay;">
-    <circle r="150" fill="white" filter="url(#distort)">
-      <animateMotion dur="10s" repeatCount="indefinite" path="M300,400 Q400,300 500,400 T300,400" />
+  
+  <g style="mix-blend-mode: screen; pointer-events: none;">
+    <circle r="150" fill="rgba(255,255,255,0.15)">
+        <animateMotion dur="8s" repeatCount="indefinite" path="M100,200 Q400,100 700,200 T100,200" />
     </circle>
-    <circle r="130" fill="white" filter="url(#distort)">
-      <animateMotion dur="7s" repeatCount="indefinite" path="M500,400 Q400,500 300,400 T500,400" />
+    <circle r="125" fill="rgba(255,255,255,0.15)">
+        <animateMotion dur="6s" repeatCount="indefinite" path="M700,400 Q400,500 100,400 T700,400" />
     </circle>
   </g>
 </svg>
