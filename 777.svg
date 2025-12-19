@@ -2,45 +2,50 @@
   <rect width="100%" height="100%" fill="#000000"/>
   
   <defs>
-    <radialGradient id="topSphereGrad" cx="50%" cy="50%" r="50%" fx="30%" fy="70%">
-      <stop offset="0%" stop-color="#B8BAd4" stop-opacity="0.4"/>
-      <stop offset="60%" stop-color="#242538" stop-opacity="0.9"/>
-      <stop offset="100%" stop-color="#000000" stop-opacity="1"/>
+    <radialGradient id="backBaseGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0A1529"/>
+      <stop offset="100%" stop-color="#02050A"/>
+    </radialGradient>
+    <radialGradient id="backLensBrightGrad" cx="50%" cy="50%" r="50%" fx="30%" fy="30%">
+      <stop offset="0%" stop-color="#4FD3FF" stop-opacity="0.9"/>
+      <stop offset="60%" stop-color="#104E96" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#020A1A" stop-opacity="1"/>
     </radialGradient>
 
-    <radialGradient id="centerBodyGrad" cx="50%" cy="50%" r="50%" fx="20%" fy="50%">
-      <stop offset="0%" stop-color="#1C1E29"/>
-      <stop offset="100%" stop-color="#030405"/>
+    <radialGradient id="midBodyGrad" cx="50%" cy="50%" r="50%" fx="40%" fy="50%">
+      <stop offset="0%" stop-color="#1B1D26"/>
+      <stop offset="100%" stop-color="#030305"/>
+    </radialGradient>
+    <radialGradient id="midRimEffectGrad" cx="50%" cy="50%" r="50%" fx="100%" fy="50%">
+      <stop offset="0%" stop-color="#3A7BD5" stop-opacity="0.9"/>
+      <stop offset="10%" stop-color="#3A7BD5" stop-opacity="0.4"/>
+      <stop offset="30%" stop-color="#000000" stop-opacity="0"/>
     </radialGradient>
 
-    <radialGradient id="centerRimGrad" cx="50%" cy="50%" r="50%" fx="95%" fy="50%">
-      <stop offset="0%" stop-color="#4C8DFF" stop-opacity="0.8"/>
-      <stop offset="15%" stop-color="#3A60A0" stop-opacity="0.3"/>
-      <stop offset="40%" stop-color="#000000" stop-opacity="0"/>
-    </radialGradient>
-
-    <radialGradient id="bottomBackGrad" cx="50%" cy="50%" r="50%">
-       <stop offset="0%" stop-color="#0D264D"/>
-       <stop offset="100%" stop-color="#020814"/>
-    </radialGradient>
-
-    <radialGradient id="bottomFrontGrad" cx="50%" cy="50%" r="50%" fx="35%" fy="35%">
-      <stop offset="0%" stop-color="#65E0FF" stop-opacity="0.85"/> <stop offset="50%" stop-color="#1E5BB5" stop-opacity="0.7"/>
-      <stop offset="100%" stop-color="#051530" stop-opacity="0.9"/>
+    <radialGradient id="foreGrad" cx="50%" cy="50%" r="50%" fx="35%" fy="65%">
+      <stop offset="0%" stop-color="#B0B2C9" stop-opacity="0.5"/>
+      <stop offset="50%" stop-color="#2A2B3D" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#08090D" stop-opacity="1"/>
     </radialGradient>
   </defs>
 
-  <circle cx="100" cy="520" r="480" fill="url(#centerBodyGrad)"/>
-  <circle cx="100" cy="520" r="480" fill="url(#centerRimGrad)"/>
-
-  <ellipse cx="480" cy="20" rx="420" ry="380" fill="url(#topSphereGrad)" transform="rotate(15 480 20)"/>
-
-  <circle cx="500" cy="880" r="350" fill="url(#bottomBackGrad)" opacity="0.8"/>
-
-  <g transform="rotate(-25 400 920)">
-      <ellipse cx="400" cy="920" rx="360" ry="300" fill="url(#bottomFrontGrad)"/>
-      
-      <ellipse cx="395" cy="915" rx="350" ry="290" fill="none" stroke="#A3F3FF" stroke-width="2" opacity="0.9"/>
-      <ellipse cx="390" cy="910" rx="355" ry="295" fill="none" stroke="#5AA5FF" stroke-width="1.5" opacity="0.5"/>
+  <g>
+    <circle cx="520" cy="880" r="380" fill="url(#backBaseGrad)"/>
+    
+    <g transform="rotate(-20 420 930)">
+       <ellipse cx="420" cy="930" rx="360" ry="290" fill="url(#backLensBrightGrad)"/>
+       <ellipse cx="415" cy="925" rx="355" ry="285" fill="none" stroke="#8EF0FF" stroke-width="3" opacity="0.8"/>
+       <ellipse cx="418" cy="928" rx="358" ry="288" fill="none" stroke="#4A9FFF" stroke-width="1" opacity="0.6"/>
+    </g>
   </g>
+
+  <g>
+    <circle cx="80" cy="550" r="500" fill="url(#midBodyGrad)"/>
+    <circle cx="80" cy="550" r="500" fill="url(#midRimEffectGrad)"/>
+  </g>
+
+  <g transform="rotate(20 480 50)">
+    <ellipse cx="480" cy="50" rx="400" ry="350" fill="url(#foreGrad)"/>
+  </g>
+
 </svg>
