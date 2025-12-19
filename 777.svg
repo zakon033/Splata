@@ -1,43 +1,44 @@
 <svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" style="background: #000;">
   <defs>
-    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#300050" />
+    <linearGradient id="appleGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2c003e" />
       <stop offset="50%" stop-color="#c1272d" />
-      <stop offset="100%" stop-color="#ff9a9e" />
+      <stop offset="100%" stop-color="#ee9ca7" />
     </linearGradient>
 
-    <filter id="lensFilter" filterUnits="userSpaceOnUse" x="0" y="0" width="800" height="600">
-      <feImage href="#lenses" result="mapLayer"/>
-      
-      <feDisplacementMap in="SourceGraphic" in2="mapLayer" scale="100" xChannelSelector="R" yChannelSelector="G" />
+    <filter id="distortFilter">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="40" />
+    </filter>
+
+    <filter id="lensEffect" x="-50%" y="-50%" width="200%" height="200%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="2" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="100" result="distorted"/>
+      <feComposite in="distorted" in2="SourceAlpha" operator="in" />
     </filter>
   </defs>
 
-  <g id="lenses" style="display: none;">
-    <rect width="800" height="600" fill="#808080" /> <circle r="120" fill="white">
-      <animateMotion dur="6s" repeatCount="indefinite" path="M200,300 Q400,100 600,300 T200,300" />
+  <g>
+    <rect width="800" height="600" fill="url(#appleGrad)" />
+    <text x="50%" y="50%" font-family="system-ui, sans-serif" font-weight="900" font-size="80" fill="white" text-anchor="middle" opacity="0.5">APPLE EVENT</text>
+  </g>
+
+  <g style="mix-blend-mode: plus-lighter;">
+    <circle r="120" fill="white" filter="url(#lensEffect)">
+      <animateMotion dur="8s" repeatCount="indefinite" path="M200,300 Q400,100 600,300 T200,300" />
     </circle>
-    <circle r="100" fill="white">
-      <animateMotion dur="4s" repeatCount="indefinite" path="M600,300 Q400,500 200,300 T600,300" />
+
+    <circle r="100" fill="white" filter="url(#lensEffect)">
+      <animateMotion dur="6s" repeatCount="indefinite" path="M600,300 Q400,500 200,300 T600,300" />
     </circle>
   </g>
 
-  <g filter="url(#lensFilter)">
-    <rect width="100%" height="100%" fill="url(#bgGrad)" />
-    
-    <g stroke="white" stroke-width="1" opacity="0.3">
-        <path d="M0,100 H800 M0,200 H800 M0,300 H800 M0,400 H800 M0,500 H800" />
-        <path d="M100,0 V600 M200,0 V600 M300,0 V600 M400,0 V600 M500,0 V600 M600,0 V600 M700,0 V600" />
-    </g>
-    <text x="50%" y="55%" font-family="sans-serif" font-weight="900" font-size="100" fill="white" text-anchor="middle" letter-spacing="-5">IPHONE 16</text>
-  </g>
-
-  <g style="mix-blend-mode: screen; pointer-events: none;">
-    <circle r="120" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)">
-      <animateMotion dur="6s" repeatCount="indefinite" path="M200,300 Q400,100 600,300 T200,300" />
+  <g fill="none" stroke="white" stroke-width="0.5" opacity="0.4">
+    <circle r="120">
+      <animateMotion dur="8s" repeatCount="indefinite" path="M200,300 Q400,100 600,300 T200,300" />
     </circle>
-    <circle r="100" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)">
-      <animateMotion dur="4s" repeatCount="indefinite" path="M600,300 Q400,500 200,300 T600,300" />
+    <circle r="100">
+      <animateMotion dur="6s" repeatCount="indefinite" path="M600,300 Q400,500 200,300 T600,300" />
     </circle>
   </g>
 </svg>
