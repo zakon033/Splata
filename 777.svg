@@ -1,30 +1,30 @@
 <svg width="400" height="600" viewBox="0 0 400 600" xmlns="http://www.w3.org/2000/svg">
     <defs>
         <!-- Радиальный градиент для первой линзы -->
-        <radialGradient id="gradient1" cx="50%" cy="50%" r="70%" fx="30%" fy="30%">
-            <stop offset="0%" stop-color="#6a11cb" stop-opacity="0.8"/>
-            <stop offset="100%" stop-color="#2575fc" stop-opacity="0.4"/>
+        <radialGradient id="lensGradient1" cx="50%" cy="50%" r="70%">
+            <stop offset="0%" stop-color="#00a2ff" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="#003399" stop-opacity="0.3"/>
         </radialGradient>
 
         <!-- Радиальный градиент для второй линзы -->
-        <radialGradient id="gradient2" cx="50%" cy="50%" r="70%" fx="50%" fy="50%">
-            <stop offset="0%" stop-color="#1e3c72" stop-opacity="0.8"/>
-            <stop offset="100%" stop-color="#2a5298" stop-opacity="0.4"/>
+        <radialGradient id="lensGradient2" cx="50%" cy="50%" r="70%">
+            <stop offset="0%" stop-color="#0066cc" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="#001a33" stop-opacity="0.3"/>
         </radialGradient>
 
         <!-- Радиальный градиент для третьей линзы -->
-        <radialGradient id="gradient3" cx="50%" cy="50%" r="70%" fx="70%" fy="70%">
-            <stop offset="0%" stop-color="#0d0d0d" stop-opacity="0.8"/>
-            <stop offset="100%" stop-color="#1a237e" stop-opacity="0.4"/>
+        <radialGradient id="lensGradient3" cx="50%" cy="50%" r="70%">
+            <stop offset="0%" stop-color="#003366" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="#000d1a" stop-opacity="0.3"/>
         </radialGradient>
     </defs>
 
     <!-- Первая линза -->
-    <ellipse cx="200" cy="200" rx="150" ry="100" fill="url(#gradient1)" />
+    <ellipse cx="200" cy="200" rx="120" ry="80" fill="url(#lensGradient1)" />
 
     <!-- Вторая линза -->
-    <ellipse cx="220" cy="300" rx="150" ry="100" fill="url(#gradient2)" />
+    <ellipse cx="230" cy="300" rx="120" ry="80" fill="url(#lensGradient2)" />
 
     <!-- Третья линза -->
-    <ellipse cx="180" cy="350" rx="150" ry="100" fill="url(#gradient3)" />
+    <ellipse cx="170" cy="350" rx="120" ry="80" fill="url(#lensGradient3)" />
 </svg>
