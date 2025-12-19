@@ -1,41 +1,46 @@
-
 <svg width="450" height="1000" viewBox="0 0 450 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="450" height="1000" fill="black"/>
+  <rect width="100%" height="100%" fill="#000000"/>
   
   <defs>
-    <radialGradient id="gradTop" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(250 100) rotate(110) scale(400)">
-      <stop offset="0" stop-color="#C0C2D3" stop-opacity="0.5"/>
-      <stop offset="0.5" stop-color="#1A1B26"/>
-      <stop offset="1" stop-color="black"/>
+    <radialGradient id="topSphereGrad" cx="50%" cy="50%" r="50%" fx="30%" fy="70%">
+      <stop offset="0%" stop-color="#B8BAd4" stop-opacity="0.4"/>
+      <stop offset="60%" stop-color="#242538" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="1"/>
     </radialGradient>
 
-    <radialGradient id="gradMiddle" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(150 500) rotate(90) scale(500)">
-      <stop offset="0.8" stop-color="#0B0D11"/>
-      <stop offset="1" stop-color="#05070A"/>
+    <radialGradient id="centerBodyGrad" cx="50%" cy="50%" r="50%" fx="20%" fy="50%">
+      <stop offset="0%" stop-color="#1C1E29"/>
+      <stop offset="100%" stop-color="#030405"/>
     </radialGradient>
 
-    <radialGradient id="edgeGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(420 500) rotate(180) scale(350)">
-      <stop offset="0" stop-color="#3A86FF" stop-opacity="0.6"/>
-      <stop offset="0.3" stop-color="#3A86FF" stop-opacity="0"/>
+    <radialGradient id="centerRimGrad" cx="50%" cy="50%" r="50%" fx="95%" fy="50%">
+      <stop offset="0%" stop-color="#4C8DFF" stop-opacity="0.8"/>
+      <stop offset="15%" stop-color="#3A60A0" stop-opacity="0.3"/>
+      <stop offset="40%" stop-color="#000000" stop-opacity="0"/>
     </radialGradient>
 
-    <radialGradient id="gradFront" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(400 850) rotate(220) scale(400)">
-      <stop offset="0" stop-color="#4CC9FE" stop-opacity="0.7"/>
-      <stop offset="0.6" stop-color="#0A2472"/>
-      <stop offset="1" stop-color="black"/>
+    <radialGradient id="bottomBackGrad" cx="50%" cy="50%" r="50%">
+       <stop offset="0%" stop-color="#0D264D"/>
+       <stop offset="100%" stop-color="#020814"/>
+    </radialGradient>
+
+    <radialGradient id="bottomFrontGrad" cx="50%" cy="50%" r="50%" fx="35%" fy="35%">
+      <stop offset="0%" stop-color="#65E0FF" stop-opacity="0.85"/> <stop offset="50%" stop-color="#1E5BB5" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#051530" stop-opacity="0.9"/>
     </radialGradient>
   </defs>
 
-  <circle cx="100" cy="550" r="450" fill="url(#gradMiddle)"/>
-  <circle cx="100" cy="550" r="450" stroke="url(#edgeGlow)" stroke-width="2" style="mix-blend-mode: screen;"/>
+  <circle cx="100" cy="520" r="480" fill="url(#centerBodyGrad)"/>
+  <circle cx="100" cy="520" r="480" fill="url(#centerRimGrad)"/>
 
-  <ellipse cx="400" cy="50" rx="400" ry="350" fill="url(#gradTop)"/>
-  
-  <circle cx="550" cy="850" r="350" fill="#051020"/>
+  <ellipse cx="480" cy="20" rx="420" ry="380" fill="url(#topSphereGrad)" transform="rotate(15 480 20)"/>
 
-  <g style="mix-blend-mode: screen;">
-    <ellipse cx="450" cy="900" rx="380" ry="320" fill="url(#gradFront)" opacity="0.8"/>
-    <ellipse cx="445" cy="895" rx="340" ry="280" stroke="#7ADCFF" stroke-width="3" fill="none" opacity="0.7"/>
-    <ellipse cx="435" cy="885" rx="335" ry="275" stroke="#7ADCFF" stroke-width="1.5" fill="none" opacity="0.4"/>
+  <circle cx="500" cy="880" r="350" fill="url(#bottomBackGrad)" opacity="0.8"/>
+
+  <g transform="rotate(-25 400 920)">
+      <ellipse cx="400" cy="920" rx="360" ry="300" fill="url(#bottomFrontGrad)"/>
+      
+      <ellipse cx="395" cy="915" rx="350" ry="290" fill="none" stroke="#A3F3FF" stroke-width="2" opacity="0.9"/>
+      <ellipse cx="390" cy="910" rx="355" ry="295" fill="none" stroke="#5AA5FF" stroke-width="1.5" opacity="0.5"/>
   </g>
 </svg>
