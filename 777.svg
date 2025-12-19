@@ -8,50 +8,61 @@
 
   <!-- ФОН -->
   <radialGradient id="bg"
-    cx="50%" cy="28%" r="95%">
-    <stop offset="0%"   stop-color="#1e2232"/>
-    <stop offset="55%"  stop-color="#0c0f1a"/>
+    cx="52%" cy="26%" r="95%">
+    <stop offset="0%"   stop-color="#1f2436"/>
+    <stop offset="55%"  stop-color="#0c101c"/>
     <stop offset="100%" stop-color="#05070d"/>
   </radialGradient>
 
-  <!-- ТЕЛО (тёмное стекло) -->
+  <!-- ТЕЛО: тёмное стекло -->
   <radialGradient id="bodyDark"
-    cx="42%" cy="34%" r="70%"
-    fx="38%" fy="30%">
-    <stop offset="0%"  stop-color="#4b4656" stop-opacity="0.96"/>
-    <stop offset="50%" stop-color="#1c1d26" stop-opacity="0.96"/>
-    <stop offset="100%" stop-color="#07080d" stop-opacity="1"/>
+    cx="44%" cy="32%" r="72%"
+    fx="38%" fy="28%">
+    <stop offset="0%"  stop-color="#4e495a" stop-opacity="0.96"/>
+    <stop offset="52%" stop-color="#1c1e27" stop-opacity="0.96"/>
+    <stop offset="100%" stop-color="#07080d"/>
   </radialGradient>
 
-  <!-- ТЕЛО (синее стекло) -->
+  <!-- ТЕЛО: синее стекло -->
   <radialGradient id="bodyBlue"
-    cx="50%" cy="45%" r="70%"
-    fx="54%" fy="42%">
-    <stop offset="0%"  stop-color="#3352ff" stop-opacity="0.55"/>
-    <stop offset="55%" stop-color="#0d1b55" stop-opacity="0.75"/>
-    <stop offset="100%" stop-color="#050710" stop-opacity="1"/>
+    cx="48%" cy="44%" r="72%"
+    fx="54%" fy="40%">
+    <stop offset="0%"  stop-color="#3a57ff" stop-opacity="0.55"/>
+    <stop offset="55%" stop-color="#0e1c5a" stop-opacity="0.75"/>
+    <stop offset="100%" stop-color="#050710"/>
   </radialGradient>
 
-  <!-- ПЛАВНОЕ СВЕЧЕНИЕ (универсальное) -->
-  <radialGradient id="glowSmooth"
-    cx="50%" cy="50%" r="52%">
-    <stop offset="60%" stop-color="#ffffff" stop-opacity="0"/>
-    <stop offset="72%" stop-color="#d6d9ff" stop-opacity="0.10"/>
-    <stop offset="82%" stop-color="#c6cbff" stop-opacity="0.22"/>
-    <stop offset="90%" stop-color="#dfe3ff" stop-opacity="0.40"/>
-    <stop offset="96%" stop-color="#ffffff" stop-opacity="0.55"/>
+  <!-- СВЕЧЕНИЕ ВЕРХ -->
+  <radialGradient id="glowTop"
+    cx="48%" cy="42%" r="54%"
+    fx="45%" fy="36%">
+    <stop offset="58%" stop-color="#ffffff" stop-opacity="0"/>
+    <stop offset="70%" stop-color="#dfe3ff" stop-opacity="0.10"/>
+    <stop offset="82%" stop-color="#cfd4ff" stop-opacity="0.22"/>
+    <stop offset="92%" stop-color="#ffffff" stop-opacity="0.42"/>
+    <stop offset="100%" stop-color="#ffffff" stop-opacity="0.55"/>
+  </radialGradient>
+
+  <!-- СВЕЧЕНИЕ НИЗ -->
+  <radialGradient id="glowBottom"
+    cx="52%" cy="58%" r="56%"
+    fx="56%" fy="64%">
+    <stop offset="55%" stop-color="#ffffff" stop-opacity="0"/>
+    <stop offset="70%" stop-color="#bfc6ff" stop-opacity="0.18"/>
+    <stop offset="82%" stop-color="#aeb8ff" stop-opacity="0.32"/>
+    <stop offset="92%" stop-color="#cfd6ff" stop-opacity="0.52"/>
     <stop offset="100%" stop-color="#ffffff" stop-opacity="0.65"/>
   </radialGradient>
 
-  <!-- ПЛАВНОЕ СИНЕЕ СВЕЧЕНИЕ -->
-  <radialGradient id="glowSmoothBlue"
-    cx="50%" cy="50%" r="52%">
-    <stop offset="58%" stop-color="#3b5bff" stop-opacity="0"/>
-    <stop offset="72%" stop-color="#3f66ff" stop-opacity="0.15"/>
-    <stop offset="82%" stop-color="#4f74ff" stop-opacity="0.30"/>
-    <stop offset="90%" stop-color="#6a8cff" stop-opacity="0.50"/>
-    <stop offset="96%" stop-color="#8aa4ff" stop-opacity="0.70"/>
-    <stop offset="100%" stop-color="#9fb2ff" stop-opacity="0.85"/>
+  <!-- СВЕЧЕНИЕ НИЗ (СИНЕЕ) -->
+  <radialGradient id="glowBottomBlue"
+    cx="52%" cy="60%" r="56%"
+    fx="56%" fy="66%">
+    <stop offset="55%" stop-color="#3f5bff" stop-opacity="0"/>
+    <stop offset="70%" stop-color="#4a6fff" stop-opacity="0.22"/>
+    <stop offset="82%" stop-color="#5f85ff" stop-opacity="0.40"/>
+    <stop offset="92%" stop-color="#7fa0ff" stop-opacity="0.62"/>
+    <stop offset="100%" stop-color="#9bb3ff" stop-opacity="0.78"/>
   </radialGradient>
 
 </defs>
@@ -59,16 +70,19 @@
 <!-- ФОН -->
 <rect width="100%" height="100%" fill="url(#bg)"/>
 
-<!-- ВЕРХНИЙ -->
-<circle cx="720" cy="180" r="620" fill="url(#glowSmooth)"/>
+<!-- ВЕРХНИЙ КРУГ -->
+<circle cx="720" cy="180" r="640" fill="url(#glowTop)"/>
+<circle cx="720" cy="180" r="640" fill="url(#glowBottom)"/>
 <circle cx="720" cy="180" r="580" fill="url(#bodyDark)"/>
 
-<!-- ЦЕНТР -->
-<circle cx="280" cy="920" r="780" fill="url(#glowSmooth)"/>
+<!-- ЦЕНТРАЛЬНЫЙ КРУГ -->
+<circle cx="280" cy="920" r="800" fill="url(#glowTop)"/>
+<circle cx="280" cy="920" r="800" fill="url(#glowBottom)"/>
 <circle cx="280" cy="920" r="740" fill="url(#bodyDark)"/>
 
-<!-- НИЗ (синий) -->
-<circle cx="650" cy="1650" r="580" fill="url(#glowSmoothBlue)"/>
+<!-- НИЖНИЙ СИНИЙ -->
+<circle cx="650" cy="1650" r="600" fill="url(#glowTop)"/>
+<circle cx="650" cy="1650" r="600" fill="url(#glowBottomBlue)"/>
 <circle cx="650" cy="1650" r="540" fill="url(#bodyBlue)"/>
 
 </svg>
