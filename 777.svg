@@ -7,54 +7,61 @@
 
   <defs>
 
-    <!-- Тёмно-серый объём -->
-    <radialGradient id="gDark"
-      cx="45%" cy="35%" r="65%"
-      fx="40%" fy="30%">
-      <stop offset="0%" stop-color="#3f3c46" stop-opacity="0.95"/>
-      <stop offset="60%" stop-color="#1b1c22" stop-opacity="0.95"/>
-      <stop offset="100%" stop-color="#0a0b10" stop-opacity="1"/>
+    <!-- ФОН -->
+    <radialGradient id="bg"
+      cx="50%" cy="30%" r="90%">
+      <stop offset="0%" stop-color="#1a1d2a"/>
+      <stop offset="60%" stop-color="#0b0e16"/>
+      <stop offset="100%" stop-color="#05070d"/>
     </radialGradient>
 
-    <!-- Светлый серый верх -->
-    <radialGradient id="gLight"
-      cx="40%" cy="40%" r="70%"
-      fx="35%" fy="35%">
-      <stop offset="0%" stop-color="#6b6672" stop-opacity="0.9"/>
-      <stop offset="70%" stop-color="#2a2930" stop-opacity="0.95"/>
-      <stop offset="100%" stop-color="#14151a" stop-opacity="1"/>
+    <!-- ОБЪЁМ: тёмный -->
+    <radialGradient id="darkBody"
+      cx="45%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#3b3942" stop-opacity="0.95"/>
+      <stop offset="70%" stop-color="#15161d"/>
+      <stop offset="100%" stop-color="#07080d"/>
     </radialGradient>
 
-    <!-- Синий акцент -->
-    <radialGradient id="gBlue"
-      cx="50%" cy="50%" r="65%"
-      fx="55%" fy="45%">
-      <stop offset="0%" stop-color="#2a4fff" stop-opacity="0.55"/>
-      <stop offset="50%" stop-color="#0b1b55" stop-opacity="0.6"/>
-      <stop offset="100%" stop-color="#05070f" stop-opacity="1"/>
+    <!-- СВЕЧЕНИЕ: мягкий свет -->
+    <radialGradient id="edgeGlowSoft"
+      cx="50%" cy="50%" r="50%">
+      <stop offset="70%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="85%" stop-color="#cfd0ff" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#aeb0ff" stop-opacity="0.45"/>
+    </radialGradient>
+
+    <!-- ОБЪЁМ: синий -->
+    <radialGradient id="blueBody"
+      cx="50%" cy="45%" r="65%">
+      <stop offset="0%" stop-color="#1b2fff" stop-opacity="0.45"/>
+      <stop offset="55%" stop-color="#0b1440" stop-opacity="0.65"/>
+      <stop offset="100%" stop-color="#05070f"/>
+    </radialGradient>
+
+    <!-- СВЕЧЕНИЕ: синее -->
+    <radialGradient id="edgeGlowBlue"
+      cx="50%" cy="50%" r="50%">
+      <stop offset="65%" stop-color="#3a5bff" stop-opacity="0"/>
+      <stop offset="85%" stop-color="#3a6bff" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#4a7cff" stop-opacity="0.6"/>
     </radialGradient>
 
   </defs>
 
-  <!-- Верхний круг -->
-  <circle
-    cx="700"
-    cy="200"
-    r="600"
-    fill="url(#gLight)" />
+  <!-- ФОН -->
+  <rect width="100%" height="100%" fill="url(#bg)"/>
 
-  <!-- Центральный тёмный круг -->
-  <circle
-    cx="300"
-    cy="900"
-    r="750"
-    fill="url(#gDark)" />
+  <!-- ВЕРХНИЙ КРУГ -->
+  <circle cx="700" cy="200" r="610" fill="url(#edgeGlowSoft)"/>
+  <circle cx="700" cy="200" r="580" fill="url(#darkBody)"/>
 
-  <!-- Нижний синий круг -->
-  <circle
-    cx="650"
-    cy="1600"
-    r="550"
-    fill="url(#gBlue)" />
+  <!-- ЦЕНТРАЛЬНЫЙ КРУГ -->
+  <circle cx="300" cy="900" r="770" fill="url(#edgeGlowSoft)"/>
+  <circle cx="300" cy="900" r="740" fill="url(#darkBody)"/>
+
+  <!-- НИЖНИЙ СИНИЙ КРУГ -->
+  <circle cx="650" cy="1600" r="570" fill="url(#edgeGlowBlue)"/>
+  <circle cx="650" cy="1600" r="540" fill="url(#blueBody)"/>
 
 </svg>
