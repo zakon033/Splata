@@ -1,49 +1,96 @@
 <!DOCTYPE html>
 <html>
 <head>
-<style>
-  body { margin: 0; background: #000; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
-  
-  .iphone-stage {
-    position: relative;
-    width: 800px; height: 600px;
-    background: linear-gradient(135deg, #1a0033, #c1272d, #4a148c);
-    display: flex; justify-content: center; align-items: center;
-    /* Применяем фильтр к сцене */
-    filter: url(#lens-refraction);
-  }
-
-  .text {
-    color: white; font-family: -apple-system, sans-serif; font-size: 110px; font-weight: 900;
-    letter-spacing: -5px; user-select: none;
-  }
-
-  /* Мы будем двигать саму КАРТУ внутри фильтра */
-</style>
+    <style>
+        body { margin: 0; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        canvas { cursor: crosshair; }
+    </style>
 </head>
 <body>
 
-<div class="iphone-stage">
-  <div class="text">IPHONE 16</div>
-</div>
+<canvas id="lensCanvas"></canvas>
 
-<svg width="0" height="0" style="position: absolute;">
-  <defs>
-    <radialGradient id="sphereGrad">
-      <stop offset="0%" stop-color="rgb(255,128,128)" />
-      <stop offset="50%" stop-color="rgb(128,128,128)" />
-      <stop offset="100%" stop-color="rgb(0,128,128)" />
-    </radialGradient>
+<script>
+const canvas = document.getElementById('lensCanvas');
+const ctx = canvas.getContext('2d');
 
-    <filter id="lens-refraction" x="-20%" y="-20%" width="140%" height="140%">
-      <feImage result="lenses" width="800" height="600" xlink:href="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600'%3E%3Cdefs%3E%3CradialGradient id='g'%3E%3Cstop offset='0%25' stop-color='white'/%3E%3Cstop offset='100%25' stop-color='black'/%3E%3C/defs%3E%3Ccircle r='120' fill='url(%23g)'%3E%3CanimateMotion dur='6s' repeatCount='indefinite' path='M200,300 Q400,100 600,300 T200,300' /%3E%3C/circle%3E%3Ccircle r='100' fill='url(%23g)'%3E%3CanimateMotion dur='4s' repeatCount='indefinite' path='M600,300 Q400,500 200,300 T600,300' /%3E%3C/circle%3E%3C/svg%3E" />
+const width = 800;
+const height = 600;
+canvas.width = width;
+canvas.height = height;
 
-      <feDisplacementMap in="SourceGraphic" in2="lenses" scale="100" xChannelSelector="R" yChannelSelector="R" />
-      
-      <feComposite in="SourceGraphic" in2="lenses" operator="arithmetic" k1="0" k2="1" k3="0.2" k4="0" />
-    </filter>
-  </defs>
-</svg>
+// Создаем "картинку" фона (текст) в памяти
+const bgCanvas = document.createElement('canvas');
+bgCanvas.width = width;
+bgCanvas.height = height;
+const bgCtx = bgCanvas.getContext('2d');
+
+function drawBackground() {
+    const grad = bgCtx.createLinearGradient(0, 0, width, height);
+    grad.addColorStop(0, '#2c003e');
+    grad.addColorStop(0.5, '#c1272d');
+    grad.addColorStop(1, '#4a148c');
+    bgCtx.fillStyle = grad;
+    bgCtx.fillRect(0, 0, width, height);
+    
+    bgCtx.fillStyle = 'rgba(255,255,255,0.4)';
+    bgCtx.font = '900 120px sans-serif';
+    bgCtx.textAlign = 'center';
+    bgCtx.textBaseline = 'middle';
+    bgCtx.fillText('IPHONE 16', width/2, height/2);
+}
+
+// Параметры линз
+const lenses = [
+    { x: 200, y: 300, r: 120, speedX: 2, speedY: 1.5 },
+    { x: 600, y: 300, r: 100, speedX: -1.8, speedY: -2 }
+];
+
+function render() {
+    // 1. Рисуем фон
+    ctx.drawImage(bgCanvas, 0, 0);
+
+    // 2. Для каждой линзы делаем преломление
+    lenses.forEach(lens => {
+        // Двигаем линзы
+        lens.x += lens.speedX;
+        lens.y += lens.speedY;
+        if (lens.x < 100 || lens.x > width - 100) lens.speedX *= -1;
+        if (lens.y < 100 || lens.y > height - 100) lens.speedY *= -1;
+
+        const r = lens.r;
+        const x = Math.floor(lens.x);
+        const y = Math.floor(lens.y);
+
+        // Математика преломления (сферическое искажение)
+        // Мы берем кусок изображения и "растягиваем" его от центра
+        for (let i = -r; i < r; i += 2) {
+            for (let j = -r; j < r; j += 2) {
+                const dist = Math.sqrt(i * i + j * j);
+                if (dist < r) {
+                    // Коэффициент преломления (чем ближе к центру, тем сильнее сдвиг)
+                    const refraction = Math.pow(dist / r, 0.7); 
+                    const sourceX = x + i * refraction;
+                    const sourceY = y + j * refraction;
+
+                    ctx.drawImage(bgCanvas, sourceX, sourceY, 2, 2, x + i, y + j, 2, 2);
+                }
+            }
+        }
+        
+        // Рисуем легкий блик сверху
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+        ctx.stroke();
+    });
+
+    requestAnimationFrame(render);
+}
+
+drawBackground();
+render();
+</script>
 
 </body>
 </html>
