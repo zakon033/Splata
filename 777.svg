@@ -1,58 +1,44 @@
-<svg width="100%" height="100%" viewBox="0 0 6400 3552" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+<svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" style="background: #000;">
   <defs>
-    <!-- Радиальный градиент для нижнего (синего) эллипса -->
-    <radialGradient id="grad-blue" cx="50%" cy="50%" r="65%" fx="45%" fy="55%">
-      <stop offset="0%" stop-color="#00ffff" stop-opacity="0.8"/>
-      <stop offset="20%" stop-color="#0088ff" stop-opacity="0.7"/>
-      <stop offset="45%" stop-color="#0022aa" stop-opacity="0.5"/>
-      <stop offset="70%" stop-color="#000033" stop-opacity="0.3"/>
-      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
-    </radialGradient>
+    <g id="lensesMap">
+      <rect width="800" height="800" fill="#808080" /> <circle r="150" fill="white">
+        <animateMotion dur="10s" repeatCount="indefinite" path="M300,400 Q400,300 500,400 T300,400" />
+      </circle>
+      
+      <circle r="130" fill="white" opacity="0.6">
+        <animateMotion dur="7s" repeatCount="indefinite" path="M500,400 Q400,500 300,400 T500,400" />
+      </circle>
 
-    <!-- Радиальный градиент для среднего (фиолетового) эллипса -->
-    <radialGradient id="grad-purple" cx="50%" cy="50%" r="65%" fx="50%" fy="45%">
-      <stop offset="0%" stop-color="#ff00ff" stop-opacity="0.6"/>
-      <stop offset="20%" stop-color="#aa00aa" stop-opacity="0.6"/>
-      <stop offset="40%" stop-color="#550088" stop-opacity="0.5"/>
-      <stop offset="65%" stop-color="#220044" stop-opacity="0.4"/>
-      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
-    </radialGradient>
+      <circle r="140" fill="white" opacity="0.4">
+        <animateMotion dur="12s" repeatCount="indefinite" path="M400,300 L400,500 Z" />
+      </circle>
+    </g>
 
-    <!-- Радиальный градиент для верхнего (серо-фиолетового) эллипса -->
-    <radialGradient id="grad-gray" cx="50%" cy="50%" r="65%" fx="55%" fy="60%">
-      <stop offset="0%" stop-color="#dddddd" stop-opacity="0.5"/>
-      <stop offset="25%" stop-color="#8888aa" stop-opacity="0.5"/>
-      <stop offset="50%" stop-color="#444466" stop-opacity="0.4"/>
-      <stop offset="75%" stop-color="#111122" stop-opacity="0.3"/>
-      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
-    </radialGradient>
-
-    <!-- Фильтр для мягкого неонового свечения по краям -->
-    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="40" result="blur"/>
-      <feFlood flood-color="#00ffff" flood-opacity="0.4"/>
-      <feComposite in2="blur" operator="in"/>
-      <feMerge>
-        <feMergeNode/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
+    <filter id="iphone16Filter" x="-20%" y="-20%" width="140%" height="140%">
+      <feSpawnableImage result="map">
+         </feSpawnableImage>
+      
+      <feDisplacementMap in="SourceGraphic" in2="SourceGraphic" scale="50" xChannelSelector="R" yChannelSelector="B" />
+    </filter>
+    
+    <filter id="distort" filterUnits="userSpaceOnUse">
+      <feTurbulence type="fractalNoise" baseFrequency="0.01" numOctaves="1" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="20" />
     </filter>
   </defs>
 
-  <!-- Тёмный фон -->
-  <rect width="6400" height="3552" fill="#000000"/>
+  <g filter="url(#distort)">
+    <rect width="100%" height="100%" fill="#1a0033" />
+    <circle cx="400" cy="400" r="300" fill="rgba(100,0,255,0.4)" />
+    <rect x="0" y="380" width="800" height="40" fill="rgba(255,100,0,0.3)" />
+  </g>
 
-  <!-- Нижний синий эллипс (самый большой, снизу) -->
-  <ellipse cx="3800" cy="2800" rx="2200" ry="3200" fill="url(#grad-blue)" opacity="0.95"/>
-
-  <!-- Средний фиолетовый эллипс -->
-  <ellipse cx="3200" cy="1800" rx="2000" ry="3000" fill="url(#grad-purple)" opacity="0.9"/>
-
-  <!-- Верхний серый эллипс (слева сверху) -->
-  <ellipse cx="2400" cy="1000" rx="1800" ry="2800" fill="url(#grad-gray)" opacity="0.85"/>
-
-  <!-- Дополнительное свечение по контурам для реалистичности -->
-  <ellipse cx="3800" cy="2800" rx="2250" ry="3250" fill="none" stroke="#00eeff" stroke-width="80" opacity="0.5" filter="url(#glow)"/>
-  <ellipse cx="3200" cy="1800" rx="2050" ry="3050" fill="none" stroke="#aa00ff" stroke-width="60" opacity="0.4" filter="url(#glow)"/>
-  <ellipse cx="2400" cy="1000" rx="1850" ry="2850" fill="none" stroke="#8888ff" stroke-width="50" opacity="0.3" filter="url(#glow)"/>
+  <g style="mix-blend-mode: overlay;">
+    <circle r="150" fill="white" filter="url(#distort)">
+      <animateMotion dur="10s" repeatCount="indefinite" path="M300,400 Q400,300 500,400 T300,400" />
+    </circle>
+    <circle r="130" fill="white" filter="url(#distort)">
+      <animateMotion dur="7s" repeatCount="indefinite" path="M500,400 Q400,500 300,400 T500,400" />
+    </circle>
+  </g>
 </svg>
