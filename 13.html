@@ -130,6 +130,15 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
     z-index: 1000; opacity: 0; pointer-events: none;
     transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease-out;
 }
+
+#copy-toast::before, #copy-toast::after {
+    content: ''; position: absolute; left: 0; width: 100%; height: 2px; z-index: 1;
+}
+#copy-toast::before { top: 0; background: linear-gradient(to right, rgba(46, 204, 113, 0), rgba(46, 204, 113, 0.8), rgba(46, 204, 113, 0)); }
+#copy-toast::after { bottom: 0; background: linear-gradient(to right, rgba(46, 204, 113, 0), rgba(46, 204, 113, 0.5), rgba(46, 204, 113, 0)); }
+
+
+
 #copy-toast.show { opacity: 1; transform: translate(-50%, -50%); background-color: rgba(46, 204, 113, 0.25); }
 
 @keyframes fadeInUp {
