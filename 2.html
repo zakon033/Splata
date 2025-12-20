@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>iPhone 16 - Large Lens Drift</title>
+    <title>iPhone 16 - Ultra Large Lens Drift</title>
     <style>
         body { margin: 0; background: #030303; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
         canvas { display: block; width: 100vw; height: 100vh; touch-action: manipulation; }
@@ -164,8 +164,8 @@ gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 const uL = gl.getUniformLocation(prog, "uLenses");
 const uR = gl.getUniformLocation(prog, "uResolution");
 
-// Увеличенный радиус: 0.345 * 1.2 = 0.414
-const UNIFORM_RADIUS = 0.414;
+// Новый радиус: 0.414 * 1.1 = 0.455
+const UNIFORM_RADIUS = 0.455;
 
 const lenses = [
     { baseX: 1.0, baseY: 0.0, t: Math.random()*100, range: 0.2 }, 
