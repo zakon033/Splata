@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>iPhone 16 - Flatter Center Optics</title>
+    <title>iPhone 16 - Multi-Color Optics</title>
     <style>
         body { margin: 0; background: #030303; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
         canvas { display: block; width: 100vw; height: 100vh; touch-action: manipulation; }
@@ -28,14 +28,20 @@
     varying vec2 vUv;
     uniform sampler2D uTexture;
     uniform vec3 uLenses[3];
+    uniform vec3 uLensColors[3]; // Массив цветов для каждой линзы
     uniform vec2 uResolution;
 
-    vec4 getLensEdge(vec2 uv, vec2 pos, float r, vec2 aspect) {
+    vec4 getLensEdge(vec2 uv, vec2 pos, float r, vec2 aspect, vec3 baseColor) {
         float d = length((uv - pos) * aspect);
-        float whiteRing = smoothstep(0.003, 0.0, abs(d - r));
-        float blueGlow = smoothstep(0.03, 0.0, abs(d - r));
-        vec3 color = mix(vec3(0.2, 0.5, 1.0), vec3(1.0), whiteRing);
-        return vec4(color, max(whiteRing, blueGlow * 0.6));
+        float whiteRing = smoothstep(0.0035, 0.0, abs(d - r));
+        float glow = smoothstep(0.03, 0.0, abs(d - r)); 
+        
+        if (d > r) { glow = 0.0; } // Маска: отсекаем наружное освещение
+
+        vec3 color = mix(baseColor, vec3(1.0), whiteRing);
+        float alpha = max(whiteRing, glow * 0.75);
+        
+        return vec4(color, alpha);
     }
 
     void main() {
@@ -45,6 +51,7 @@
         for (int i = 0; i < 3; i++) {
             vec2 lPos = uLenses[i].xy;
             float r = uLenses[i].z;
+            vec3 lCol = uLensColors[i];
             vec2 distVec = (vUv - lPos) * aspect;
             float d = length(distVec);
 
@@ -53,14 +60,12 @@
                 float distortion;
                 float chroma = 0.0;
 
-                // УМЕНЬШЕННАЯ ВЫПУКЛОСТЬ (0.85 вместо 0.55)
                 if (normD < 0.85) {
                     distortion = pow(normD, 0.85); 
                 } else {
-                    // Эффект инверсии на краю остается без изменений
-                    float edgeProgress = (normD - 0.85) / 0.15;
-                    distortion = 0.88 - pow(edgeProgress, 1.5) * 0.45; 
-                    chroma = edgeProgress * 0.03;
+                    float edgeFactor = (normD - 0.85) / 0.15;
+                    distortion = 0.88 - pow(edgeFactor, 1.5) * 0.45; 
+                    chroma = edgeFactor * 0.03;
                 }
 
                 vec2 uvBase = lPos + (vUv - lPos) * (distortion / normD);
@@ -73,13 +78,14 @@
 
                 for (int j = 0; j < 3; j++) {
                     if (j < i) {
-                        vec4 prev = getLensEdge(uvBase, uLenses[j].xy, uLenses[j].z, aspect);
+                        vec4 prev = getLensEdge(uvBase, uLenses[j].xy, uLenses[j].z, aspect, uLensColors[j]);
                         finalColor.rgb += prev.rgb * prev.a;
                     }
                 }
-                finalColor.rgb = mix(finalColor.rgb, vec3(0.4, 0.5, 0.6), 0.1);
+                finalColor.rgb = mix(finalColor.rgb, vec3(0.3, 0.35, 0.45), 0.08);
             }
-            vec4 edge = getLensEdge(vUv, lPos, r, aspect);
+            
+            vec4 edge = getLensEdge(vUv, lPos, r, aspect, lCol);
             finalColor.rgb += edge.rgb * edge.a;
         }
         gl_FragColor = vec4(finalColor.rgb, 1.0);
@@ -112,23 +118,15 @@ function drawBgTexture() {
     tCtx.fillStyle = grad; 
     tCtx.fillRect(0, 0, 2048, 2048);
     
-    // Мягкие световые пятна для текстурности
-    for(let i = 0; i < 12; i++) {
-        const x = Math.random() * 2048;
-        const y = Math.random() * 2048;
-        const r = 300 + Math.random() * 500;
+    for(let i = 0; i < 15; i++) {
+        const x = Math.random() * 2048, y = Math.random() * 2048, r = 300 + Math.random() * 500;
         const g = tCtx.createRadialGradient(x, y, 0, x, y, r);
-        g.addColorStop(0, 'rgba(255, 255, 255, 0.04)');
+        g.addColorStop(0, 'rgba(255, 255, 255, 0.05)');
         g.addColorStop(1, 'rgba(255, 255, 255, 0)');
-        tCtx.fillStyle = g;
-        tCtx.fillRect(0, 0, 2048, 2048);
+        tCtx.fillStyle = g; tCtx.fillRect(0, 0, 2048, 2048);
     }
-
-    tCtx.fillStyle = 'white'; 
-    tCtx.font = '900 240px sans-serif';
-    tCtx.textAlign = 'center';
-    tCtx.globalAlpha = 0.3; 
-    tCtx.fillText('IPHONE 16', 1024, 1024);
+    tCtx.fillStyle = 'white'; tCtx.font = '900 240px sans-serif';
+    tCtx.textAlign = 'center'; tCtx.globalAlpha = 0.3; tCtx.fillText('IPHONE 16', 1024, 1024);
 }
 drawBgTexture();
 
@@ -156,6 +154,7 @@ gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texCanv);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 
 const uL = gl.getUniformLocation(prog, "uLenses");
+const uC = gl.getUniformLocation(prog, "uLensColors");
 const uR = gl.getUniformLocation(prog, "uResolution");
 
 const UNIFORM_RADIUS = 0.345;
@@ -164,6 +163,13 @@ const lenses = [
     { baseX: 0.15, baseY: 0.5, x: 0.15, y: 0.5, r: UNIFORM_RADIUS, angle: 2, speed: 0.004, range: 0.1 },
     { baseX: 0.85, baseY: 0.85, x: 0.85, y: 0.85, r: UNIFORM_RADIUS, angle: 4, speed: 0.006, range: 0.1 }
 ];
+
+// Цвета линз в формате RGB (0.0 - 1.0)
+const lensColors = new Float32Array([
+    0.6, 0.6, 0.7, // Верхняя: Серый металлик
+    0.35, 0.5, 0.85, // Средняя: Микс серого и голубого
+    0.1, 0.45, 1.0  // Нижняя: Голубой
+]);
 
 function draw() {
     const flat = [];
@@ -174,6 +180,7 @@ function draw() {
         flat.push(l.x, l.y, l.r);
     });
     gl.uniform3fv(uL, flat);
+    gl.uniform3fv(uC, lensColors);
     gl.uniform2f(uR, width, height);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
     requestAnimationFrame(draw);
