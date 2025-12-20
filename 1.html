@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>iPhone 16 Lens - Slow & Precise</title>
+    <title>iPhone 16 - Extreme Optical Engine</title>
     <style>
         body { margin: 0; background: #030303; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
         canvas { display: block; width: 100vw; height: 100vh; touch-action: manipulation; }
@@ -30,12 +30,13 @@
     uniform vec3 uLenses[3];
     uniform vec2 uResolution;
 
+    // Функция отрисовки светящегося края
     vec4 getLensEdge(vec2 uv, vec2 pos, float r, vec2 aspect) {
         float d = length((uv - pos) * aspect);
-        float whiteRing = smoothstep(0.003, 0.0, abs(d - r));
-        float blueGlow = smoothstep(0.02, 0.0, abs(d - r));
-        vec3 color = mix(vec3(0.1, 0.4, 1.0), vec3(1.0), whiteRing);
-        float alpha = max(whiteRing, blueGlow * 0.7);
+        float whiteRing = smoothstep(0.0035, 0.0, abs(d - r));
+        float blueGlow = smoothstep(0.025, 0.0, abs(d - r));
+        vec3 color = mix(vec3(0.05, 0.45, 1.0), vec3(1.2), whiteRing);
+        float alpha = max(whiteRing, blueGlow * 0.8);
         return vec4(color, alpha);
     }
 
@@ -46,24 +47,51 @@
         for (int i = 0; i < 3; i++) {
             vec2 lPos = uLenses[i].xy;
             float r = uLenses[i].z;
-            float d = length((vUv - lPos) * aspect);
+            vec2 distVec = (vUv - lPos) * aspect;
+            float d = length(distVec);
 
             if (d < r) {
-                float refr = pow(d / r, 0.65);
-                vec2 distortedUv = lPos + (vUv - lPos) * refr;
-                finalColor = texture2D(uTexture, distortedUv);
+                float normD = d / r;
+                float distortion;
+                float aberration = 0.0;
 
+                // 1. УСИЛЕННАЯ ЛОГИКА ПРЕЛОМЛЕНИЯ
+                if (normD < 0.82) {
+                    // Глубокое увеличение в центре
+                    distortion = pow(normD, 0.55); 
+                } else {
+                    // Экстремальный выворот на краях (инверсия)
+                    float edgeFactor = (normD - 0.82) / 0.18;
+                    distortion = 0.89 - pow(edgeFactor, 1.2) * 0.45; 
+                    // Сильное расслоение цвета (хроматика)
+                    aberration = edgeFactor * 0.025;
+                }
+
+                // 2. ВЫБОРКА ЦВЕТА С АБЕРРАЦИЕЙ
+                vec2 uvBase = lPos + (vUv - lPos) * (distortion / normD);
+                float rChan = texture2D(uTexture, uvBase + aberration * 1.2).r;
+                float gChan = texture2D(uTexture, uvBase).g;
+                float bChan = texture2D(uTexture, uvBase - aberration * 0.8).b;
+                
+                finalColor = vec4(rChan, gChan, bChan, 1.0);
+
+                // 3. ИЕРАРХИЯ: Прорисовка нижних линз внутри текущей
                 for (int j = 0; j < 3; j++) {
                     if (j < i) {
-                        vec4 prevEdge = getLensEdge(distortedUv, uLenses[j].xy, uLenses[j].z, aspect);
+                        vec4 prevEdge = getLensEdge(uvBase, uLenses[j].xy, uLenses[j].z, aspect);
                         finalColor.rgb += prevEdge.rgb * prevEdge.a;
                     }
                 }
-                finalColor.rgb = mix(finalColor.rgb, vec3(0.3, 0.3, 0.4), 0.1);
+                
+                // Эффект плотного стекла
+                finalColor.rgb = mix(finalColor.rgb, vec3(0.3, 0.4, 0.5), 0.12);
             }
+
+            // 4. ФИНАЛЬНЫЙ ОБОДОК
             vec4 currentEdge = getLensEdge(vUv, lPos, r, aspect);
             finalColor.rgb += currentEdge.rgb * currentEdge.a;
         }
+        
         gl_FragColor = vec4(finalColor.rgb, 1.0);
     }
 </script>
@@ -83,16 +111,18 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
+// Создание фона с вашими HEX-кодами
 const texCanv = document.createElement('canvas');
 texCanv.width = 2048; texCanv.height = 2048;
 const tCtx = texCanv.getContext('2d');
 
 function drawBgTexture() {
     const grad = tCtx.createLinearGradient(0, 0, 0, 2048);
-    grad.addColorStop(0, '#686878'); 
-    grad.addColorStop(1, '#030303'); 
+    grad.addColorStop(0, '#686878'); // ВАШ ВЕРХНИЙ
+    grad.addColorStop(1, '#030303'); // ВАШ НИЖНИЙ
     tCtx.fillStyle = grad; 
     tCtx.fillRect(0, 0, 2048, 2048);
+    
     tCtx.fillStyle = 'white'; 
     tCtx.font = '900 220px sans-serif';
     tCtx.textAlign = 'center';
@@ -129,41 +159,20 @@ const uR = gl.getUniformLocation(prog, "uResolution");
 
 const UNIFORM_RADIUS = 0.345;
 
+// Конфигурация якорных точек
 const lenses = [
-    { 
-        baseX: 0.9, baseY: 0.1, 
-        x: 0.9, y: 0.1, 
-        r: UNIFORM_RADIUS, 
-        angle: 0, 
-        speed: 0.005, // В 3 раза медленнее (было 0.015)
-        range: 0.12   // Уменьшил разлет для частого возврата в базу
-    },
-    { 
-        baseX: 0.1, baseY: 0.5, 
-        x: 0.1, y: 0.5, 
-        r: UNIFORM_RADIUS, 
-        angle: 2, 
-        speed: 0.004, // В 3 раза медленнее (было 0.012)
-        range: 0.12 
-    },
-    { 
-        baseX: 0.9, baseY: 0.9, 
-        x: 0.9, y: 0.9, 
-        r: UNIFORM_RADIUS, 
-        angle: 4, 
-        speed: 0.006, // В 3 раза медленнее (было 0.018)
-        range: 0.12 
-    }
+    { baseX: 0.85, baseY: 0.15, x: 0.85, y: 0.15, r: UNIFORM_RADIUS, angle: 0, speed: 0.005, range: 0.1 },
+    { baseX: 0.15, baseY: 0.5, x: 0.15, y: 0.5, r: UNIFORM_RADIUS, angle: 2, speed: 0.004, range: 0.1 },
+    { baseX: 0.85, baseY: 0.85, x: 0.85, y: 0.85, r: UNIFORM_RADIUS, angle: 4, speed: 0.006, range: 0.1 }
 ];
 
 function draw() {
     const flat = [];
     lenses.forEach(l => {
         l.angle += l.speed;
-        // Движение стало более компактным и спокойным
+        // Очень медленное и компактное движение
         l.x = l.baseX + Math.cos(l.angle) * l.range * 0.4;
-        l.y = l.baseY + Math.sin(l.angle * 1.2) * l.range * 0.4;
-        
+        l.y = l.baseY + Math.sin(l.angle * 1.1) * l.range * 0.4;
         flat.push(l.x, l.y, l.r);
     });
 
