@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>iPhone 16 Lens - Anchored Composition</title>
+    <title>iPhone 16 Lens - Slow & Precise</title>
     <style>
         body { margin: 0; background: #030303; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
         canvas { display: block; width: 100vw; height: 100vh; touch-action: manipulation; }
@@ -129,43 +129,40 @@ const uR = gl.getUniformLocation(prog, "uResolution");
 
 const UNIFORM_RADIUS = 0.345;
 
-// Базовые точки и параметры движения
 const lenses = [
     { 
-        baseX: 0.9, baseY: 0.1, // Верхний правый
+        baseX: 0.9, baseY: 0.1, 
         x: 0.9, y: 0.1, 
         r: UNIFORM_RADIUS, 
         angle: 0, 
-        speed: 0.015, 
-        range: 0.15 // Амплитуда (около 15-20% экрана)
+        speed: 0.005, // В 3 раза медленнее (было 0.015)
+        range: 0.12   // Уменьшил разлет для частого возврата в базу
     },
     { 
-        baseX: 0.1, baseY: 0.5, // Лево по центру
+        baseX: 0.1, baseY: 0.5, 
         x: 0.1, y: 0.5, 
         r: UNIFORM_RADIUS, 
         angle: 2, 
-        speed: 0.012, 
-        range: 0.15 
+        speed: 0.004, // В 3 раза медленнее (было 0.012)
+        range: 0.12 
     },
     { 
-        baseX: 0.9, baseY: 0.9, // Нижний правый
+        baseX: 0.9, baseY: 0.9, 
         x: 0.9, y: 0.9, 
         r: UNIFORM_RADIUS, 
         angle: 4, 
-        speed: 0.018, 
-        range: 0.15 
+        speed: 0.006, // В 3 раза медленнее (было 0.018)
+        range: 0.12 
     }
 ];
 
 function draw() {
     const flat = [];
-    const time = Date.now() * 0.001;
-
     lenses.forEach(l => {
-        // Движение по плавной траектории вокруг базовой точки
         l.angle += l.speed;
-        l.x = l.baseX + Math.cos(l.angle) * l.range * 0.5;
-        l.y = l.baseY + Math.sin(l.angle * 0.8) * l.range * 0.5;
+        // Движение стало более компактным и спокойным
+        l.x = l.baseX + Math.cos(l.angle) * l.range * 0.4;
+        l.y = l.baseY + Math.sin(l.angle * 1.2) * l.range * 0.4;
         
         flat.push(l.x, l.y, l.r);
     });
