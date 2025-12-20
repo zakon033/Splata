@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>iPhone 16 - High Precision Optics</title>
+    <title>iPhone 16 - Flatter Center Optics</title>
     <style>
         body { margin: 0; background: #030303; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
         canvas { display: block; width: 100vw; height: 100vh; touch-action: manipulation; }
@@ -53,26 +53,24 @@
                 float distortion;
                 float chroma = 0.0;
 
-                // ЭКСТРЕМАЛЬНАЯ ИНВЕРСИЯ КРАЯ (на последних 15% радиуса)
+                // УМЕНЬШЕННАЯ ВЫПУКЛОСТЬ (0.85 вместо 0.55)
                 if (normD < 0.85) {
-                    distortion = pow(normD, 0.6); // Сильное центральное увеличение
+                    distortion = pow(normD, 0.85); 
                 } else {
+                    // Эффект инверсии на краю остается без изменений
                     float edgeProgress = (normD - 0.85) / 0.15;
-                    // Изображение разворачивается в обратную сторону
-                    distortion = 0.9 - pow(edgeProgress, 1.5) * 0.5; 
-                    chroma = edgeProgress * 0.03; // Радужный кант
+                    distortion = 0.88 - pow(edgeProgress, 1.5) * 0.45; 
+                    chroma = edgeProgress * 0.03;
                 }
 
                 vec2 uvBase = lPos + (vUv - lPos) * (distortion / normD);
                 
-                // Чтение каналов с разным смещением (Хроматическая аберрация)
                 float rChan = texture2D(uTexture, uvBase + chroma).r;
                 float gChan = texture2D(uTexture, uvBase).g;
                 float bChan = texture2D(uTexture, uvBase - chroma).b;
                 
                 finalColor = vec4(rChan, gChan, bChan, 1.0);
 
-                // Отрисовка нижних линз внутри верхней (искажение слоев)
                 for (int j = 0; j < 3; j++) {
                     if (j < i) {
                         vec4 prev = getLensEdge(uvBase, uLenses[j].xy, uLenses[j].z, aspect);
@@ -81,7 +79,6 @@
                 }
                 finalColor.rgb = mix(finalColor.rgb, vec3(0.4, 0.5, 0.6), 0.1);
             }
-            // Ободок линзы
             vec4 edge = getLensEdge(vUv, lPos, r, aspect);
             finalColor.rgb += edge.rgb * edge.a;
         }
@@ -109,27 +106,24 @@ texCanv.width = 2048; texCanv.height = 2048;
 const tCtx = texCanv.getContext('2d');
 
 function drawBgTexture() {
-    // 1. Основной градиент (ваши цвета)
     const grad = tCtx.createLinearGradient(0, 0, 0, 2048);
     grad.addColorStop(0, '#686878'); 
     grad.addColorStop(1, '#030303'); 
     tCtx.fillStyle = grad; 
     tCtx.fillRect(0, 0, 2048, 2048);
     
-    // 2. Добавление структуры градиента (мягкие светлые пятна)
-    // Без них на однородном фоне искажения не видны
-    for(let i = 0; i < 15; i++) {
+    // Мягкие световые пятна для текстурности
+    for(let i = 0; i < 12; i++) {
         const x = Math.random() * 2048;
         const y = Math.random() * 2048;
-        const r = 200 + Math.random() * 400;
+        const r = 300 + Math.random() * 500;
         const g = tCtx.createRadialGradient(x, y, 0, x, y, r);
-        g.addColorStop(0, 'rgba(255, 255, 255, 0.05)');
+        g.addColorStop(0, 'rgba(255, 255, 255, 0.04)');
         g.addColorStop(1, 'rgba(255, 255, 255, 0)');
         tCtx.fillStyle = g;
         tCtx.fillRect(0, 0, 2048, 2048);
     }
 
-    // 3. Текст
     tCtx.fillStyle = 'white'; 
     tCtx.font = '900 240px sans-serif';
     tCtx.textAlign = 'center';
@@ -142,9 +136,6 @@ function createShader(gl, type, source) {
     const s = gl.createShader(type);
     gl.shaderSource(s, source);
     gl.compileShader(s);
-    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
-        console.error(gl.getShaderInfoLog(s));
-    }
     return s;
 }
 
