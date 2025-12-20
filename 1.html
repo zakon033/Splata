@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>iPhone 16 Lens - Perfect Gradient</title>
+    <title>iPhone 16 Lens Fixed</title>
     <style>
-        body { margin: 0; background: #000; overflow: auto; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        canvas { display: block; max-width: 100vw; max-height: 100vh; touch-action: manipulation; }
+        body { margin: 0; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        canvas { display: block; width: 100vw; height: 100vh; }
     </style>
 </head>
 <body>
@@ -30,151 +30,121 @@
     uniform vec3 uLenses[3];
     uniform vec2 uResolution;
 
-    vec4 getLensMaterial(vec2 uv, vec2 pos, float r) {
-        vec2 aspect = vec2(uResolution.x / uResolution.y, 1.0);
-        vec2 distVec = (uv - pos) * aspect;
-        float dist = length(distVec);
-        
-        vec4 material = vec4(0.0);
-        
-        if (dist < r) {
-            // 1. ПЕРВАЯ МАСКА: Тонкий белый край (самый контур)
-            // Белый появляется на самом краю r и растворяется к центру очень быстро
-            float whiteMask = smoothstep(r, r - 0.015, dist);
-            
-            // 2. ВТОРАЯ МАСКА: Голубой свет (шире белого)
-            // Голубой начинается там же, но тянется дальше к центру
-            float blueMask = smoothstep(r, r - 0.06, dist);
-            
-            // Смешиваем цвета согласно вашему описанию
-            vec3 whiteColor = vec3(1.0, 1.0, 1.0);
-            vec3 blueColor = vec3(0.0, 0.5, 1.0);
-            
-            // Накладываем голубой, а поверх него белый. 
-            // Благодаря разным маскам белый плавно перетекает в голубой, а тот в прозрачность.
-            material.rgb = mix(material.rgb, blueColor, blueMask);
-            material.rgb = mix(material.rgb, whiteColor, whiteMask);
-            
-            // Общая прозрачность линзы (дымка + яркость краев)
-            float haze = 0.04;
-            material.a = max(haze, max(whiteMask, blueMask * 0.6));
-        }
-        return material;
-    }
-
     void main() {
         vec2 uv = vUv;
         vec2 aspect = vec2(uResolution.x / uResolution.y, 1.0);
-        vec4 finalColor = texture2D(uTexture, uv);
-
+        
+        // Сначала считаем общее искажение для фона (от всех линз)
         for (int i = 0; i < 3; i++) {
-            vec2 lensPos = uLenses[i].xy;
+            vec2 lPos = uLenses[i].xy;
             float r = uLenses[i].z;
-            vec2 distVec = (vUv - lensPos) * aspect;
-            float dist = length(distVec);
-
-            if (dist < r) {
-                // Преломление
-                float refraction = pow(dist / r, 0.65);
-                vec2 distUv = lensPos + (vUv - lensPos) * refraction;
-                finalColor = texture2D(uTexture, distUv);
-
-                // Искажение слоев под текущей линзой
-                for (int j = 0; j < 3; j++) {
-                    if (j < i) {
-                        vec4 prevMat = getLensMaterial(distUv, uLenses[j].xy, uLenses[j].z);
-                        finalColor.rgb = mix(finalColor.rgb, prevMat.rgb, prevMat.a);
-                    }
-                }
+            vec2 distVec = (vUv - lPos) * aspect;
+            float d = length(distVec);
+            if (d < r) {
+                float refr = pow(d / r, 0.7);
+                uv = lPos + (vUv - lPos) * refr;
             }
-            // Финальный слой текущей линзы
-            vec4 currentMat = getLensMaterial(vUv, lensPos, r);
-            finalColor.rgb = mix(finalColor.rgb, currentMat.rgb, currentMat.a);
         }
-        gl_FragColor = finalColor;
+
+        vec4 color = texture2D(uTexture, uv);
+
+        // Теперь рисуем слоистые градиенты (белый -> голубой) поверх
+        for (int i = 0; i < 3; i++) {
+            vec2 lPos = uLenses[i].xy;
+            float r = uLenses[i].z;
+            vec2 distVec = (vUv - lPos) * aspect;
+            float d = length(distVec);
+
+            if (d < r) {
+                // 1. Белая маска (узкая, на самом краю)
+                float whiteMask = smoothstep(r, r - 0.01, d);
+                // 2. Голубая маска (шире, под белой)
+                float blueMask = smoothstep(r, r - 0.05, d);
+                
+                // Смешиваем: белый перетекает в голубой
+                vec3 glowColor = mix(vec3(0.0, 0.5, 1.0), vec3(1.0), whiteMask);
+                float glowAlpha = max(whiteMask, blueMask * 0.5);
+                
+                // Добавляем мутность линзы
+                color.rgb = mix(color.rgb, glowColor, glowAlpha * 0.6 + 0.05);
+            }
+        }
+        
+        gl_FragColor = vec4(color.rgb, 1.0);
     }
 </script>
 
 <script>
-// (Остальной JavaScript код остается таким же, как в предыдущем ответе)
 const canvas = document.getElementById('glCanvas');
 const gl = canvas.getContext('webgl');
 
 let width, height;
-function updateSize() {
+function resize() {
     width = window.innerWidth;
     height = window.innerHeight;
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
+    canvas.width = width * window.devicePixelRatio;
+    canvas.height = height * window.devicePixelRatio;
     gl.viewport(0, 0, canvas.width, canvas.height);
 }
-updateSize();
+window.addEventListener('resize', resize);
+resize();
 
-const textCanvas = document.createElement('canvas');
-textCanvas.width = 2048; textCanvas.height = 2048;
-const tCtx = textCanvas.getContext('2d');
+// Текстура фона
+const texCanv = document.createElement('canvas');
+texCanv.width = 1024; texCanv.height = 1024;
+const tCtx = texCanv.getContext('2d');
+const g = tCtx.createLinearGradient(0,0,1024,1024);
+g.addColorStop(0,'#1a0033'); g.addColorStop(0.5,'#c1272d'); g.addColorStop(1,'#4a148c');
+tCtx.fillStyle = g; tCtx.fillRect(0,0,1024,1024);
+tCtx.fillStyle = 'white'; tCtx.font = '900 120px sans-serif';
+tCtx.textAlign = 'center'; tCtx.fillText('IPHONE 16', 512, 512);
 
-function drawBgTexture() {
-    const grad = tCtx.createLinearGradient(0, 0, 2048, 2048);
-    grad.addColorStop(0, '#120022');
-    grad.addColorStop(0.5, '#b01e24');
-    grad.addColorStop(1, '#3a0d70');
-    tCtx.fillStyle = grad; tCtx.fillRect(0, 0, 2048, 2048);
-    tCtx.fillStyle = 'white'; tCtx.font = '900 240px sans-serif';
-    tCtx.textAlign = 'center'; tCtx.textBaseline = 'middle';
-    tCtx.globalAlpha = 0.5; tCtx.fillText('IPHONE 16', 1024, 1024);
-}
-drawBgTexture();
-
-function createShader(gl, type, source) {
+function createShader(gl, type, id) {
     const s = gl.createShader(type);
-    gl.shaderSource(s, source); gl.compileShader(s); return s;
+    gl.shaderSource(s, document.getElementById(id).text);
+    gl.compileShader(s);
+    return s;
 }
 
-const program = gl.createProgram();
-gl.attachShader(program, createShader(gl, gl.VERTEX_SHADER, document.getElementById('vs').text));
-gl.attachShader(program, createShader(gl, gl.FRAGMENT_SHADER, document.getElementById('fs').text));
-gl.linkProgram(program); gl.useProgram(program);
+const prog = gl.createProgram();
+gl.attachShader(prog, createShader(gl, gl.VERTEX_SHADER, 'vs'));
+gl.attachShader(prog, createShader(gl, gl.FRAGMENT_SHADER, 'fs'));
+gl.linkProgram(prog); gl.useProgram(prog);
 
-const buffer = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
-const posLoc = gl.getAttribLocation(program, "position");
-gl.enableVertexAttribArray(posLoc); gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+const buf = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]), gl.STATIC_DRAW);
+const p = gl.getAttribLocation(prog, 'position');
+gl.enableVertexAttribArray(p); gl.vertexAttribPointer(p, 2, gl.FLOAT, false, 0, 0);
 
-const texture = gl.createTexture();
-gl.bindTexture(gl.TEXTURE_2D, texture);
-gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, textCanvas);
+const tex = gl.createTexture();
+gl.bindTexture(gl.TEXTURE_2D, tex);
+gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texCanv);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
-const uLensesLoc = gl.getUniformLocation(program, "uLenses");
-const uResLoc = gl.getUniformLocation(program, "uResolution");
+const uL = gl.getUniformLocation(prog, "uLenses");
+const uR = gl.getUniformLocation(prog, "uResolution");
 
-const lensData = [
-    { x: 0.3, y: 0.4, r: 0.18, sx: 0.0012, sy: 0.001 },
-    { x: 0.7, y: 0.6, r: 0.14, sx: -0.001, sy: -0.0015 },
-    { x: 0.5, y: 0.5, r: 0.22, sx: 0.0006, sy: -0.0007 }
+const lenses = [
+    { x: 0.3, y: 0.3, r: 0.18, sx: 0.002, sy: 0.001 },
+    { x: 0.7, y: 0.6, r: 0.14, sx: -0.001, sy: -0.002 },
+    { x: 0.5, y: 0.5, r: 0.22, sx: 0.001, sy: -0.001 }
 ];
 
-function render() {
-    const flatLenses = [];
-    lensData.forEach(l => {
+function draw() {
+    const flat = [];
+    lenses.forEach(l => {
         l.x += l.sx; l.y += l.sy;
-        if (l.x < 0.1 || l.x > 0.9) l.sx *= -1;
-        if (l.y < 0.1 || l.y > 0.9) l.sy *= -1;
-        flatLenses.push(l.x, l.y, l.r);
+        if(l.x<0.1||l.x>0.9) l.sx*=-1;
+        if(l.y<0.1||l.y>0.9) l.sy*=-1;
+        flat.push(l.x, l.y, l.r);
     });
-
-    gl.uniform3fv(uLensesLoc, flatLenses);
-    gl.uniform2f(uResLoc, width, height);
+    gl.uniform3fv(uL, flat);
+    gl.uniform2f(uR, width, height);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
-    requestAnimationFrame(render);
+    requestAnimationFrame(draw);
 }
-
-window.addEventListener('resize', updateSize);
-render();
+draw();
 </script>
 </body>
 </html>
