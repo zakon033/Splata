@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>iPhone 16 - Multi-Color Optics</title>
+    <title>iPhone 16 - Final Precision Optics</title>
     <style>
         body { margin: 0; background: #030303; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
         canvas { display: block; width: 100vw; height: 100vh; touch-action: manipulation; }
@@ -28,18 +28,38 @@
     varying vec2 vUv;
     uniform sampler2D uTexture;
     uniform vec3 uLenses[3];
-    uniform vec3 uLensColors[3]; // Массив цветов для каждой линзы
     uniform vec2 uResolution;
 
-    vec4 getLensEdge(vec2 uv, vec2 pos, float r, vec2 aspect, vec3 baseColor) {
-        float d = length((uv - pos) * aspect);
+    // Динамический цвет: от металлика (вверху) к голубому (внизу)
+    vec3 getDynamicColor(float y) {
+        vec3 metallic = vec3(0.6, 0.6, 0.7);
+        vec3 cyanBlue = vec3(0.1, 0.45, 1.0);
+        return mix(metallic, cyanBlue, y);
+    }
+
+    vec4 getLensEdge(vec2 uv, vec2 pos, float r, vec2 aspect, int index) {
+        vec2 dVec = (uv - pos) * aspect;
+        float d = length(dVec);
+        
+        // 1. Базовые элементы (кольцо и свечение)
         float whiteRing = smoothstep(0.0035, 0.0, abs(d - r));
         float glow = smoothstep(0.03, 0.0, abs(d - r)); 
-        
-        if (d > r) { glow = 0.0; } // Маска: отсекаем наружное освещение
+        if (d > r) { glow = 0.0; } // Строгая внешняя маска
 
-        vec3 color = mix(baseColor, vec3(1.0), whiteRing);
-        float alpha = max(whiteRing, glow * 0.75);
+        // 2. Маска тени для средней линзы (индекс 1)
+        float shadowMask = 1.0; 
+        if (index == 1) {
+            vec2 dir = normalize(dVec);
+            // Гасим и кольцо, и свечение в верхней части (20-30% дуги)
+            shadowMask = smoothstep(-1.0, -0.4, dir.y);
+        }
+
+        float finalWhite = whiteRing * shadowMask;
+        float finalGlow = glow * shadowMask;
+
+        vec3 baseColor = getDynamicColor(uv.y);
+        vec3 color = mix(baseColor, vec3(1.0), finalWhite);
+        float alpha = max(finalWhite, finalGlow * 0.75);
         
         return vec4(color, alpha);
     }
@@ -51,7 +71,6 @@
         for (int i = 0; i < 3; i++) {
             vec2 lPos = uLenses[i].xy;
             float r = uLenses[i].z;
-            vec3 lCol = uLensColors[i];
             vec2 distVec = (vUv - lPos) * aspect;
             float d = length(distVec);
 
@@ -60,9 +79,11 @@
                 float distortion;
                 float chroma = 0.0;
 
+                // Уменьшенная выпуклость центра (0.85)
                 if (normD < 0.85) {
                     distortion = pow(normD, 0.85); 
                 } else {
+                    // Инверсия края
                     float edgeFactor = (normD - 0.85) / 0.15;
                     distortion = 0.88 - pow(edgeFactor, 1.5) * 0.45; 
                     chroma = edgeFactor * 0.03;
@@ -76,16 +97,17 @@
                 
                 finalColor = vec4(rChan, gChan, bChan, 1.0);
 
+                // Отрисовка вложенных линз
                 for (int j = 0; j < 3; j++) {
                     if (j < i) {
-                        vec4 prev = getLensEdge(uvBase, uLenses[j].xy, uLenses[j].z, aspect, uLensColors[j]);
+                        vec4 prev = getLensEdge(uvBase, uLenses[j].xy, uLenses[j].z, aspect, j);
                         finalColor.rgb += prev.rgb * prev.a;
                     }
                 }
                 finalColor.rgb = mix(finalColor.rgb, vec3(0.3, 0.35, 0.45), 0.08);
             }
             
-            vec4 edge = getLensEdge(vUv, lPos, r, aspect, lCol);
+            vec4 edge = getLensEdge(vUv, lPos, r, aspect, i);
             finalColor.rgb += edge.rgb * edge.a;
         }
         gl_FragColor = vec4(finalColor.rgb, 1.0);
@@ -154,33 +176,34 @@ gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texCanv);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 
 const uL = gl.getUniformLocation(prog, "uLenses");
-const uC = gl.getUniformLocation(prog, "uLensColors");
 const uR = gl.getUniformLocation(prog, "uResolution");
 
 const UNIFORM_RADIUS = 0.345;
+// РАССИНХРОНИЗИРОВАННЫЕ ЛИНЗЫ
 const lenses = [
-    { baseX: 0.85, baseY: 0.15, x: 0.85, y: 0.15, r: UNIFORM_RADIUS, angle: 0, speed: 0.005, range: 0.1 },
-    { baseX: 0.15, baseY: 0.5, x: 0.15, y: 0.5, r: UNIFORM_RADIUS, angle: 2, speed: 0.004, range: 0.1 },
-    { baseX: 0.85, baseY: 0.85, x: 0.85, y: 0.85, r: UNIFORM_RADIUS, angle: 4, speed: 0.006, range: 0.1 }
+    { 
+        baseX: 0.85, baseY: 0.15, x: 0.85, y: 0.15, r: UNIFORM_RADIUS, 
+        aX: 0, aY: 1, sX: 0.007, sY: 0.005, rng: 0.03 
+    },
+    { 
+        baseX: 0.15, baseY: 0.5, x: 0.15, y: 0.5, r: UNIFORM_RADIUS, 
+        aX: 2, aY: 3, sX: 0.004, sY: 0.008, rng: 0.025 
+    },
+    { 
+        baseX: 0.85, baseY: 0.85, x: 0.85, y: 0.85, r: UNIFORM_RADIUS, 
+        aX: 4, aY: 5, sX: 0.006, sY: 0.003, rng: 0.035 
+    }
 ];
-
-// Цвета линз в формате RGB (0.0 - 1.0)
-const lensColors = new Float32Array([
-    0.6, 0.6, 0.7, // Верхняя: Серый металлик
-    0.35, 0.5, 0.85, // Средняя: Микс серого и голубого
-    0.1, 0.45, 1.0  // Нижняя: Голубой
-]);
 
 function draw() {
     const flat = [];
     lenses.forEach(l => {
-        l.angle += l.speed;
-        l.x = l.baseX + Math.cos(l.angle) * l.range * 0.4;
-        l.y = l.baseY + Math.sin(l.angle * 1.1) * l.range * 0.4;
+        l.aX += l.sX; l.aY += l.sY;
+        l.x = l.baseX + Math.cos(l.aX) * l.rng;
+        l.y = l.baseY + Math.sin(l.aY) * l.rng;
         flat.push(l.x, l.y, l.r);
     });
     gl.uniform3fv(uL, flat);
-    gl.uniform3fv(uC, lensColors);
     gl.uniform2f(uR, width, height);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
     requestAnimationFrame(draw);
