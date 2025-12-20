@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>iPhone 16 - Beyond Bounds Precision</title>
+    <title>iPhone 16 - Brownian Slow Motion</title>
     <style>
         body { margin: 0; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
         canvas { display: block; width: 100vw; height: 100vh; }
@@ -149,35 +149,26 @@ const uL = gl.getUniformLocation(prog, "uLenses");
 const uR = gl.getUniformLocation(prog, "uResolution");
 
 const UNIFORM_RADIUS = 0.345;
+// Параметры для хаотичного (броуновского) движения
 const lenses = [
-    { bx: 0.85, by: 0.15, phase: 0, speed: 0.5, rng: 0.25 }, // Верх-право
-    { bx: 0.15, by: 0.5,  phase: 2, speed: 0.4, rng: 0.25 }, // Центр-лево
-    { bx: 0.85, by: 0.85, phase: 4, speed: 0.6, rng: 0.25 }  // Низ-право
+    { bx: 0.85, by: 0.15, t: Math.random()*100, rng: 0.12 }, // Верх-право
+    { bx: 0.15, by: 0.5,  t: Math.random()*100, rng: 0.12 }, // Центр-лево
+    { bx: 0.85, by: 0.85, t: Math.random()*100, rng: 0.12 }  // Низ-право
 ];
 
 function draw() {
     const flat = [];
-    const center = { x: 0.5, y: 0.5 };
-
     lenses.forEach(l => {
-        l.phase += 0.01;
-        
-        // Вектор от БАЗЫ к ЦЕНТРУ
-        let vx = center.x - l.bx;
-        let vy = center.y - l.by;
-        
-        // Нормализуем вектор, чтобы амплитуда (rng) была предсказуемой
-        const len = Math.sqrt(vx*vx + vy*vy);
-        vx /= len;
-        vy /= len;
+        // Замедляем шаг времени для плавности
+        l.t += 0.003; 
 
-        // Колебание Math.sin дает значения от -1 до 1.
-        // Когда 1 — линза идет к центру.
-        // Когда -1 — линза уходит В ПРОТИВОПОЛОЖНУЮ сторону (за экран).
-        const oscillation = Math.sin(l.phase * l.speed * 10.0) * l.rng;
-        
-        const x = l.bx + (vx * oscillation);
-        const y = l.by + (vy * oscillation);
+        // Имитация броуновского движения через наложение трех разных частот
+        // Это дает непредсказуемую траекторию, которая всегда центрирована на l.bx/l.by
+        const noiseX = (Math.sin(l.t * 1.1) + Math.sin(l.t * 2.7) + Math.sin(l.t * 0.5)) / 3.0;
+        const noiseY = (Math.cos(l.t * 1.3) + Math.cos(l.t * 2.1) + Math.cos(l.t * 0.4)) / 3.0;
+
+        const x = l.bx + noiseX * l.rng;
+        const y = l.by + noiseY * l.rng;
 
         flat.push(x, y, UNIFORM_RADIUS);
     });
