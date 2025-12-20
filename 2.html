@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iPhone 16 - Fixed Points & Nested Optics</title>
+    <title>iPhone 16 - Correct Static Optics</title>
     <style>
         body { margin: 0; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
         canvas { display: block; width: 100vw; height: 100vh; }
@@ -43,23 +43,26 @@
         float shadowMask = 1.0; 
         if (index == 1) { // Тень для средней линзы
             vec2 dir = normalize(dVec);
-            shadowMask = smoothstep(-1.0, -0.4, dir.y);
+            shadowMask = smoothstep(-1.0, -0.3, dir.y);
         }
 
         vec3 baseColor = getDynamicColor(uv.y);
         vec3 color = mix(baseColor, vec3(1.0), whiteRing * shadowMask);
-        float alpha = max(whiteRing * shadowMask, glow * shadowMask * 0.75);
+        float alpha = max(whiteRing * shadowMask, glow * shadowMask * 0.7);
         return vec4(color, alpha);
     }
 
     void main() {
         vec2 aspect = vec2(uResolution.x / uResolution.y, 1.0);
-        vec4 finalColor = texture2D(uTexture, vUv);
+        
+        // 1. Сначала определяем, в какой линзе мы находимся (сверху вниз)
+        vec4 color = texture2D(uTexture, vUv);
+        vec2 currentUv = vUv;
 
         for (int i = 0; i < 3; i++) {
             vec2 lPos = uLenses[i].xy;
             float r = uLenses[i].z;
-            vec2 distVec = (vUv - lPos) * aspect;
+            vec2 distVec = (currentUv - lPos) * aspect;
             float d = length(distVec);
 
             if (d < r) {
@@ -75,31 +78,34 @@
                     chroma = edgeFactor * 0.03;
                 }
                 
-                vec2 uvBase = lPos + (vUv - lPos) * (distortion / normD);
+                // Пересчитываем UV для заглядывания "внутрь" линзы
+                currentUv = lPos + (currentUv - lPos) * (distortion / normD);
                 
-                // Основное преломление текстуры фона
-                float rCh = texture2D(uTexture, uvBase + chroma).r;
-                float gCh = texture2D(uTexture, uvBase).g;
-                float bCh = texture2D(uTexture, uvBase - chroma).b;
-                finalColor = vec4(rCh, gCh, bCh, 1.0);
-
-                // --- ВОЗВРАЩЕННЫЙ БЛОК: Взаимная обработка линз ---
-                for (int j = 0; j < 3; j++) {
-                    if (j != i) { // Линза i "видит" края линзы j внутри себя
-                        vec4 nestedEdge = getLensEdge(uvBase, uLenses[j].xy, uLenses[j].z, aspect, j);
-                        finalColor.rgb += nestedEdge.rgb * nestedEdge.a;
-                    }
-                }
-                // ------------------------------------------------
+                // Получаем цвет с учетом аберрации
+                color.r = texture2D(uTexture, currentUv + chroma).r;
+                color.g = texture2D(uTexture, currentUv).g;
+                color.b = texture2D(uTexture, currentUv - chroma).b;
                 
-                finalColor.rgb = mix(finalColor.rgb, vec3(0.3, 0.35, 0.45), 0.08);
+                // Затемнение внутренности для объема
+                color.rgb = mix(color.rgb, vec3(0.2, 0.25, 0.35), 0.1);
             }
-            
-            // Отрисовка внешних краев линз поверх всего
-            vec4 edge = getLensEdge(vUv, lPos, r, aspect, i);
-            finalColor.rgb += edge.rgb * edge.a;
         }
-        gl_FragColor = vec4(finalColor.rgb, 1.0);
+
+        // 2. Вторым проходом рисуем все ободки ПОВЕРХ преломленного изображения
+        for (int i = 0; i < 3; i++) {
+            vec4 edge = getLensEdge(vUv, uLenses[i].xy, uLenses[i].z, aspect, i);
+            color.rgb = mix(color.rgb, edge.rgb, edge.a);
+            
+            // Также проверяем, не видны ли края других линз СКВОЗЬ текущую (преломленные края)
+            for (int j = 0; j < 3; j++) {
+                if (i != j) {
+                   vec4 innerEdge = getLensEdge(currentUv, uLenses[j].xy, uLenses[j].z, aspect, j);
+                   color.rgb = mix(color.rgb, innerEdge.rgb, innerEdge.a * 0.5);
+                }
+            }
+        }
+
+        gl_FragColor = vec4(color.rgb, 1.0);
     }
 </script>
 
@@ -115,15 +121,21 @@ function resize() {
 window.addEventListener('resize', resize); resize();
 
 const texCanv = document.createElement('canvas');
-texCanv.width = 2048; texCanv.height = 2048;
+texCanv.width = 1024; texCanv.height = 1024;
 const tCtx = texCanv.getContext('2d');
-const grad = tCtx.createLinearGradient(0, 0, 0, 2048);
-grad.addColorStop(0, '#686878'); grad.addColorStop(1, '#030303'); 
-tCtx.fillStyle = grad; tCtx.fillRect(0, 0, 2048, 2048);
-tCtx.fillStyle = 'white'; tCtx.font = '900 240px sans-serif';
-tCtx.textAlign = 'center'; tCtx.globalAlpha = 0.3; tCtx.fillText('IPHONE 16', 1024, 1024);
+const grad = tCtx.createLinearGradient(0, 0, 0, 1024);
+grad.addColorStop(0, '#555565'); grad.addColorStop(1, '#050505'); 
+tCtx.fillStyle = grad; tCtx.fillRect(0, 0, 1024, 1024);
+tCtx.fillStyle = 'white'; tCtx.font = '900 120px sans-serif';
+tCtx.textAlign = 'center'; tCtx.globalAlpha = 0.2; tCtx.fillText('IPHONE 16', 512, 512);
 
-const createS = (t, s) => { const sh = gl.createShader(t); gl.shaderSource(sh, s); gl.compileShader(sh); return sh; };
+const createS = (t, s) => { 
+    const sh = gl.createShader(t); 
+    gl.shaderSource(sh, s); 
+    gl.compileShader(sh); 
+    if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) console.error(gl.getShaderInfoLog(sh));
+    return sh; 
+};
 const prog = gl.createProgram();
 gl.attachShader(prog, createS(gl.VERTEX_SHADER, document.getElementById('vs').text));
 gl.attachShader(prog, createS(gl.FRAGMENT_SHADER, document.getElementById('fs').text));
@@ -139,16 +151,17 @@ const tex = gl.createTexture();
 gl.bindTexture(gl.TEXTURE_2D, tex);
 gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texCanv);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
 const uL = gl.getUniformLocation(prog, "uLenses");
 const uR = gl.getUniformLocation(prog, "uResolution");
 
 function draw() {
-    // Строго зафиксированные базовые точки
     gl.uniform3fv(uL, [
-        0.85, 0.15, 0.345, // Верхняя правая
-        0.15, 0.5,  0.345, // Средняя левая
-        0.85, 0.85, 0.345  // Нижняя правая
+        0.85, 0.15, 0.345, 
+        0.15, 0.5,  0.345, 
+        0.85, 0.85, 0.345  
     ]);
     gl.uniform2f(uR, canvas.width, canvas.height);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
