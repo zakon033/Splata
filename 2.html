@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { margin: 0; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        canvas { filter: saturate(1.2); } /* Чуть добавим сочности цветам */
+    </style>
+</head>
+<body>
+
+<canvas id="lensCanvas"></canvas>
+
+<script>
+const canvas = document.getElementById('lensCanvas');
+const ctx = canvas.getContext('2d');
+
+const width = 800;
+const height = 600;
+canvas.width = width;
+canvas.height = height;
+
+const bgCanvas = document.createElement('canvas');
+bgCanvas.width = width;
+bgCanvas.height = height;
+const bgCtx = bgCanvas.getContext('2d');
+
+// 1. РИСУЕМ ФОН (Текст и градиент)
+function drawBackground() {
+    const grad = bgCtx.createLinearGradient(0, 0, width, height);
+    grad.addColorStop(0, '#1a0033');
+    grad.addColorStop(0.5, '#c1272d');
+    grad.addColorStop(1, '#4a148c');
+    bgCtx.fillStyle = grad;
+    bgCtx.fillRect(0, 0, width, height);
+    
+    bgCtx.fillStyle = 'white';
+    bgCtx.font = '900 120px -apple-system, sans-serif';
+    bgCtx.textAlign = 'center';
+    bgCtx.textBaseline = 'middle';
+    bgCtx.globalAlpha = 0.5;
+    bgCtx.fillText('IPHONE 16', width/2, height/2);
+    bgCtx.globalAlpha = 1.0;
+}
+
+// 2. НАСТРОЙКА ТРЕХ ЛИНЗ
+const lenses = [
+    { x: 200, y: 200, r: 130, sx: 1.5, sy: 1.2 },
+    { x: 600, y: 400, r: 110, sx: -1.2, sy: -1.5 },
+    { x: 400, y: 300, r: 150, sx: 0.8, sy: -1.0 }
+];
+
+function render() {
+    // Очистка и отрисовка базового фона
+    ctx.drawImage(bgCanvas, 0, 0);
+
+    lenses.forEach(lens => {
+        // Движение
+        lens.x += lens.sx;
+        lens.y += lens.sy;
+        if (lens.x < 100 || lens.x > width - 100) lens.sx *= -1;
+        if (lens.y < 100 || lens.y > height - 100) lens.sy *= -1;
+
+        const x = Math.floor(lens.x);
+        const y = Math.floor(lens.y);
+        const r = lens.r;
+
+        // --- ЭФФЕКТ ПРЕЛОМЛЕНИЯ ---
+        // Берем область чуть больше радиуса для сглаживания
+        const step = 2; // Шаг пикселей (2 для скорости, 1 для идеального качества)
+        for (let i = -r; i < r; i += step) {
+            for (let j = -r; j < r; j += step) {
+                const dist = Math.sqrt(i * i + j * j);
+                if (dist < r) {
+                    // Математика выпуклой линзы
+                    const refraction = Math.pow(dist / r, 0.65);
+                    const sourceX = x + i * refraction;
+                    const sourceY = y + j * refraction;
+                    ctx.drawImage(bgCanvas, sourceX, sourceY, step, step, x + i, y + j, step, step);
+                }
+            }
+        }
+
+        // --- ВИЗУАЛЬНЫЕ СЛОИ (ГРАДИЕНТЫ) ---
+        
+        // 1 слой: Мягкое голубое свечение внутри (растянуто)
+        const blueGrad = ctx.createRadialGradient(x, y, 0, x, y, r);
+        blueGrad.addColorStop(0, 'rgba(0, 150, 255, 0)');      // Прозрачно в центре
+        blueGrad.addColorStop(0.6, 'rgba(0, 100, 255, 0.1)'); // Проявляется к краям
+        blueGrad.addColorStop(0.95, 'rgba(0, 180, 255, 0.4)'); // Насыщенный голубой у края
+        blueGrad.addColorStop(1, 'rgba(0, 180, 255, 0)');     // Резко в прозрачность
+        
+        ctx.fillStyle = blueGrad;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 2 слой: Тонкая белая линия (градиент в прозрачность)
+        const whiteEdge = ctx.createRadialGradient(x, y, r - 3, x, y, r + 1);
+        whiteEdge.addColorStop(0, 'rgba(255, 255, 255, 0)');   // Прозрачно внутри
+        whiteEdge.addColorStop(0.5, 'rgba(255, 255, 255, 0.8)'); // Четкая белая линия
+        whiteEdge.addColorStop(1, 'rgba(255, 255, 255, 0)');   // Уходит в прозрачность наружу
+        
+        ctx.fillStyle = whiteEdge;
+        ctx.beginPath();
+        ctx.arc(x, y, r + 1, 0, Math.PI * 2);
+        ctx.fill();
+    });
+
+    requestAnimationFrame(render);
+}
+
+drawBackground();
+render();
+</script>
+
+</body>
+</html>
