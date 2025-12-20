@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>iPhone 16 - Extreme Optical Engine</title>
+    <title>iPhone 16 - Final Optical Engine</title>
     <style>
         body { margin: 0; background: #030303; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
         canvas { display: block; width: 100vw; height: 100vh; touch-action: manipulation; }
@@ -30,7 +31,6 @@
     uniform vec3 uLenses[3];
     uniform vec2 uResolution;
 
-    // Функция отрисовки светящегося края
     vec4 getLensEdge(vec2 uv, vec2 pos, float r, vec2 aspect) {
         float d = length((uv - pos) * aspect);
         float whiteRing = smoothstep(0.0035, 0.0, abs(d - r));
@@ -55,43 +55,36 @@
                 float distortion;
                 float aberration = 0.0;
 
-                // 1. УСИЛЕННАЯ ЛОГИКА ПРЕЛОМЛЕНИЯ
+                // ГИПЕР-ОПТИКА: Инверсия на 18% края
                 if (normD < 0.82) {
-                    // Глубокое увеличение в центре
                     distortion = pow(normD, 0.55); 
                 } else {
-                    // Экстремальный выворот на краях (инверсия)
                     float edgeFactor = (normD - 0.82) / 0.18;
                     distortion = 0.89 - pow(edgeFactor, 1.2) * 0.45; 
-                    // Сильное расслоение цвета (хроматика)
                     aberration = edgeFactor * 0.025;
                 }
 
-                // 2. ВЫБОРКА ЦВЕТА С АБЕРРАЦИЕЙ
                 vec2 uvBase = lPos + (vUv - lPos) * (distortion / normD);
+                
+                // Хроматическая аберрация (радужный край)
                 float rChan = texture2D(uTexture, uvBase + aberration * 1.2).r;
                 float gChan = texture2D(uTexture, uvBase).g;
                 float bChan = texture2D(uTexture, uvBase - aberration * 0.8).b;
                 
                 finalColor = vec4(rChan, gChan, bChan, 1.0);
 
-                // 3. ИЕРАРХИЯ: Прорисовка нижних линз внутри текущей
+                // Иерархия: линзы преломляют друг друга
                 for (int j = 0; j < 3; j++) {
                     if (j < i) {
                         vec4 prevEdge = getLensEdge(uvBase, uLenses[j].xy, uLenses[j].z, aspect);
                         finalColor.rgb += prevEdge.rgb * prevEdge.a;
                     }
                 }
-                
-                // Эффект плотного стекла
                 finalColor.rgb = mix(finalColor.rgb, vec3(0.3, 0.4, 0.5), 0.12);
             }
-
-            // 4. ФИНАЛЬНЫЙ ОБОДОК
             vec4 currentEdge = getLensEdge(vUv, lPos, r, aspect);
             finalColor.rgb += currentEdge.rgb * currentEdge.a;
         }
-        
         gl_FragColor = vec4(finalColor.rgb, 1.0);
     }
 </script>
@@ -111,18 +104,28 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
-// Создание фона с вашими HEX-кодами
 const texCanv = document.createElement('canvas');
 texCanv.width = 2048; texCanv.height = 2048;
 const tCtx = texCanv.getContext('2d');
 
 function drawBgTexture() {
+    // 1. Отрисовка вашего градиента
     const grad = tCtx.createLinearGradient(0, 0, 0, 2048);
-    grad.addColorStop(0, '#686878'); // ВАШ ВЕРХНИЙ
-    grad.addColorStop(1, '#030303'); // ВАШ НИЖНИЙ
+    grad.addColorStop(0, '#686878'); // ВЕРХ
+    grad.addColorStop(1, '#030303'); // НИЗ
     tCtx.fillStyle = grad; 
     tCtx.fillRect(0, 0, 2048, 2048);
     
+    // 2. Добавление "маркеров" для визуализации преломления
+    // Это мелкие пылинки, которые будут закручиваться линзой
+    tCtx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    for(let i = 0; i < 400; i++) {
+        tCtx.beginPath();
+        tCtx.arc(Math.random()*2048, Math.random()*2048, 1.5, 0, Math.PI*2);
+        tCtx.fill();
+    }
+
+    // 3. Текст
     tCtx.fillStyle = 'white'; 
     tCtx.font = '900 220px sans-serif';
     tCtx.textAlign = 'center';
@@ -159,7 +162,6 @@ const uR = gl.getUniformLocation(prog, "uResolution");
 
 const UNIFORM_RADIUS = 0.345;
 
-// Конфигурация якорных точек
 const lenses = [
     { baseX: 0.85, baseY: 0.15, x: 0.85, y: 0.15, r: UNIFORM_RADIUS, angle: 0, speed: 0.005, range: 0.1 },
     { baseX: 0.15, baseY: 0.5, x: 0.15, y: 0.5, r: UNIFORM_RADIUS, angle: 2, speed: 0.004, range: 0.1 },
@@ -170,12 +172,10 @@ function draw() {
     const flat = [];
     lenses.forEach(l => {
         l.angle += l.speed;
-        // Очень медленное и компактное движение
         l.x = l.baseX + Math.cos(l.angle) * l.range * 0.4;
         l.y = l.baseY + Math.sin(l.angle * 1.1) * l.range * 0.4;
         flat.push(l.x, l.y, l.r);
     });
-
     gl.uniform3fv(uL, flat);
     gl.uniform2f(uR, width, height);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
