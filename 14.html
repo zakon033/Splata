@@ -6,92 +6,125 @@
 <title>Переказ коштів</title>
 
 <style>
-/* =========================
-   ПОЛНОЕ ВОССТАНОВЛЕНИЕ ТВОИХ ГРАНИЦ
-========================= */
+/* 1. БАЗОВЫЕ СТИЛИ - ТОЧНО КАК БЫЛО */
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html { background-color: #030303; }
 body {
-  margin: 0; padding: 0; width: 100%; min-height: 100vh;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
-  color: #ffffff; background: transparent !important;
+    margin: 0; padding: 0; width: 100%; min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
+    color: #ffffff; background: transparent !important; overflow-x: hidden;
 }
 
 #bgCanvas {
-  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
-  z-index: -1; display: block; pointer-events: none;
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: -1; display: block; pointer-events: none;
 }
 
 .container {
-  max-width: 420px; width: 100%; margin: 0 auto; position: relative;
-  z-index: 10; padding: 60px 20px; text-align: center;
+    max-width: 420px; width: 100%; margin: 0 auto; position: relative;
+    z-index: 10; padding: calc(60px + env(safe-area-inset-top)) 20px 80px; 
+    text-align: center;
 }
 
-h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
 .subtitle { font-size: 22px; opacity: 0.9; margin-bottom: 30px; }
 
-/* КНОПКИ С ЧЕТКИМИ ГРАНИЦАМИ */
+/* 2. КНОПКИ - ВЕРНУЛ ВСЕ ЛИНИИ И ГРАНИЦЫ */
 .btn {
-  position: relative; overflow: hidden; display: flex; align-items: center; 
-  width: 100%; height: 80px; padding: 0 12px; margin-bottom: 15px; 
-  
-  /* ТВОЯ СТРУКТУРА */
-  background-color: rgba(255, 255, 255, 0.1); 
-  border: 1.5px solid rgba(255, 255, 255, 0.2); /* Усиленная видимость границы */
-  border-radius: 70px;
-  
-  backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-  color: #fff; text-decoration: none; font-size: 22px; font-weight: 500;
-  transition: transform 0.1s, background-color 0.2s; cursor: pointer;
-  opacity: 0; animation: fadeInUp 0.5s ease-out forwards;
+    position: relative; overflow: hidden; display: flex; align-items: center; 
+    width: 100%; height: 80px; padding: 0 12px; margin-bottom: 15px; 
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    background-color: rgba(255, 255, 255, 0.1); 
+    border: 1px solid rgba(255, 255, 255, 0.1); 
+    border-radius: 70px; color: #fff; text-decoration: none; font-size: 22px; font-weight: 500;
+    transition: transform 0.1s, background-color 0.2s; cursor: pointer;
+    opacity: 0; animation: fadeInUp 0.5s ease-out forwards;
 }
 
-.btn.clicked { transform: scale(0.97); background-color: rgba(46, 204, 113, 0.3); }
+/* Те самые полоски сверху и снизу внутри кнопки */
+.btn::before, .btn::after {
+    content: ''; position: absolute; left: 0; width: 100%; height: 1px; z-index: 1;
+}
+.btn::before { top: 0; background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent); }
+.btn::after { bottom: 0; background: linear-gradient(to right, transparent, rgba(255,255,255,0.05), transparent); }
 
+.btn.clicked { transform: scale(0.96); background-color: rgba(46, 204, 113, 0.3); }
+
+.btn img { display: block; }
 .btn-full-logo { justify-content: center; }
-.btn-full-logo img { height: 38px; width: auto; }
+.btn-full-logo img { height: 38px; width: auto; max-width: 80%; object-fit: contain; }
+.btn-pay-small img { height: 26px !important; }
 .btn-with-text { justify-content: flex-start; }
-.btn-icon { width: 54px; margin-right: 12px; display: flex; justify-content: center; }
-.btn-icon img { width: 100%; height: auto; }
-.btn-text { flex-grow: 1; text-align: left; }
+
+.btn-icon, .btn-icon-right {
+    width: 54px; height: 100%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.btn-icon { margin-right: 12px; }
+.btn-icon-right { margin-left: 12px; }
+.btn-icon img, .btn-icon-right img { width: 100%; height: auto; max-height: 48px; }
+
+.btn-text { flex-grow: 1; text-align: left; white-space: nowrap; }
 
 .card-number-font {
     font-family: 'Consolas', monospace; font-size: 24px; letter-spacing: 1px;
-    text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.8);
+    text-shadow: -1px -1px 2px rgba(255,255,255,0.2), 1px 1px 2px rgba(0,0,0,0.8);
 }
 
-/* УВЕДОМЛЕНИЕ С ТАКОЙ ЖЕ ГРАНИЦЕЙ */
+/* 3. УВЕДОМЛЕНИЕ - ВОССТАНОВЛЕНО */
 #copy-toast {
     position: fixed; top: 50%; left: 50%; transform: translate(-50%, -150%);
     padding: 18px 36px; border-radius: 70px;
-    background-color: rgba(0, 0, 0, 0.6);
-    border: 1.5px solid rgba(255, 255, 255, 0.3); /* Граница восстановлена */
+    background-color: rgba(255, 255, 255, 0.1); 
     backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-    font-size: 22px; font-weight: 600; color: #ffffff; 
-    z-index: 1000; opacity: 0; pointer-events: none; transition: 0.4s;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 22px; font-weight: 600; color: #fff; 
+    z-index: 1000; opacity: 0; pointer-events: none; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-#copy-toast.show { opacity: 1; transform: translate(-50%, -50%); }
+#copy-toast.show { opacity: 1; transform: translate(-50%, -50%); background-color: rgba(46, 204, 113, 0.2); }
 
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; } }
+
+/* Задержки анимации */
+.btn:nth-child(n) { animation-delay: calc(0.05s * (n - 2)); }
 </style>
 </head>
 
 <body>
-<canvas id="bgCanvas"></canvas>
-<div class="container">
-  <h1>💳 Переказати кошти</h1>
-  <div class="subtitle">Оберіть зручний спосіб</div>
 
-  <a class="btn btn-full-logo" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)"><img src="img/monobank.svg"></a>
-  <a class="btn btn-full-logo" data-href="https://www.privat24.ua/send/id4xg" onclick="handleLinkClick(this)"><img src="img/PrivatBank.svg"></a>
-  <div class="btn btn-full-logo" onclick="handleCopyClick(this, '4441114459954077')"><span class="card-number-font">4441 •••• •••• 4077</span></div>
-  
-  <a class="btn btn-with-text" data-href="https://app.binance.com/uni-qr/LXViL5Hb" onclick="handleLinkClick(this)">
-    <div class="btn-icon"><img src="img/bnb.svg"></div><span class="btn-text">Binance Pay</span>
-  </a>
-  <div class="btn btn-with-text" onclick="handleCopyClick(this, 'TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh')">
-    <div class="btn-icon"><img src="img/usdt.svg"></div><span class="btn-text">USDT (Tether)</span>
-  </div>
+<canvas id="bgCanvas"></canvas>
+
+<div class="container">
+    <h1>💳 Переказати кошти</h1>
+    <div class="subtitle">Оберіть зручний спосіб</div>
+
+    <a class="btn btn-full-logo" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)"><img src="img/monobank.svg"></a>
+    <a class="btn btn-full-logo" data-href="https://www.privat24.ua/send/id4xg" onclick="handleLinkClick(this)"><img src="img/PrivatBank.svg"></a>
+    <div class="btn btn-full-logo" onclick="handleCopyClick(this, '4441114459954077')"><span class="card-number-font">4441 •••• •••• 4077</span></div>
+    
+    <a class="btn btn-full-logo btn-pay-small" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)"><img src="img/apple_pay.svg"></a>
+    <a class="btn btn-full-logo btn-pay-small" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)"><img src="img/google_pay.svg"></a>
+
+    <a class="btn btn-with-text" data-href="https://app.binance.com/uni-qr/LXViL5Hb" onclick="handleLinkClick(this)">
+        <div class="btn-icon"><img src="img/bnb.svg"></div><span class="btn-text">Binance Pay</span>
+    </a>
+    <div class="btn btn-with-text" onclick="handleCopyClick(this, 'bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp')">
+        <div class="btn-icon"><img src="img/btc.svg"></div><span class="btn-text">Bitcoin (BTC)</span>
+    </div>
+    <div class="btn btn-with-text" onclick="handleCopyClick(this, '0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
+        <div class="btn-icon"><img src="img/eth.svg"></div><span class="btn-text">Ethereum (ETH)</span>
+    </div>
+    <div class="btn btn-with-text" onclick="handleCopyClick(this, 'TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh')">
+        <div class="btn-icon"><img src="img/usdt.svg"></div><span class="btn-text">USDT (Tether)</span>
+    </div>
+    <div class="btn btn-with-text" onclick="handleCopyClick(this, 'EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7')">
+        <div class="btn-icon"><img src="img/sol.svg"></div><span class="btn-text">Solana (SOL)</span>
+    </div>
+    <div class="btn btn-with-text" onclick="handleCopyClick(this, '0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
+        <div class="btn-icon"><img src="img/usdc.svg"></div><span class="btn-text">USDC (Polygon)</span>
+    </div>
+    <a class="btn btn-with-text" data-href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9" onclick="handleLinkClick(this)">
+        <div class="btn-icon"><img src="img/usdc.svg"></div><span class="btn-text">USDC (Polygon) Trust</span><div class="btn-icon-right"><img src="img/trust.svg"></div>
+    </a>
 </div>
 
 <div id="copy-toast">Скопійовано!</div>
@@ -105,22 +138,37 @@ h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
     precision highp float;
     varying vec2 vUv; uniform vec2 uResolution; uniform float uTime; uniform vec3 uLenses[3];
 
+    vec3 getLensColor(float t, float y) {
+        vec3 c1 = vec3(0.0, 0.6, 1.0); vec3 c2 = vec3(1.0, 0.4, 0.0); vec3 c3 = vec3(0.4, 1.0, 0.0);
+        float w1 = sin(t*0.5)*0.5+0.5; float w2 = sin(t*0.5+2.1)*0.5+0.5; float w3 = sin(t*0.5+4.2)*0.5+0.5;
+        return (c1*w1 + c2*w2 + c3*w3)/(w1+w2+w3);
+    }
+
     void main() {
         vec2 aspect = vec2(uResolution.x / uResolution.y, 1.0);
-        vec3 bgColor = mix(vec3(0.08, 0.1, 0.18), vec3(0.01), vUv.y);
+        vec3 bgColor = mix(vec3(0.1, 0.12, 0.23), vec3(0.01), vUv.y);
         vec3 finalColor = bgColor;
 
         for (int i = 0; i < 3; i++) {
             vec2 lPos = uLenses[i].xy; float r = uLenses[i].z;
             vec2 distVec = (vUv - lPos) * aspect; float d = length(distVec);
+
             if (d < r) {
                 float normD = d / r;
-                float distortion = pow(normD, 0.8);
-                vec2 uvBase = lPos + (vUv - lPos) * (distortion / (normD + 0.001));
-                finalColor = mix(vec3(0.1, 0.15, 0.3), vec3(0.01), uvBase.y) + 0.05;
+                float distortion = (normD < 0.85) ? pow(normD, 0.85) : 0.88 - pow((normD - 0.85)/0.15, 1.5)*0.45;
+                float chroma = (normD > 0.85) ? (normD - 0.85)*0.04 : 0.0;
+                vec2 uvBase = lPos + (vUv - lPos) * (distortion / (normD + 0.0001));
+                
+                finalColor.r = mix(vec3(0.1, 0.12, 0.23), vec3(0.01), clamp(uvBase.y + chroma, 0.0, 1.0)).r;
+                finalColor.g = mix(vec3(0.1, 0.12, 0.23), vec3(0.01), uvBase.y).g;
+                finalColor.b = mix(vec3(0.1, 0.12, 0.23), vec3(0.01), clamp(uvBase.y - chroma, 0.0, 1.0)).b;
+                finalColor += 0.04;
             }
-            float edge = smoothstep(0.004, 0.0, abs(d - r));
-            finalColor = mix(finalColor, vec3(1.0), edge * 0.5);
+            float edge = smoothstep(0.003, 0.0, abs(d - r));
+            float glow = smoothstep(0.04, 0.0, abs(d - r)) * 0.6;
+            if (d > r) glow = 0.0;
+            finalColor = mix(finalColor, vec3(1.0), edge);
+            finalColor += getLensColor(uTime, vUv.y) * glow;
         }
         gl_FragColor = vec4(finalColor, 1.0);
     }
@@ -151,13 +199,13 @@ gl.enableVertexAttribArray(pLoc); gl.vertexAttribPointer(pLoc, 2, gl.FLOAT, fals
 const uL = gl.getUniformLocation(prog, "uLenses"), uR = gl.getUniformLocation(prog, "uResolution"), uT = gl.getUniformLocation(prog, "uTime");
 const lenses = [{bx:0.8, by:0.2, t:0}, {bx:0.2, by:0.5, t:2}, {bx:0.7, by:0.8, t:4}];
 let time = 0;
-
 function render() {
     time += 0.01; const flat = [];
     lenses.forEach(l => {
-        l.t += 0.005;
-        const dx = Math.sin(l.t)*0.1; const dy = Math.cos(l.t*0.8)*0.1;
-        flat.push(l.bx + dx, l.by + dy, 0.4);
+        l.t += 0.008;
+        const dx = (Math.sin(l.t*0.8)+Math.cos(l.t*1.3))*0.15;
+        const dy = (Math.cos(l.t*0.9)+Math.sin(l.t*1.1))*0.15;
+        flat.push(l.bx + dx, l.by + dy, 0.45);
     });
     gl.uniform3fv(uL, flat); gl.uniform2f(uR, w, h); gl.uniform1f(uT, time);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
@@ -165,7 +213,11 @@ function render() {
 }
 render();
 
-function handleLinkClick(el) { el.classList.add('clicked'); setTimeout(() => window.location.href = el.dataset.href, 200); }
+// ЛОГИКА
+function handleLinkClick(el) { 
+    el.classList.add('clicked'); 
+    setTimeout(() => window.location.href = el.getAttribute('data-href'), 150); 
+}
 function handleCopyClick(el, txt) {
     el.classList.add('clicked');
     navigator.clipboard.writeText(txt).then(() => {
