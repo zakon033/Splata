@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>iPhone 16 - Fast Lens Drift</title>
+    <title>iPhone 16 - Pure Gradient Background</title>
     <style>
         body { margin: 0; background: #030303; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
         canvas { display: block; width: 100vw; height: 100vh; touch-action: manipulation; }
@@ -116,25 +116,16 @@ window.addEventListener('resize', resize);
 resize();
 
 const texCanv = document.createElement('canvas');
-texCanv.width = 2048; texCanv.height = 2048;
+texCanv.width = 1024; texCanv.height = 1024;
 const tCtx = texCanv.getContext('2d');
 
 function drawBgTexture() {
-    const grad = tCtx.createLinearGradient(0, 0, 0, 2048);
+    // Чистый линейный градиент без дополнений
+    const grad = tCtx.createLinearGradient(0, 0, 0, 1024);
     grad.addColorStop(0, '#686878'); 
     grad.addColorStop(1, '#030303'); 
     tCtx.fillStyle = grad; 
-    tCtx.fillRect(0, 0, 2048, 2048);
-    
-    for(let i = 0; i < 20; i++) {
-        const x = Math.random() * 2048, y = Math.random() * 2048, r = 300 + Math.random() * 600;
-        const g = tCtx.createRadialGradient(x, y, 0, x, y, r);
-        g.addColorStop(0, 'rgba(255, 255, 255, 0.07)');
-        g.addColorStop(1, 'rgba(255, 255, 255, 0)');
-        tCtx.fillStyle = g; tCtx.fillRect(0, 0, 2048, 2048);
-    }
-    tCtx.fillStyle = 'white'; tCtx.font = '900 260px sans-serif';
-    tCtx.textAlign = 'center'; tCtx.globalAlpha = 0.25; tCtx.fillText('IPHONE 16', 1024, 1024);
+    tCtx.fillRect(0, 0, 1024, 1024);
 }
 drawBgTexture();
 
@@ -175,7 +166,7 @@ const lenses = [
 function draw() {
     const flat = [];
     lenses.forEach(l => {
-        l.t += 0.004; // СКОРОСТЬ УВЕЛИЧЕНА (с 0.002 до 0.004)
+        l.t += 0.004; 
         const dx = (Math.sin(l.t * 0.8) + Math.cos(l.t * 1.5) + Math.sin(l.t * 0.4)) / 3.0;
         const dy = (Math.cos(l.t * 0.7) + Math.sin(l.t * 1.2) + Math.cos(l.t * 0.5)) / 3.0;
         flat.push(l.baseX + dx * l.range, l.baseY + dy * l.range, UNIFORM_RADIUS);
