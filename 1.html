@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>iPhone 16 Lens - Uniform Large Radius</title>
+    <title>iPhone 16 Lens - Anchored Composition</title>
     <style>
-        body { margin: 0; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        body { margin: 0; background: #030303; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
         canvas { display: block; width: 100vw; height: 100vh; touch-action: manipulation; }
     </style>
 </head>
@@ -32,14 +32,10 @@
 
     vec4 getLensEdge(vec2 uv, vec2 pos, float r, vec2 aspect) {
         float d = length((uv - pos) * aspect);
-        // Белый резкий центр кольца
         float whiteRing = smoothstep(0.003, 0.0, abs(d - r));
-        // Голубое свечение вокруг
         float blueGlow = smoothstep(0.02, 0.0, abs(d - r));
-        
-        vec3 color = mix(vec3(0.0, 0.4, 1.0), vec3(1.0), whiteRing);
+        vec3 color = mix(vec3(0.1, 0.4, 1.0), vec3(1.0), whiteRing);
         float alpha = max(whiteRing, blueGlow * 0.7);
-        
         return vec4(color, alpha);
     }
 
@@ -53,10 +49,8 @@
             float d = length((vUv - lPos) * aspect);
 
             if (d < r) {
-                // Преломление: чем больше линза, тем эффектнее смотрится pow(d/r)
                 float refr = pow(d / r, 0.65);
                 vec2 distortedUv = lPos + (vUv - lPos) * refr;
-
                 finalColor = texture2D(uTexture, distortedUv);
 
                 for (int j = 0; j < 3; j++) {
@@ -65,13 +59,11 @@
                         finalColor.rgb += prevEdge.rgb * prevEdge.a;
                     }
                 }
-                finalColor.rgb = mix(finalColor.rgb, vec3(0.4, 0.6, 1.0), 0.08);
+                finalColor.rgb = mix(finalColor.rgb, vec3(0.3, 0.3, 0.4), 0.1);
             }
-
             vec4 currentEdge = getLensEdge(vUv, lPos, r, aspect);
             finalColor.rgb += currentEdge.rgb * currentEdge.a;
         }
-        
         gl_FragColor = vec4(finalColor.rgb, 1.0);
     }
 </script>
@@ -94,11 +86,20 @@ resize();
 const texCanv = document.createElement('canvas');
 texCanv.width = 2048; texCanv.height = 2048;
 const tCtx = texCanv.getContext('2d');
-const grad = tCtx.createLinearGradient(0, 0, 2048, 2048);
-grad.addColorStop(0, '#0f001a'); grad.addColorStop(0.5, '#a1181d'); grad.addColorStop(1, '#2a0845');
-tCtx.fillStyle = grad; tCtx.fillRect(0, 0, 2048, 2048);
-tCtx.fillStyle = 'rgba(255,255,255,0.7)'; tCtx.font = '900 180px sans-serif';
-tCtx.textAlign = 'center'; tCtx.fillText('IPHONE 16', 1024, 1024);
+
+function drawBgTexture() {
+    const grad = tCtx.createLinearGradient(0, 0, 0, 2048);
+    grad.addColorStop(0, '#686878'); 
+    grad.addColorStop(1, '#030303'); 
+    tCtx.fillStyle = grad; 
+    tCtx.fillRect(0, 0, 2048, 2048);
+    tCtx.fillStyle = 'white'; 
+    tCtx.font = '900 220px sans-serif';
+    tCtx.textAlign = 'center';
+    tCtx.globalAlpha = 0.25; 
+    tCtx.fillText('IPHONE 16', 1024, 1024);
+}
+drawBgTexture();
 
 function createShader(gl, type, source) {
     const s = gl.createShader(type);
@@ -122,29 +123,53 @@ const tex = gl.createTexture();
 gl.bindTexture(gl.TEXTURE_2D, tex);
 gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texCanv);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
 const uL = gl.getUniformLocation(prog, "uLenses");
 const uR = gl.getUniformLocation(prog, "uResolution");
 
-// УСТАНОВКА РАДИУСА: 0.23 * 1.5 = 0.345
 const UNIFORM_RADIUS = 0.345;
 
+// Базовые точки и параметры движения
 const lenses = [
-    { x: 0.3, y: 0.4, r: UNIFORM_RADIUS, sx: 0.0012, sy: 0.0008 },
-    { x: 0.7, y: 0.6, r: UNIFORM_RADIUS, sx: -0.001, sy: -0.0014 },
-    { x: 0.5, y: 0.5, r: UNIFORM_RADIUS, sx: 0.0007, sy: -0.0009 }
+    { 
+        baseX: 0.9, baseY: 0.1, // Верхний правый
+        x: 0.9, y: 0.1, 
+        r: UNIFORM_RADIUS, 
+        angle: 0, 
+        speed: 0.015, 
+        range: 0.15 // Амплитуда (около 15-20% экрана)
+    },
+    { 
+        baseX: 0.1, baseY: 0.5, // Лево по центру
+        x: 0.1, y: 0.5, 
+        r: UNIFORM_RADIUS, 
+        angle: 2, 
+        speed: 0.012, 
+        range: 0.15 
+    },
+    { 
+        baseX: 0.9, baseY: 0.9, // Нижний правый
+        x: 0.9, y: 0.9, 
+        r: UNIFORM_RADIUS, 
+        angle: 4, 
+        speed: 0.018, 
+        range: 0.15 
+    }
 ];
 
 function draw() {
     const flat = [];
+    const time = Date.now() * 0.001;
+
     lenses.forEach(l => {
-        l.x += l.sx; l.y += l.sy;
-        // Отскок с учетом увеличенного радиуса, чтобы линзы не улетали слишком далеко
-        if(l.x < 0.1 || l.x > 0.9) l.sx *= -1;
-        if(l.y < 0.1 || l.y > 0.9) l.sy *= -1;
+        // Движение по плавной траектории вокруг базовой точки
+        l.angle += l.speed;
+        l.x = l.baseX + Math.cos(l.angle) * l.range * 0.5;
+        l.y = l.baseY + Math.sin(l.angle * 0.8) * l.range * 0.5;
+        
         flat.push(l.x, l.y, l.r);
     });
+
     gl.uniform3fv(uL, flat);
     gl.uniform2f(uR, width, height);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
