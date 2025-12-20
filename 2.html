@@ -3,7 +3,7 @@
 <head>
     <style>
         body { margin: 0; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        canvas { filter: saturate(1.2); } /* Чуть добавим сочности цветам */
+        canvas { width: 800px; height: 600px; } /* Визуальный размер */
     </style>
 </head>
 <body>
@@ -12,20 +12,29 @@
 
 <script>
 const canvas = document.getElementById('lensCanvas');
-const ctx = canvas.getContext('2d');
+const ctx = canvas.getContext('2d', { alpha: false });
 
+// Поддержка высокого разрешения (Retina)
+const dpr = window.devicePixelRatio || 2;
 const width = 800;
 const height = 600;
-canvas.width = width;
-canvas.height = height;
+canvas.width = width * dpr;
+canvas.height = height * dpr;
+ctx.scale(dpr, dpr);
 
 const bgCanvas = document.createElement('canvas');
-bgCanvas.width = width;
-bgCanvas.height = height;
+bgCanvas.width = canvas.width;
+bgCanvas.height = canvas.height;
 const bgCtx = bgCanvas.getContext('2d');
+bgCtx.scale(dpr, dpr);
 
-// 1. РИСУЕМ ФОН (Текст и градиент)
-function drawBackground() {
+// Буфер кадра
+const tempCanvas = document.createElement('canvas');
+tempCanvas.width = canvas.width;
+tempCanvas.height = canvas.height;
+const tCtx = tempCanvas.getContext('2d');
+
+function drawStaticBackground() {
     const grad = bgCtx.createLinearGradient(0, 0, width, height);
     grad.addColorStop(0, '#1a0033');
     grad.addColorStop(0.5, '#c1272d');
@@ -34,82 +43,121 @@ function drawBackground() {
     bgCtx.fillRect(0, 0, width, height);
     
     bgCtx.fillStyle = 'white';
-    bgCtx.font = '900 120px -apple-system, sans-serif';
+    bgCtx.font = '900 120px sans-serif';
     bgCtx.textAlign = 'center';
     bgCtx.textBaseline = 'middle';
     bgCtx.globalAlpha = 0.5;
     bgCtx.fillText('IPHONE 16', width/2, height/2);
-    bgCtx.globalAlpha = 1.0;
 }
 
-// 2. НАСТРОЙКА ТРЕХ ЛИНЗ
 const lenses = [
-    { x: 200, y: 200, r: 130, sx: 1.5, sy: 1.2 },
-    { x: 600, y: 400, r: 110, sx: -1.2, sy: -1.5 },
-    { x: 400, y: 300, r: 150, sx: 0.8, sy: -1.0 }
+    { x: 200, y: 200, r: 140, sx: 1.2, sy: 0.9 },
+    { x: 600, y: 400, r: 120, sx: -1.0, sy: -1.3 },
+    { x: 400, y: 300, r: 160, sx: 0.6, sy: -0.8 }
 ];
 
+// ГЛАВНОЕ: Функция для плавного (билинейного) забора пикселей
+function applySmoothRefraction(lens, sourceCtx) {
+    const x = lens.x;
+    const y = lens.y;
+    const r = lens.r;
+    
+    // Получаем данные пикселей из буфера
+    const sourceData = sourceCtx.getImageData(0, 0, canvas.width, canvas.height);
+    const targetData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const src = sourceData.data;
+    const dst = targetData.data;
+
+    const startX = Math.max(0, Math.floor((x - r) * dpr));
+    const endX = Math.min(canvas.width, Math.ceil((x + r) * dpr));
+    const startY = Math.max(0, Math.floor((y - r) * dpr));
+    const endY = Math.min(canvas.height, Math.ceil((y + r) * dpr));
+
+    for (let py = startY; py < endY; py++) {
+        for (let px = startX; px < endX; px++) {
+            const dx = px / dpr - x;
+            const dy = py / dpr - y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < r) {
+                const refraction = Math.pow(dist / r, 0.6);
+                const sx = (x + dx * refraction) * dpr;
+                const sy = (y + dy * refraction) * dpr;
+
+                // Билинейная интерполяция
+                const x0 = Math.floor(sx);
+                const x1 = Math.min(x0 + 1, canvas.width - 1);
+                const y0 = Math.floor(sy);
+                const y1 = Math.min(y0 + 1, canvas.height - 1);
+                const dx_w = sx - x0;
+                const dy_w = sy - y0;
+
+                const idx = (py * canvas.width + px) * 4;
+                
+                for (let c = 0; c < 4; c++) {
+                    const p00 = src[(y0 * canvas.width + x0) * 4 + c];
+                    const p10 = src[(y0 * canvas.width + x1) * 4 + c];
+                    const p01 = src[(y1 * canvas.width + x0) * 4 + c];
+                    const p11 = src[(y1 * canvas.width + x1) * 4 + c];
+
+                    const val = p00 * (1 - dx_w) * (1 - dy_w) +
+                                p10 * dx_w * (1 - dy_w) +
+                                p01 * (1 - dx_w) * dy_w +
+                                p11 * dx_w * dy_w;
+                    dst[idx + c] = val;
+                }
+            }
+        }
+    }
+    ctx.putImageData(targetData, 0, 0);
+}
+
+function drawLensVfx(lens) {
+    const x = lens.x;
+    const y = lens.y;
+    const r = lens.r;
+
+    // Голубое свечение
+    const blueGrad = ctx.createRadialGradient(x, y, 0, x, y, r);
+    blueGrad.addColorStop(0.6, 'rgba(0, 120, 255, 0)');
+    blueGrad.addColorStop(0.95, 'rgba(0, 180, 255, 0.4)');
+    blueGrad.addColorStop(1, 'rgba(0, 180, 255, 0)');
+    ctx.fillStyle = blueGrad;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Белая кайма (очень тонкая)
+    const whiteEdge = ctx.createRadialGradient(x, y, r - 1.5, x, y, r + 0.5);
+    whiteEdge.addColorStop(0, 'rgba(255, 255, 255, 0)');
+    whiteEdge.addColorStop(0.5, 'rgba(255, 255, 255, 0.8)');
+    whiteEdge.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    ctx.fillStyle = whiteEdge;
+    ctx.beginPath();
+    ctx.arc(x, y, r + 0.5, 0, Math.PI * 2);
+    ctx.fill();
+}
+
 function render() {
-    // Очистка и отрисовка базового фона
-    ctx.drawImage(bgCanvas, 0, 0);
+    ctx.drawImage(bgCanvas, 0, 0, width * dpr, height * dpr, 0, 0, width, height);
 
     lenses.forEach(lens => {
-        // Движение
         lens.x += lens.sx;
         lens.y += lens.sy;
         if (lens.x < 100 || lens.x > width - 100) lens.sx *= -1;
         if (lens.y < 100 || lens.y > height - 100) lens.sy *= -1;
 
-        const x = Math.floor(lens.x);
-        const y = Math.floor(lens.y);
-        const r = lens.r;
+        tCtx.clearRect(0, 0, canvas.width, canvas.height);
+        tCtx.drawImage(canvas, 0, 0);
 
-        // --- ЭФФЕКТ ПРЕЛОМЛЕНИЯ ---
-        // Берем область чуть больше радиуса для сглаживания
-        const step = 2; // Шаг пикселей (2 для скорости, 1 для идеального качества)
-        for (let i = -r; i < r; i += step) {
-            for (let j = -r; j < r; j += step) {
-                const dist = Math.sqrt(i * i + j * j);
-                if (dist < r) {
-                    // Математика выпуклой линзы
-                    const refraction = Math.pow(dist / r, 0.65);
-                    const sourceX = x + i * refraction;
-                    const sourceY = y + j * refraction;
-                    ctx.drawImage(bgCanvas, sourceX, sourceY, step, step, x + i, y + j, step, step);
-                }
-            }
-        }
-
-        // --- ВИЗУАЛЬНЫЕ СЛОИ (ГРАДИЕНТЫ) ---
-        
-        // 1 слой: Мягкое голубое свечение внутри (растянуто)
-        const blueGrad = ctx.createRadialGradient(x, y, 0, x, y, r);
-        blueGrad.addColorStop(0, 'rgba(0, 150, 255, 0)');      // Прозрачно в центре
-        blueGrad.addColorStop(0.6, 'rgba(0, 100, 255, 0.1)'); // Проявляется к краям
-        blueGrad.addColorStop(0.95, 'rgba(0, 180, 255, 0.4)'); // Насыщенный голубой у края
-        blueGrad.addColorStop(1, 'rgba(0, 180, 255, 0)');     // Резко в прозрачность
-        
-        ctx.fillStyle = blueGrad;
-        ctx.beginPath();
-        ctx.arc(x, y, r, 0, Math.PI * 2);
-        ctx.fill();
-
-        // 2 слой: Тонкая белая линия (градиент в прозрачность)
-        const whiteEdge = ctx.createRadialGradient(x, y, r - 3, x, y, r + 1);
-        whiteEdge.addColorStop(0, 'rgba(255, 255, 255, 0)');   // Прозрачно внутри
-        whiteEdge.addColorStop(0.5, 'rgba(255, 255, 255, 0.8)'); // Четкая белая линия
-        whiteEdge.addColorStop(1, 'rgba(255, 255, 255, 0)');   // Уходит в прозрачность наружу
-        
-        ctx.fillStyle = whiteEdge;
-        ctx.beginPath();
-        ctx.arc(x, y, r + 1, 0, Math.PI * 2);
-        ctx.fill();
+        applySmoothRefraction(lens, tCtx);
+        drawLensVfx(lens);
     });
 
     requestAnimationFrame(render);
 }
 
-drawBackground();
+drawStaticBackground();
 render();
 </script>
 
