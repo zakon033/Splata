@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>iPhone 16 - Deep Shadow Lens</title>
+    <title>iPhone 16 - SVG Card Refraction</title>
     <style>
         body { margin: 0; background: #030303; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
         canvas { display: block; width: 100vw; height: 100vh; touch-action: manipulation; }
@@ -39,30 +39,19 @@
     vec4 getLensEdge(vec2 uv, vec2 pos, float r, vec2 aspect, int index) {
         vec2 dVec = (uv - pos) * aspect;
         float d = length(dVec);
-        
-        // 1. Базовые элементы
         float whiteRing = smoothstep(0.0035, 0.0, abs(d - r));
         float glow = smoothstep(0.03, 0.0, abs(d - r)); 
-        if (d > r) { glow = 0.0; } // Внешняя маска (как договаривались)
+        if (d > r) { glow = 0.0; }
 
-        // 2. МАСКА ТЕНИ (для средней линзы, индекс 1)
         float shadowMask = 1.0; 
         if (index == 1) {
             vec2 dir = normalize(dVec);
-            // Плавное гашение в верхней части (dir.y от -0.4 до -1.0)
             shadowMask = smoothstep(-1.0, -0.4, dir.y);
         }
 
-        // Применяем маску тени и к ободку, и к свечению
-        float finalWhite = whiteRing * shadowMask;
-        float finalGlow = glow * shadowMask;
-
         vec3 baseColor = getDynamicColor(uv.y);
-        // Смешиваем динамический цвет (голубой/серый) с белым ободком
-        vec3 color = mix(baseColor, vec3(1.0), finalWhite);
-        
-        // В зонах тени (где shadowMask -> 0) всё уходит в черный
-        float alpha = max(finalWhite, finalGlow * 0.75);
+        vec3 color = mix(baseColor, vec3(1.0), whiteRing * shadowMask);
+        float alpha = max(whiteRing * shadowMask, glow * shadowMask * 0.75);
         
         return vec4(color, alpha);
     }
@@ -91,11 +80,11 @@
                 }
 
                 vec2 uvBase = lPos + (vUv - lPos) * (distortion / normD);
+                uvBase = clamp(uvBase, 0.0, 1.0);
                 
                 float rChan = texture2D(uTexture, uvBase + chroma).r;
                 float gChan = texture2D(uTexture, uvBase).g;
                 float bChan = texture2D(uTexture, uvBase - chroma).b;
-                
                 finalColor = vec4(rChan, gChan, bChan, 1.0);
 
                 for (int j = 0; j < 3; j++) {
@@ -106,7 +95,6 @@
                 }
                 finalColor.rgb = mix(finalColor.rgb, vec3(0.3, 0.35, 0.45), 0.08);
             }
-            
             vec4 edge = getLensEdge(vUv, lPos, r, aspect, i);
             finalColor.rgb += edge.rgb * edge.a;
         }
@@ -133,73 +121,84 @@ const texCanv = document.createElement('canvas');
 texCanv.width = 2048; texCanv.height = 2048;
 const tCtx = texCanv.getContext('2d');
 
+const img = new Image();
+img.crossOrigin = "anonymous";
+img.src = "https://upload.wikimedia.org/wikipedia/commons/d/d7/Credit-card-front.svg";
+
+img.onload = () => {
+    initApp();
+};
+
 function drawBgTexture() {
+    // 1. Фон - градиент
     const grad = tCtx.createLinearGradient(0, 0, 0, 2048);
     grad.addColorStop(0, '#686878'); 
     grad.addColorStop(1, '#030303'); 
     tCtx.fillStyle = grad; 
     tCtx.fillRect(0, 0, 2048, 2048);
+
+    // 2. Отрисовка иконки карты по центру
+    const iconWidth = 600; // Размер карты в текстуре
+    const iconHeight = (img.height / img.width) * iconWidth;
     
-    for(let i = 0; i < 15; i++) {
-        const x = Math.random() * 2048, y = Math.random() * 2048, r = 300 + Math.random() * 500;
-        const g = tCtx.createRadialGradient(x, y, 0, x, y, r);
-        g.addColorStop(0, 'rgba(255, 255, 255, 0.05)');
-        g.addColorStop(1, 'rgba(255, 255, 255, 0)');
-        tCtx.fillStyle = g; tCtx.fillRect(0, 0, 2048, 2048);
+    tCtx.globalAlpha = 0.9;
+    tCtx.drawImage(img, 1024 - iconWidth/2, 1024 - iconHeight/2, iconWidth, iconHeight);
+}
+
+function initApp() {
+    drawBgTexture();
+
+    function createShader(gl, type, source) {
+        const s = gl.createShader(type);
+        gl.shaderSource(s, source);
+        gl.compileShader(s);
+        return s;
     }
-    tCtx.fillStyle = 'white'; tCtx.font = '900 240px sans-serif';
-    tCtx.textAlign = 'center'; tCtx.globalAlpha = 0.3; tCtx.fillText('IPHONE 16', 1024, 1024);
+
+    const prog = gl.createProgram();
+    gl.attachShader(prog, createShader(gl, gl.VERTEX_SHADER, document.getElementById('vs').text));
+    gl.attachShader(prog, createShader(gl, gl.FRAGMENT_SHADER, document.getElementById('fs').text));
+    gl.linkProgram(prog); gl.useProgram(prog);
+
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
+    const pLoc = gl.getAttribLocation(prog, 'position');
+    gl.enableVertexAttribArray(pLoc); gl.vertexAttribPointer(pLoc, 2, gl.FLOAT, false, 0, 0);
+
+    const tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texCanv);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    const uL = gl.getUniformLocation(prog, "uLenses");
+    const uR = gl.getUniformLocation(prog, "uResolution");
+
+    const UNIFORM_RADIUS = 0.455;
+    const lenses = [
+        { baseX: 1.0, baseY: 0.0, t: Math.random()*100, range: 0.1 }, 
+        { baseX: 0.0, baseY: 0.5, t: Math.random()*100, range: 0.1 }, 
+        { baseX: 1.0, baseY: 1.0, t: Math.random()*100, range: 0.1 }  
+    ];
+
+    function draw() {
+        const flat = [];
+        lenses.forEach(l => {
+            l.t += 0.008; // Сохраняем двойную скорость
+            const dx = (Math.sin(l.t * 0.8) + Math.cos(l.t * 1.5) + Math.sin(l.t * 0.4)) / 3.0;
+            const dy = (Math.cos(l.t * 0.7) + Math.sin(l.t * 1.2) + Math.cos(l.t * 0.5)) / 3.0;
+            flat.push(l.baseX + dx * l.range, l.baseY + dy * l.range, UNIFORM_RADIUS);
+        });
+
+        gl.uniform3fv(uL, flat);
+        gl.uniform2f(uR, width, height);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+        requestAnimationFrame(draw);
+    }
+    draw();
 }
-drawBgTexture();
-
-function createShader(gl, type, source) {
-    const s = gl.createShader(type);
-    gl.shaderSource(s, source);
-    gl.compileShader(s);
-    return s;
-}
-
-const prog = gl.createProgram();
-gl.attachShader(prog, createShader(gl, gl.VERTEX_SHADER, document.getElementById('vs').text));
-gl.attachShader(prog, createShader(gl, gl.FRAGMENT_SHADER, document.getElementById('fs').text));
-gl.linkProgram(prog); gl.useProgram(prog);
-
-const buf = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
-const pLoc = gl.getAttribLocation(prog, 'position');
-gl.enableVertexAttribArray(pLoc); gl.vertexAttribPointer(pLoc, 2, gl.FLOAT, false, 0, 0);
-
-const tex = gl.createTexture();
-gl.bindTexture(gl.TEXTURE_2D, tex);
-gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texCanv);
-gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-
-const uL = gl.getUniformLocation(prog, "uLenses");
-const uR = gl.getUniformLocation(prog, "uResolution");
-
-const UNIFORM_RADIUS = 0.345;
-const lenses = [
-    { baseX: 0.85, baseY: 0.15, x: 0.85, y: 0.15, r: UNIFORM_RADIUS, angle: 0, speed: 0.005, range: 0.1 },
-    { baseX: 0.15, baseY: 0.5, x: 0.15, y: 0.5, r: UNIFORM_RADIUS, angle: 2, speed: 0.004, range: 0.1 },
-    { baseX: 0.85, baseY: 0.85, x: 0.85, y: 0.85, r: UNIFORM_RADIUS, angle: 4, speed: 0.006, range: 0.1 }
-];
-
-function draw() {
-    const flat = [];
-    lenses.forEach(l => {
-        l.angle += l.speed;
-        l.x = l.baseX + Math.cos(l.angle) * l.range * 0.4;
-        l.y = l.baseY + Math.sin(l.angle * 1.1) * l.range * 0.4;
-        flat.push(l.x, l.y, l.r);
-    });
-    gl.uniform3fv(uL, flat);
-    gl.uniform2f(uR, width, height);
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
-    requestAnimationFrame(draw);
-}
-draw();
 </script>
 </body>
 </html>
-
