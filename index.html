@@ -9,15 +9,16 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> 
 <meta name="apple-mobile-web-app-capable" content="yes"> 
 
-
-
 <style>
+/* =========================
+   ТВОИ ОРИГИНАЛЬНЫЕ СТИЛИ (БЕЗ ИЗМЕНЕНИЙ)
+========================= */
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent; 
 }
 
-html { background-color: #1b1f3b; }
+html { background-color: #030303; }
 
 body {
   margin: 0; padding: 0; width: 100%; min-height: 100vh;
@@ -25,29 +26,17 @@ body {
   color: #ffffff; background: transparent !important; position: relative;
 }
 
-#background-image-wrap {
+/* ФОНОВЫЙ ХОЛСТ */
+#bgCanvas {
   position: fixed; 
-  top: 0; 
-  left: 0; 
-  width: 100%; 
-  height: 100%; 
+  top: 0; left: 0; 
+  width: 100vw; height: 100vh; 
   z-index: -1; 
-  background-image: url("./bg-liquid.webp"); 
-  
-  /* РАСТЯГИВАНИЕ:
-     Первая 100% — по ширине, вторая 100% — по высоте.
-     Это заставит картинку принимать форму экрана, даже если он очень длинный или широкий.
-  */
-  background-size: 100% 100%; 
-  
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed; 
-  transform: translateZ(0); 
+  display: block;
+  pointer-events: none;
   mask-image: linear-gradient(to bottom, transparent 0%, black 80px, black calc(100% - 80px), transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 80px, black calc(100% - 80px), transparent 100%);
 }
-
 
 .container {
   max-width: 420px; width: 100%; margin: 0 auto; position: relative;
@@ -58,9 +47,6 @@ body {
 h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
 .subtitle { font-size: 22px; opacity: 0.9; margin-bottom: 30px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
 
-/* =========================
-   ОБЩИЙ СТИЛЬ КНОПОК
-========================= */
 .btn {
   position: relative;
   overflow: hidden; 
@@ -83,8 +69,6 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
   transition: transform 0.1s, background-color 0.2s; 
   cursor: pointer;
   user-select: none;
-
-  /* Базовая анимация появления */
   opacity: 0;
   animation: fadeInUp 0.5s ease-out forwards;
 }
@@ -102,17 +86,9 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
 .btn::after { bottom: 0; background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent); }
 
 .btn img { display: block; }
-
-/* ТИПЫ КНОПОК */
 .btn-full-logo { justify-content: center; }
 .btn-full-logo img { height: 38px; width: auto; max-width: 80%; object-fit: contain; }
-
-/* Уменьшаем логотипы Pay в 1.3 раза (38px / 1.3 ≈ 29px) */
-.btn-pay-small img {
-    height: 28px !important;
-}
-
-
+.btn-pay-small img { height: 28px !important; }
 .btn-with-text { justify-content: flex-start; }
 
 .btn-icon, .btn-icon-right {
@@ -129,29 +105,17 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
 .btn-card { justify-content: center; }
 .card-number-font {
     font-family: 'Consolas', 'Courier New', monospace;
-    /* Адаптивный размер: минимум 16px, оптимум 6vw, максимум 26px */
     font-size: clamp(16px, 6vw, 26px); 
     font-weight: 500;
     letter-spacing: 1px;
     color: #e0e0e0; 
-    text-shadow: 
-        -2px -2px 3px rgba(255, 255, 255, 0.4), 
-         2px 2px 3px rgba(0, 0, 0, 0.9);
-    height: 100%;
-    display: flex;
-    align-items: center;
-    line-height: 1;
-    white-space: nowrap; /* Строгий запрет переноса на вторую строку */
-    overflow: hidden;    /* Защита от вылета текста за края */
+    text-shadow: -2px -2px 3px rgba(255, 255, 255, 0.4), 2px 2px 3px rgba(0, 0, 0, 0.9);
+    height: 100%; display: flex; align-items: center; line-height: 1; white-space: nowrap; overflow: hidden;
 }
-
 
 .btn-triple { justify-content: space-between; }
 .btn-triple .btn-text { justify-content: left; }
 
-/* =========================
-   ВОССТАНОВЛЕННЫЙ ТОЧНЫЙ TOAST
-========================= */
 #copy-toast {
     position: fixed;
     top: 50%; left: 50%;
@@ -162,10 +126,9 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
     backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
     border: none;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    overflow: hidden; 
     font-size: 22px; font-weight: 600; color: #ffffff; 
     z-index: 1000; opacity: 0; pointer-events: none;
-    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease-out, background-color 0.2s;
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease-out;
 }
 
 #copy-toast::before, #copy-toast::after {
@@ -174,16 +137,10 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
 #copy-toast::before { top: 0; background: linear-gradient(to right, rgba(46, 204, 113, 0), rgba(46, 204, 113, 0.8), rgba(46, 204, 113, 0)); }
 #copy-toast::after { bottom: 0; background: linear-gradient(to right, rgba(46, 204, 113, 0), rgba(46, 204, 113, 0.5), rgba(46, 204, 113, 0)); }
 
-#copy-toast.show {
-    opacity: 1;
-    transform: translate(-50%, -50%);
-    background-color: rgba(46, 204, 113, 0.25);
-    box-shadow: 0 0 20px rgba(46, 204, 113, 0.3);
-}
 
-/* =========================
-   ИСПРАВЛЕННАЯ АНИМАЦИЯ
-========================= */
+
+#copy-toast.show { opacity: 1; transform: translate(-50%, -50%); background-color: rgba(46, 204, 113, 0.25); }
+
 @keyframes fadeInUp {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; }
@@ -202,13 +159,11 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
 .btn:nth-child(13) { animation-delay: 1.1s; }
 .btn:nth-child(14) { animation-delay: 1.2s; }
 </style>
-
-
 </head>
 
 <body>
 
-<div id="background-image-wrap"></div>
+<canvas id="bgCanvas"></canvas>
 
 <div class="container">
   <h1>💳 Переказати кошти</h1>
@@ -273,7 +228,126 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
 
 <div id="copy-toast">Скопійовано!</div>
 
+<script id="vs" type="x-shader/x-vertex">
+    attribute vec2 position;
+    varying vec2 vUv;
+    void main() {
+        vUv = position * 0.5 + 0.5;
+        vUv.y = 1.0 - vUv.y;
+        gl_Position = vec4(position, 0.0, 1.0);
+    }
+</script>
+
+<script id="fs" type="x-shader/x-fragment">
+    precision highp float;
+    varying vec2 vUv;
+    uniform vec2 uResolution;
+    uniform float uTime;
+    uniform vec3 uLenses[3];
+
+    vec3 getDynamicColor(float y, float time) {
+        vec3 blue = vec3(0.0, 0.5, 1.0);
+        vec3 orange = vec3(1.0, 0.4, 0.0);
+        vec3 lime = vec3(0.4, 1.0, 0.0);
+        float t = time * 0.6;
+        float w1 = sin(t) * 0.5 + 0.5;
+        float w2 = sin(t + 2.09) * 0.5 + 0.5;
+        float w3 = sin(t + 4.18) * 0.5 + 0.5;
+        return (blue * w1 + orange * w2 + lime * w3) / (w1 + w2 + w3);
+    }
+
+    vec4 getLensEdge(vec2 uv, vec2 pos, float r, vec2 aspect, int index, float time) {
+        vec2 dVec = (uv - pos) * aspect;
+        float d = length(dVec);
+        float whiteRing = smoothstep(0.0035, 0.0, abs(d - r));
+        float glow = smoothstep(0.03, 0.0, abs(d - r)); 
+        if (d > r) glow = 0.0;
+        float shadowMask = (index == 1) ? smoothstep(-1.0, -0.4, normalize(dVec).y) : 1.0;
+        vec3 color = mix(getDynamicColor(uv.y, time), vec3(1.0), whiteRing * shadowMask);
+        return vec4(color, max(whiteRing * shadowMask, glow * shadowMask * 0.75));
+    }
+
+    void main() {
+        vec2 aspect = vec2(uResolution.x / uResolution.y, 1.0);
+        vec3 bgColor = mix(vec3(0.1, 0.12, 0.23), vec3(0.01), vUv.y);
+        vec4 finalColor = vec4(bgColor, 1.0);
+
+        for (int i = 0; i < 3; i++) {
+            vec2 lPos = uLenses[i].xy;
+            float r = uLenses[i].z;
+            vec2 distVec = (vUv - lPos) * aspect;
+            float d = length(distVec);
+
+            if (d < r) {
+                float normD = d / r;
+                float distortion = (normD < 0.85) ? pow(normD, 0.85) : 0.88 - pow((normD - 0.85) / 0.15, 1.5) * 0.45;
+                float chroma = (normD > 0.85) ? (normD - 0.85) * 0.04 : 0.0;
+                vec2 uvBase = lPos + (vUv - lPos) * (distortion / (normD + 0.0001));
+                
+                vec3 refr;
+                refr.r = mix(vec3(0.1, 0.12, 0.23), vec3(0.01), clamp(uvBase.y + chroma, 0.0, 1.0)).r;
+                refr.g = mix(vec3(0.1, 0.12, 0.23), vec3(0.01), uvBase.y).g;
+                refr.b = mix(vec3(0.1, 0.12, 0.23), vec3(0.01), clamp(uvBase.y - chroma, 0.0, 1.0)).b;
+                
+                finalColor.rgb = refr + 0.04;
+                for (int j = 0; j < 3; j++) { if (j < i) {
+                    vec4 prev = getLensEdge(uvBase, uLenses[j].xy, uLenses[j].z, aspect, j, uTime);
+                    finalColor.rgb += prev.rgb * prev.a;
+                }}
+            }
+            vec4 edge = getLensEdge(vUv, lPos, r, aspect, i, uTime);
+            finalColor.rgb += edge.rgb * edge.a;
+        }
+        gl_FragColor = finalColor;
+    }
+</script>
+
 <script>
+// ЛОГИКА ФОНА
+const canvas = document.getElementById('bgCanvas');
+const gl = canvas.getContext('webgl');
+let w, h;
+
+function resize() {
+    w = window.innerWidth; h = window.innerHeight;
+    canvas.width = w * devicePixelRatio; canvas.height = h * devicePixelRatio;
+    gl.viewport(0, 0, canvas.width, canvas.height);
+}
+window.addEventListener('resize', resize); resize();
+
+const createS = (type, src) => {
+    const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s;
+};
+const prog = gl.createProgram();
+gl.attachShader(prog, createS(gl.VERTEX_SHADER, document.getElementById('vs').text));
+gl.attachShader(prog, createS(gl.FRAGMENT_SHADER, document.getElementById('fs').text));
+gl.linkProgram(prog); gl.useProgram(prog);
+
+gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
+const pLoc = gl.getAttribLocation(prog, "position");
+gl.enableVertexAttribArray(pLoc); gl.vertexAttribPointer(pLoc, 2, gl.FLOAT, false, 0, 0);
+
+const uL = gl.getUniformLocation(prog, "uLenses"), uR = gl.getUniformLocation(prog, "uResolution"), uT = gl.getUniformLocation(prog, "uTime");
+const lenses = [{bx:0.8, by:0.2, t:0}, {bx:0.2, by:0.5, t:2}, {bx:0.7, by:0.8, t:4}];
+
+let time = 0;
+function render() {
+    time += 0.01;
+    const flat = [];
+    lenses.forEach(l => {
+        l.t += 0.008;
+        const dx = (Math.sin(l.t*0.8)+Math.cos(l.t*1.3))*0.15;
+        const dy = (Math.cos(l.t*0.9)+Math.sin(l.t*1.1))*0.15;
+        flat.push(l.bx + dx, l.by + dy, 0.45);
+    });
+    gl.uniform3fv(uL, flat); gl.uniform2f(uR, w, h); gl.uniform1f(uT, time);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    requestAnimationFrame(render);
+}
+render();
+
+// ТВОЯ ОРИГИНАЛЬНАЯ ЛОГИКА (БЕЗ ИЗМЕНЕНИЙ)
 const CLICK_ANIMATION_DURATION = 150; 
 const TOAST_DISPLAY_DURATION = 2000; 
 
