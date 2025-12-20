@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>iPhone 16 - SVG Card Refraction</title>
+    <title>iPhone 16 - Enhanced Card Refraction</title>
     <style>
         body { margin: 0; background: #030303; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
         canvas { display: block; width: 100vw; height: 100vh; touch-action: manipulation; }
@@ -31,9 +31,7 @@
     uniform vec2 uResolution;
 
     vec3 getDynamicColor(float y) {
-        vec3 metallic = vec3(0.6, 0.6, 0.7);
-        vec3 cyanBlue = vec3(0.1, 0.45, 1.0);
-        return mix(metallic, cyanBlue, y);
+        return mix(vec3(0.6, 0.6, 0.7), vec3(0.1, 0.45, 1.0), y);
     }
 
     vec4 getLensEdge(vec2 uv, vec2 pos, float r, vec2 aspect, int index) {
@@ -41,19 +39,11 @@
         float d = length(dVec);
         float whiteRing = smoothstep(0.0035, 0.0, abs(d - r));
         float glow = smoothstep(0.03, 0.0, abs(d - r)); 
-        if (d > r) { glow = 0.0; }
-
-        float shadowMask = 1.0; 
-        if (index == 1) {
-            vec2 dir = normalize(dVec);
-            shadowMask = smoothstep(-1.0, -0.4, dir.y);
-        }
-
-        vec3 baseColor = getDynamicColor(uv.y);
-        vec3 color = mix(baseColor, vec3(1.0), whiteRing * shadowMask);
-        float alpha = max(whiteRing * shadowMask, glow * shadowMask * 0.75);
+        if (d > r) glow = 0.0;
         
-        return vec4(color, alpha);
+        float shadowMask = (index == 1) ? smoothstep(-1.0, -0.4, normalize(dVec).y) : 1.0;
+        vec3 color = mix(getDynamicColor(uv.y), vec3(1.0), whiteRing * shadowMask);
+        return vec4(color, max(whiteRing * shadowMask, glow * shadowMask * 0.75));
     }
 
     void main() {
@@ -68,18 +58,11 @@
 
             if (d < r) {
                 float normD = d / r;
-                float distortion;
-                float chroma = 0.0;
+                // Усиленное искажение (сила преломления 0.7)
+                float distortion = pow(normD, 0.7); 
+                float chroma = (normD > 0.8) ? (normD - 0.8) * 0.04 : 0.0;
 
-                if (normD < 0.85) {
-                    distortion = pow(normD, 0.85); 
-                } else {
-                    float edgeFactor = (normD - 0.85) / 0.15;
-                    distortion = 0.88 - pow(edgeFactor, 1.5) * 0.45; 
-                    chroma = edgeFactor * 0.03;
-                }
-
-                vec2 uvBase = lPos + (vUv - lPos) * (distortion / normD);
+                vec2 uvBase = lPos + (vUv - lPos) * (distortion / (normD + 0.001));
                 uvBase = clamp(uvBase, 0.0, 1.0);
                 
                 float rChan = texture2D(uTexture, uvBase + chroma).r;
@@ -87,13 +70,14 @@
                 float bChan = texture2D(uTexture, uvBase - chroma).b;
                 finalColor = vec4(rChan, gChan, bChan, 1.0);
 
+                // Наложение слоев при пересечении линз
                 for (int j = 0; j < 3; j++) {
                     if (j < i) {
                         vec4 prev = getLensEdge(uvBase, uLenses[j].xy, uLenses[j].z, aspect, j);
                         finalColor.rgb += prev.rgb * prev.a;
                     }
                 }
-                finalColor.rgb = mix(finalColor.rgb, vec3(0.3, 0.35, 0.45), 0.08);
+                finalColor.rgb = mix(finalColor.rgb, vec3(0.3, 0.35, 0.45), 0.1);
             }
             vec4 edge = getLensEdge(vUv, lPos, r, aspect, i);
             finalColor.rgb += edge.rgb * edge.a;
@@ -123,37 +107,41 @@ const tCtx = texCanv.getContext('2d');
 
 const img = new Image();
 img.crossOrigin = "anonymous";
+// Ваша ссылка на карту
 img.src = "https://upload.wikimedia.org/wikipedia/commons/d/d7/Credit-card-front.svg";
 
-img.onload = () => {
-    initApp();
-};
+img.onload = () => initApp();
 
 function drawBgTexture() {
-    // 1. Фон - градиент
+    // 1. Градиент
     const grad = tCtx.createLinearGradient(0, 0, 0, 2048);
     grad.addColorStop(0, '#686878'); 
     grad.addColorStop(1, '#030303'); 
     tCtx.fillStyle = grad; 
     tCtx.fillRect(0, 0, 2048, 2048);
 
-    // 2. Отрисовка иконки карты по центру
-    const iconWidth = 600; // Размер карты в текстуре
-    const iconHeight = (img.height / img.width) * iconWidth;
+    // 2. Карта больше и ПРАВЕЕ
+    const cardScale = 900; 
+    const cardW = cardScale;
+    const cardH = (img.height / img.width) * cardW;
     
-    tCtx.globalAlpha = 0.9;
-    tCtx.drawImage(img, 1024 - iconWidth/2, 1024 - iconHeight/2, iconWidth, iconHeight);
+    // Смещаем X с 1024 (центр) на 1300 (правее)
+    const posX = 1300 - cardW / 2;
+    const posY = 1024 - cardH / 2;
+
+    tCtx.globalAlpha = 0.95;
+    tCtx.drawImage(img, posX, posY, cardW, cardH);
 }
 
 function initApp() {
     drawBgTexture();
 
-    function createShader(gl, type, source) {
+    const createShader = (gl, type, src) => {
         const s = gl.createShader(type);
-        gl.shaderSource(s, source);
+        gl.shaderSource(s, src);
         gl.compileShader(s);
         return s;
-    }
+    };
 
     const prog = gl.createProgram();
     gl.attachShader(prog, createShader(gl, gl.VERTEX_SHADER, document.getElementById('vs').text));
@@ -186,7 +174,7 @@ function initApp() {
     function draw() {
         const flat = [];
         lenses.forEach(l => {
-            l.t += 0.008; // Сохраняем двойную скорость
+            l.t += 0.008; // Высокая скорость
             const dx = (Math.sin(l.t * 0.8) + Math.cos(l.t * 1.5) + Math.sin(l.t * 0.4)) / 3.0;
             const dy = (Math.cos(l.t * 0.7) + Math.sin(l.t * 1.2) + Math.cos(l.t * 0.5)) / 3.0;
             flat.push(l.baseX + dx * l.range, l.baseY + dy * l.range, UNIFORM_RADIUS);
