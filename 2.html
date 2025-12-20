@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>iPhone 16 - Final Precision Optics</title>
+    <title>iPhone 16 - Anchor Point Precision</title>
     <style>
         body { margin: 0; background: #030303; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
         canvas { display: block; width: 100vw; height: 100vh; touch-action: manipulation; }
@@ -30,7 +30,6 @@
     uniform vec3 uLenses[3];
     uniform vec2 uResolution;
 
-    // Динамический цвет: от металлика (вверху) к голубому (внизу)
     vec3 getDynamicColor(float y) {
         vec3 metallic = vec3(0.6, 0.6, 0.7);
         vec3 cyanBlue = vec3(0.1, 0.45, 1.0);
@@ -40,17 +39,13 @@
     vec4 getLensEdge(vec2 uv, vec2 pos, float r, vec2 aspect, int index) {
         vec2 dVec = (uv - pos) * aspect;
         float d = length(dVec);
-        
-        // 1. Базовые элементы (кольцо и свечение)
         float whiteRing = smoothstep(0.0035, 0.0, abs(d - r));
         float glow = smoothstep(0.03, 0.0, abs(d - r)); 
-        if (d > r) { glow = 0.0; } // Строгая внешняя маска
+        if (d > r) { glow = 0.0; }
 
-        // 2. Маска тени для средней линзы (индекс 1)
         float shadowMask = 1.0; 
         if (index == 1) {
             vec2 dir = normalize(dVec);
-            // Гасим и кольцо, и свечение в верхней части (20-30% дуги)
             shadowMask = smoothstep(-1.0, -0.4, dir.y);
         }
 
@@ -60,7 +55,6 @@
         vec3 baseColor = getDynamicColor(uv.y);
         vec3 color = mix(baseColor, vec3(1.0), finalWhite);
         float alpha = max(finalWhite, finalGlow * 0.75);
-        
         return vec4(color, alpha);
     }
 
@@ -78,26 +72,19 @@
                 float normD = d / r;
                 float distortion;
                 float chroma = 0.0;
-
-                // Уменьшенная выпуклость центра (0.85)
                 if (normD < 0.85) {
                     distortion = pow(normD, 0.85); 
                 } else {
-                    // Инверсия края
                     float edgeFactor = (normD - 0.85) / 0.15;
                     distortion = 0.88 - pow(edgeFactor, 1.5) * 0.45; 
                     chroma = edgeFactor * 0.03;
                 }
-
                 vec2 uvBase = lPos + (vUv - lPos) * (distortion / normD);
-                
                 float rChan = texture2D(uTexture, uvBase + chroma).r;
                 float gChan = texture2D(uTexture, uvBase).g;
                 float bChan = texture2D(uTexture, uvBase - chroma).b;
-                
                 finalColor = vec4(rChan, gChan, bChan, 1.0);
 
-                // Отрисовка вложенных линз
                 for (int j = 0; j < 3; j++) {
                     if (j < i) {
                         vec4 prev = getLensEdge(uvBase, uLenses[j].xy, uLenses[j].z, aspect, j);
@@ -106,7 +93,6 @@
                 }
                 finalColor.rgb = mix(finalColor.rgb, vec3(0.3, 0.35, 0.45), 0.08);
             }
-            
             vec4 edge = getLensEdge(vUv, lPos, r, aspect, i);
             finalColor.rgb += edge.rgb * edge.a;
         }
@@ -129,22 +115,18 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
+// Текстура фона
 const texCanv = document.createElement('canvas');
 texCanv.width = 2048; texCanv.height = 2048;
 const tCtx = texCanv.getContext('2d');
-
 function drawBgTexture() {
     const grad = tCtx.createLinearGradient(0, 0, 0, 2048);
-    grad.addColorStop(0, '#686878'); 
-    grad.addColorStop(1, '#030303'); 
-    tCtx.fillStyle = grad; 
-    tCtx.fillRect(0, 0, 2048, 2048);
-    
+    grad.addColorStop(0, '#686878'); grad.addColorStop(1, '#030303'); 
+    tCtx.fillStyle = grad; tCtx.fillRect(0, 0, 2048, 2048);
     for(let i = 0; i < 15; i++) {
         const x = Math.random() * 2048, y = Math.random() * 2048, r = 300 + Math.random() * 500;
         const g = tCtx.createRadialGradient(x, y, 0, x, y, r);
-        g.addColorStop(0, 'rgba(255, 255, 255, 0.05)');
-        g.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        g.addColorStop(0, 'rgba(255, 255, 255, 0.05)'); g.addColorStop(1, 'rgba(255, 255, 255, 0)');
         tCtx.fillStyle = g; tCtx.fillRect(0, 0, 2048, 2048);
     }
     tCtx.fillStyle = 'white'; tCtx.font = '900 240px sans-serif';
@@ -179,19 +161,19 @@ const uL = gl.getUniformLocation(prog, "uLenses");
 const uR = gl.getUniformLocation(prog, "uResolution");
 
 const UNIFORM_RADIUS = 0.345;
-// РАССИНХРОНИЗИРОВАННЫЕ ЛИНЗЫ
+// БАЗОВЫЕ ТОЧКИ ПО ВАШЕМУ ОПИСАНИЮ
 const lenses = [
     { 
-        baseX: 0.85, baseY: 0.15, x: 0.85, y: 0.15, r: UNIFORM_RADIUS, 
-        aX: 0, aY: 1, sX: 0.007, sY: 0.005, rng: 0.03 
+        baseX: 0.85, baseY: 0.15, // Верх-право
+        aX: 0, aY: 1, sX: 0.005, sY: 0.007, rng: 0.03 
     },
     { 
-        baseX: 0.15, baseY: 0.5, x: 0.15, y: 0.5, r: UNIFORM_RADIUS, 
-        aX: 2, aY: 3, sX: 0.004, sY: 0.008, rng: 0.025 
+        baseX: 0.15, baseY: 0.5,  // Центр-лево
+        aX: 2, aY: 3, sX: 0.006, sY: 0.004, rng: 0.03 
     },
     { 
-        baseX: 0.85, baseY: 0.85, x: 0.85, y: 0.85, r: UNIFORM_RADIUS, 
-        aX: 4, aY: 5, sX: 0.006, sY: 0.003, rng: 0.035 
+        baseX: 0.85, baseY: 0.85, // Низ-право
+        aX: 4, aY: 5, sX: 0.003, sY: 0.006, rng: 0.03 
     }
 ];
 
@@ -199,6 +181,7 @@ function draw() {
     const flat = [];
     lenses.forEach(l => {
         l.aX += l.sX; l.aY += l.sY;
+        // Движение симметрично ОТНОСИТЕЛЬНО базовой точки
         l.x = l.baseX + Math.cos(l.aX) * l.rng;
         l.y = l.baseY + Math.sin(l.aY) * l.rng;
         flat.push(l.x, l.y, l.r);
