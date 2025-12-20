@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>iPhone 16 - Brownian Edge Motion</title>
+    <title>iPhone 16 - Large Lens Drift</title>
     <style>
         body { margin: 0; background: #030303; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
         canvas { display: block; width: 100vw; height: 100vh; touch-action: manipulation; }
@@ -44,7 +44,7 @@
         if (d > r) { glow = 0.0; }
 
         float shadowMask = 1.0; 
-        if (index == 1) { // Тень для центральной левой линзы
+        if (index == 1) {
             vec2 dir = normalize(dVec);
             shadowMask = smoothstep(-1.0, -0.4, dir.y);
         }
@@ -115,7 +115,6 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
-// Текстура фона
 const texCanv = document.createElement('canvas');
 texCanv.width = 2048; texCanv.height = 2048;
 const tCtx = texCanv.getContext('2d');
@@ -165,28 +164,22 @@ gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 const uL = gl.getUniformLocation(prog, "uLenses");
 const uR = gl.getUniformLocation(prog, "uResolution");
 
-const UNIFORM_RADIUS = 0.345;
+// Увеличенный радиус: 0.345 * 1.2 = 0.414
+const UNIFORM_RADIUS = 0.414;
 
-// ПАРАМЕТРЫ ДВИЖЕНИЯ
 const lenses = [
-    { baseX: 1.0, baseY: 0.0, t: Math.random()*100, range: 0.18 }, // Верх-Право
-    { baseX: 0.0, baseY: 0.5, t: Math.random()*100, range: 0.18 }, // Центр-Лево
-    { baseX: 1.0, baseY: 1.0, t: Math.random()*100, range: 0.18 }  // Низ-Право
+    { baseX: 1.0, baseY: 0.0, t: Math.random()*100, range: 0.2 }, 
+    { baseX: 0.0, baseY: 0.5, t: Math.random()*100, range: 0.2 }, 
+    { baseX: 1.0, baseY: 1.0, t: Math.random()*100, range: 0.2 }  
 ];
 
 function draw() {
     const flat = [];
     lenses.forEach(l => {
-        l.t += 0.0025; // Скорость дрейфа
-
-        // Броуновское смещение через сумму гармоник (хаос)
+        l.t += 0.002; 
         const dx = (Math.sin(l.t * 0.8) + Math.cos(l.t * 1.5) + Math.sin(l.t * 0.4)) / 3.0;
         const dy = (Math.cos(l.t * 0.7) + Math.sin(l.t * 1.2) + Math.cos(l.t * 0.5)) / 3.0;
-
-        const curX = l.baseX + dx * l.range;
-        const curY = l.baseY + dy * l.range;
-
-        flat.push(curX, curY, UNIFORM_RADIUS);
+        flat.push(l.baseX + dx * l.range, l.baseY + dy * l.range, UNIFORM_RADIUS);
     });
 
     gl.uniform3fv(uL, flat);
