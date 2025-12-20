@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>iPhone 16 - Vector Motion Control</title>
+    <title>iPhone 16 - Precision Anchor Balance</title>
     <style>
         body { margin: 0; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
         canvas { display: block; width: 100vw; height: 100vh; }
@@ -111,7 +111,6 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
-// Текстура фона
 const texCanv = document.createElement('canvas');
 texCanv.width = 2048; texCanv.height = 2048;
 const tCtx = texCanv.getContext('2d');
@@ -151,9 +150,9 @@ const uR = gl.getUniformLocation(prog, "uResolution");
 
 const UNIFORM_RADIUS = 0.345;
 const lenses = [
-    { bx: 0.85, by: 0.15, phase: 0, sx: 0.005, sy: 0.007, rng: 0.03 }, // Верх-право
-    { bx: 0.15, by: 0.5,  phase: 2, sx: 0.006, sy: 0.004, rng: 0.03 }, // Центр-лево
-    { bx: 0.85, by: 0.85, phase: 4, sx: 0.004, sy: 0.005, rng: 0.03 }  // Низ-право
+    { bx: 0.85, by: 0.15, phase: 0, speed: 0.6, rng: 0.05 }, // Верх-право
+    { bx: 0.15, by: 0.5,  phase: 2, speed: 0.4, rng: 0.05 }, // Центр-лево
+    { bx: 0.85, by: 0.85, phase: 4, speed: 0.5, rng: 0.05 }  // Низ-право
 ];
 
 function draw() {
@@ -161,24 +160,18 @@ function draw() {
     const center = { x: 0.5, y: 0.5 };
 
     lenses.forEach(l => {
-        l.phase += 0.01; // Общая скорость времени
+        l.phase += 0.01;
         
-        // 1. Направление к центру экрана
-        const dirX = center.x - l.bx;
-        const dirY = center.y - l.by;
-        const distToCenter = Math.sqrt(dirX * dirX + dirY * dirY);
-        const normDirX = dirX / distToCenter;
-        const normDirY = dirY / distToCenter;
-
-        // 2. Колебание вдоль вектора к центру (и обратно)
-        const moveTowardsCenter = Math.sin(l.phase * l.sx * 100) * l.rng;
+        // Вектор от базовой точки к центру экрана
+        const vx = center.x - l.bx;
+        const vy = center.y - l.by;
         
-        // 3. Колебание перпендикулярно вектору или просто вверх-вниз
-        const moveVertical = Math.cos(l.phase * l.sy * 100) * l.rng;
-
-        // Итоговая позиция: База + (Смещение к центру) + (Смещение по вертикали)
-        const x = l.bx + (normDirX * moveTowardsCenter);
-        const y = l.by + (normDirY * moveTowardsCenter) + moveVertical;
+        // Колебание строго ПО ЭТОМУ ВЕКТОРУ
+        // sin колеблется от -1 до 1, поэтому движение идеально симметрично
+        const oscillation = Math.sin(l.phase * l.speed * 10.0) * l.rng;
+        
+        const x = l.bx + (vx * oscillation);
+        const y = l.by + (vy * oscillation);
 
         flat.push(x, y, UNIFORM_RADIUS);
     });
