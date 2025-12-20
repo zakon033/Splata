@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>iPhone 16 Lens - Custom Colors</title>
+    <title>iPhone 16 - Ultimate Optical Lens</title>
     <style>
         body { margin: 0; background: #030303; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
         canvas { display: block; width: 100vw; height: 100vh; touch-action: manipulation; }
@@ -30,6 +30,7 @@
     uniform vec3 uLenses[3];
     uniform vec2 uResolution;
 
+    // Функция отрисовки идеального ободка (Белый кант -> Голубое свечение)
     vec4 getLensEdge(vec2 uv, vec2 pos, float r, vec2 aspect) {
         float d = length((uv - pos) * aspect);
         float whiteRing = smoothstep(0.003, 0.0, abs(d - r));
@@ -46,24 +47,51 @@
         for (int i = 0; i < 3; i++) {
             vec2 lPos = uLenses[i].xy;
             float r = uLenses[i].z;
-            float d = length((vUv - lPos) * aspect);
+            vec2 distVec = (vUv - lPos) * aspect;
+            float d = length(distVec);
 
             if (d < r) {
-                float refr = pow(d / r, 0.65);
-                vec2 distortedUv = lPos + (vUv - lPos) * refr;
-                finalColor = texture2D(uTexture, distortedUv);
+                float normD = d / r;
+                float distortion;
+                float aberration = 0.0;
 
+                // 1. ЛОГИКА ИСКАЖЕНИЯ С ИНВЕРСИЕЙ НА КРАЯХ (10-15% радиуса)
+                if (normD < 0.88) {
+                    // Центр: Плавное увеличение
+                    distortion = pow(normD, 0.7);
+                } else {
+                    // Край: Зеркальный переворот (инверсия)
+                    float edgeFactor = (normD - 0.88) / 0.12;
+                    distortion = 0.91 - edgeFactor * 0.25; 
+                    aberration = edgeFactor * 0.015; // Расслоение цвета на краю
+                }
+
+                // Вычисляем UV с учетом искажения и микро-сдвига для RGB (аберрация)
+                vec2 uvBase = lPos + (vUv - lPos) * (distortion / normD);
+                
+                float rChan = texture2D(uTexture, uvBase + aberration).r;
+                float gChan = texture2D(uTexture, uvBase).g;
+                float bChan = texture2D(uTexture, uvBase - aberration).b;
+                
+                finalColor = vec4(rChan, gChan, bChan, 1.0);
+
+                // 2. ИЕРАРХИЯ: Искажаем ободки нижних линз, если они под текущей
                 for (int j = 0; j < 3; j++) {
                     if (j < i) {
-                        vec4 prevEdge = getLensEdge(distortedUv, uLenses[j].xy, uLenses[j].z, aspect);
+                        vec4 prevEdge = getLensEdge(uvBase, uLenses[j].xy, uLenses[j].z, aspect);
                         finalColor.rgb += prevEdge.rgb * prevEdge.a;
                     }
                 }
-                finalColor.rgb = mix(finalColor.rgb, vec3(0.3, 0.3, 0.4), 0.1);
+                
+                // Тон линзы (стекло)
+                finalColor.rgb = mix(finalColor.rgb, vec3(0.3, 0.35, 0.45), 0.08);
             }
+
+            // 3. ОБОДОК ТЕКУЩЕЙ ЛИНЗЫ (Всегда четкий, поверх всего)
             vec4 currentEdge = getLensEdge(vUv, lPos, r, aspect);
             finalColor.rgb += currentEdge.rgb * currentEdge.a;
         }
+        
         gl_FragColor = vec4(finalColor.rgb, 1.0);
     }
 </script>
@@ -83,16 +111,15 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
+// Текстура фона с вашими цветами и текстом
 const texCanv = document.createElement('canvas');
 texCanv.width = 2048; texCanv.height = 2048;
 const tCtx = texCanv.getContext('2d');
 
 function drawBgTexture() {
     const grad = tCtx.createLinearGradient(0, 0, 0, 2048);
-    // ВАШИ ЦВЕТА
-    grad.addColorStop(0, '#686878'); // Верхний
-    grad.addColorStop(1, '#030303'); // Нижний
-    
+    grad.addColorStop(0, '#686878'); // ВЕРХНИЙ
+    grad.addColorStop(1, '#030303'); // НИЖНИЙ
     tCtx.fillStyle = grad; 
     tCtx.fillRect(0, 0, 2048, 2048);
     
@@ -126,7 +153,6 @@ const tex = gl.createTexture();
 gl.bindTexture(gl.TEXTURE_2D, tex);
 gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texCanv);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
 const uL = gl.getUniformLocation(prog, "uLenses");
 const uR = gl.getUniformLocation(prog, "uResolution");
@@ -134,19 +160,21 @@ const uR = gl.getUniformLocation(prog, "uResolution");
 const UNIFORM_RADIUS = 0.345;
 
 const lenses = [
-    { x: 0.3, y: 0.4, r: UNIFORM_RADIUS, sx: 0.0015, sy: 0.0011 },
-    { x: 0.7, y: 0.6, r: UNIFORM_RADIUS, sx: -0.0012, sy: -0.0018 },
-    { x: 0.5, y: 0.5, r: UNIFORM_RADIUS, sx: 0.0008, sy: -0.001 }
+    { baseX: 0.85, baseY: 0.15, x: 0.85, y: 0.15, r: UNIFORM_RADIUS, angle: 0, speed: 0.004, range: 0.1 },
+    { baseX: 0.15, baseY: 0.5, x: 0.15, y: 0.5, r: UNIFORM_RADIUS, angle: 2, speed: 0.003, range: 0.1 },
+    { baseX: 0.85, baseY: 0.85, x: 0.85, y: 0.85, r: UNIFORM_RADIUS, angle: 4, speed: 0.005, range: 0.1 }
 ];
 
 function draw() {
     const flat = [];
     lenses.forEach(l => {
-        l.x += l.sx; l.y += l.sy;
-        if(l.x < 0.1 || l.x > 0.9) l.sx *= -1;
-        if(l.y < 0.1 || l.y > 0.9) l.sy *= -1;
+        l.angle += l.speed;
+        // Мягкое покачивание вокруг якорей
+        l.x = l.baseX + Math.cos(l.angle) * l.range * 0.5;
+        l.y = l.baseY + Math.sin(l.angle * 1.1) * l.range * 0.5;
         flat.push(l.x, l.y, l.r);
     });
+
     gl.uniform3fv(uL, flat);
     gl.uniform2f(uR, width, height);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
