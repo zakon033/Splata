@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes"> 
 
 <style>
-/* ТВОИ ОРИГИНАЛЬНЫЕ СТИЛИ 1 В 1 */
+/* ТВОЙ ОРИГИНАЛЬНЫЙ CSS БЕЗ ИЗМЕНЕНИЙ */
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html { background-color: #030303; }
 body {
@@ -19,7 +19,6 @@ body {
   color: #ffffff; background: transparent !important; position: relative;
 }
 
-/* ХОЛСТ ДЛЯ ШЕЙДЕРА (ПОДЛОЖКА) */
 #bgCanvas {
   position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
   z-index: -1; display: block; pointer-events: none;
@@ -38,22 +37,21 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
   position: relative; overflow: hidden; display: flex; align-items: center; 
   width: 100%; height: 80px; padding: 0 12px; margin-bottom: 15px; 
   backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-  background-color: rgba(255, 255, 255, 0.1); 
-  border: 1px solid rgba(255, 255, 255, 0.1); 
+  background-color: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.1); 
   border-radius: 70px; color: #fff; text-decoration: none; font-size: 22px; 
   font-weight: 500; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
   transition: transform 0.1s, background-color 0.2s; cursor: pointer; user-select: none;
   opacity: 0; animation: fadeInUp 0.5s ease-out forwards;
 }
 
-.btn.clicked { transform: scale(0.97) !important; background-color: rgba(46, 204, 113, 0.3) !important; }
-.btn.copied { background-color: rgba(46, 204, 113, 0.3) !important; }
-
 .btn::before, .btn::after {
     content: ''; position: absolute; left: 0; width: 100%; height: 1.5px; z-index: 1;
 }
 .btn::before { top: 0; background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent); }
 .btn::after { bottom: 0; background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent); }
+
+.btn.clicked { transform: scale(0.97) !important; background-color: rgba(46, 204, 113, 0.3) !important; }
+.btn.copied { background-color: rgba(46, 204, 113, 0.3) !important; }
 
 .btn img { display: block; }
 .btn-full-logo { justify-content: center; }
@@ -72,8 +70,7 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
 
 .btn-card { justify-content: center; }
 .card-number-font {
-    font-family: 'Consolas', 'Courier New', monospace;
-    font-size: clamp(16px, 6vw, 26px); 
+    font-family: 'Consolas', 'Courier New', monospace; font-size: clamp(16px, 6vw, 26px); 
     font-weight: 500; letter-spacing: 1px; color: #e0e0e0; 
     text-shadow: -2px -2px 3px rgba(255, 255, 255, 0.4), 2px 2px 3px rgba(0, 0, 0, 0.9);
 }
@@ -97,7 +94,6 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
 
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; } }
 
-/* ТВОИ ОРИГИНАЛЬНЫЕ ЗАДЕРЖКИ */
 .btn:nth-child(3) { animation-delay: 0.1s; }
 .btn:nth-child(4) { animation-delay: 0.2s; }
 .btn:nth-child(5) { animation-delay: 0.3s; }
@@ -121,73 +117,36 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
   <h1>💳 Переказати кошти</h1>
   <div class="subtitle">Оберіть зручний спосіб</div>
 
-  <a class="btn btn-full-logo" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">
-    <img src="img/monobank.svg" alt="monobank">
-  </a>
-
-  <a class="btn btn-full-logo" data-href="https://www.privat24.ua/send/id4xg" onclick="handleLinkClick(this)">
-    <img src="img/PrivatBank.svg" alt="PrivatBank">
-  </a>
-
-  <div class="btn btn-card" onclick="handleCopyClick(this, '4441114459954077')">
-    <span class="card-number-font">4441 •••• •••• 4077</span>
-  </div>
-  
-  <a class="btn btn-full-logo btn-pay-small" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">
-     <img src="img/apple_pay.svg" alt="apple_pay">
-  </a>
-
-  <a class="btn btn-full-logo btn-pay-small" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">
-    <img src="img/google_pay.svg" alt="google_pay">
-  </a>
-  
-  <a class="btn btn-with-text" data-href="https://app.binance.com/uni-qr/LXViL5Hb" onclick="handleLinkClick(this)">
-    <div class="btn-icon"><img src="img/bnb.svg" alt="binance"></div>
-    <span class="btn-text">Binance Pay</span>
-  </a>
-
-  <div class="btn btn-with-text" onclick="handleCopyClick(this, 'bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp')">
-    <div class="btn-icon"><img src="img/btc.svg" alt="btc"></div>
-    <span class="btn-text">Bitcoin (BTC)</span>
-  </div>
-  
-  <div class="btn btn-with-text" onclick="handleCopyClick(this, '0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
-    <div class="btn-icon"><img src="img/eth.svg" alt="eth"></div>
-    <span class="btn-text">Ethereum (ETH)</span>
-  </div>
-  
-  <div class="btn btn-with-text" onclick="handleCopyClick(this, 'TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh')">
-    <div class="btn-icon"><img src="img/usdt.svg" alt="usdt"></div>
-    <span class="btn-text">USDT (Tether)</span>
-  </div>
-  
-  <div class="btn btn-with-text" onclick="handleCopyClick(this, 'EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7')">
-    <div class="btn-icon"><img src="img/sol.svg" alt="sol"></div>
-    <span class="btn-text">Solana (SOL)</span>
-  </div>
-  
-  <div class="btn btn-with-text" onclick="handleCopyClick(this, '0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
-    <div class="btn-icon"><img src="img/usdc.svg" alt="usdc"></div>
-    <span class="btn-text">USDC (Polygon)</span>
-  </div>
-
+  <a class="btn btn-full-logo" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)"><img src="img/monobank.svg" alt="monobank"></a>
+  <a class="btn btn-full-logo" data-href="https://www.privat24.ua/send/id4xg" onclick="handleLinkClick(this)"><img src="img/PrivatBank.svg" alt="PrivatBank"></a>
+  <div class="btn btn-card" onclick="handleCopyClick(this, '4441114459954077')"><span class="card-number-font">4441 •••• •••• 4077</span></div>
+  <a class="btn btn-full-logo btn-pay-small" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)"><img src="img/apple_pay.svg" alt="apple_pay"></a>
+  <a class="btn btn-full-logo btn-pay-small" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)"><img src="img/google_pay.svg" alt="google_pay"></a>
+  <a class="btn btn-with-text" data-href="https://app.binance.com/uni-qr/LXViL5Hb" onclick="handleLinkClick(this)"><div class="btn-icon"><img src="img/bnb.svg" alt="binance"></div><span class="btn-text">Binance Pay</span></a>
+  <div class="btn btn-with-text" onclick="handleCopyClick(this, 'bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp')"><div class="btn-icon"><img src="img/btc.svg" alt="btc"></div><span class="btn-text">Bitcoin (BTC)</span></div>
+  <div class="btn btn-with-text" onclick="handleCopyClick(this, '0xCcbD44EA963812ECc7F592a608245284c5cD87D9')"><div class="btn-icon"><img src="img/eth.svg" alt="eth"></div><span class="btn-text">Ethereum (ETH)</span></div>
+  <div class="btn btn-with-text" onclick="handleCopyClick(this, 'TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh')"><div class="btn-icon"><img src="img/usdt.svg" alt="usdt"></div><span class="btn-text">USDT (Tether)</span></div>
+  <div class="btn btn-with-text" onclick="handleCopyClick(this, 'EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7')"><div class="btn-icon"><img src="img/sol.svg" alt="sol"></div><span class="btn-text">Solana (SOL)</span></div>
+  <div class="btn btn-with-text" onclick="handleCopyClick(this, '0xCcbD44EA963812ECc7F592a608245284c5cD87D9')"><div class="btn-icon"><img src="img/usdc.svg" alt="usdc"></div><span class="btn-text">USDC (Polygon)</span></div>
   <a class="btn btn-triple" data-href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9" onclick="handleLinkClick(this)">
-     <div class="btn-icon"><img src="img/usdc.svg"></div> 
-     <span class="btn-text">USDC (Polygon) Trust</span>
-     <div class="btn-icon-right"><img src="img/trust.svg"></div> 
+     <div class="btn-icon"><img src="img/usdc.svg"></div><span class="btn-text">USDC (Polygon) Trust</span><div class="btn-icon-right"><img src="img/trust.svg"></div> 
   </a>
 </div>
 
 <div id="copy-toast">Скопійовано!</div>
 
 <script id="vs" type="x-shader/x-vertex">
-    attribute vec2 position; varying vec2 vUv;
+    attribute vec2 position;
+    varying vec2 vUv;
     void main() { vUv = position * 0.5 + 0.5; vUv.y = 1.0 - vUv.y; gl_Position = vec4(position, 0.0, 1.0); }
 </script>
 
 <script id="fs" type="x-shader/x-fragment">
     precision highp float;
-    varying vec2 vUv; uniform vec2 uResolution; uniform float uTime; uniform vec3 uLenses[3];
+    varying vec2 vUv;
+    uniform vec2 uResolution;
+    uniform float uTime;
+    uniform vec3 uLenses[3];
 
     vec3 getLensColor(float t) {
         vec3 c1 = vec3(0.0, 0.6, 1.0); vec3 c2 = vec3(1.0, 0.4, 0.0); vec3 c3 = vec3(0.4, 1.0, 0.0);
@@ -199,17 +158,14 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
         vec2 aspect = vec2(uResolution.x / uResolution.y, 1.0);
         vec3 bgColor = mix(vec3(0.1, 0.12, 0.23), vec3(0.01), vUv.y);
         vec3 finalColor = bgColor;
-
         for (int i = 0; i < 3; i++) {
             vec2 lPos = uLenses[i].xy; float r = uLenses[i].z;
             vec2 distVec = (vUv - lPos) * aspect; float d = length(distVec);
-
             if (d < r) {
                 float normD = d / r;
                 float distortion = (normD < 0.85) ? pow(normD, 0.85) : 0.88 - pow((normD - 0.85)/0.15, 1.5)*0.45;
                 float chroma = (normD > 0.85) ? (normD - 0.85)*0.04 : 0.0;
                 vec2 uvBase = lPos + (vUv - lPos) * (distortion / (normD + 0.0001));
-                
                 finalColor.r = mix(vec3(0.1, 0.12, 0.23), vec3(0.01), clamp(uvBase.y + chroma, 0.0, 1.0)).r;
                 finalColor.g = mix(vec3(0.1, 0.12, 0.23), vec3(0.01), uvBase.y).g;
                 finalColor.b = mix(vec3(0.1, 0.12, 0.23), vec3(0.01), clamp(uvBase.y - chroma, 0.0, 1.0)).b;
@@ -226,7 +182,6 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
 </script>
 
 <script>
-// WEBGL LOGIC
 const canvas = document.getElementById('bgCanvas');
 const gl = canvas.getContext('webgl');
 let w, h;
@@ -265,13 +220,12 @@ function render() {
 }
 render();
 
-// ТВОЯ ОРИГИНАЛЬНАЯ ЛОГИКА JS
+/* ТВОЯ ЛОГИКА JS 1 В 1 */
 function handleLinkClick(el) { 
   event.preventDefault(); 
   el.classList.add('clicked'); 
   setTimeout(() => window.location.href = el.getAttribute('data-href'), 150); 
 }
-
 function handleCopyClick(el, txt) {
   el.classList.add('clicked');
   navigator.clipboard.writeText(txt).then(() => {
