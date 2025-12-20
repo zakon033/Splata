@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>iPhone 16 Lens Effect - WebGL</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>iPhone 16 - Physical Lens</title>
     <style>
-        body { margin: 0; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        canvas { width: 800px; height: 600px; touch-action: none; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
+        body { margin: 0; background: #000; overflow: auto; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        canvas { display: block; max-width: 100vw; max-height: 100vh; touch-action: manipulation; }
     </style>
 </head>
 <body>
@@ -17,7 +18,7 @@
     varying vec2 vUv;
     void main() {
         vUv = position * 0.5 + 0.5;
-        vUv.y = 1.0 - vUv.y; // Переворачиваем Y для соответствия текстурным координатам
+        vUv.y = 1.0 - vUv.y;
         gl_Position = vec4(position, 0.0, 1.0);
     }
 </script>
@@ -26,71 +27,74 @@
     precision highp float;
     varying vec2 vUv;
     uniform sampler2D uTexture;
-    uniform vec3 uLenses[3]; // x, y, radius
+    uniform vec3 uLenses[3];
     uniform vec2 uResolution;
 
-    // Функция для отрисовки визуальных эффектов линзы (ободок и свечение)
-    // Мы передаем сюда искаженные координаты, если линза находится под другой линзой
-    vec4 getLensVisuals(vec2 uv, vec2 pos, float r) {
+    // Функция создания многослойного стекла линзы
+    vec4 getLensMaterial(vec2 uv, vec2 pos, float r) {
         vec2 aspect = vec2(uResolution.x / uResolution.y, 1.0);
         vec2 distVec = (uv - pos) * aspect;
         float dist = length(distVec);
         
-        vec4 res = vec4(0.0);
+        vec4 material = vec4(0.0);
+        
         if (dist < r) {
-            // 1. Тонкий белый контур (абрис)
-            float edge = smoothstep(r, r - 0.003, dist) * smoothstep(r - 0.008, r - 0.005, dist);
-            res.rgb += vec3(1.0) * edge * 0.8;
+            // 1. ЛЕГКАЯ МУТНОСТЬ (дымка внутри всей линзы)
+            float haze = 0.05; 
+            material.rgb = vec3(0.5, 0.7, 1.0) * haze;
+            material.a = haze;
+
+            // 2. ГРАДИЕНТНЫЙ КРАЙ: Белый -> Голубой -> Прозрачный
+            // Создаем маску для самого края
+            float edgeMask = smoothstep(r, r - 0.015, dist);
             
-            // 2. Голубое свечение (переходящее в прозрачность)
-            float glow = smoothstep(r, r - 0.1, dist) * pow(dist/r, 4.0);
-            res.rgb += vec3(0.0, 0.6, 1.0) * glow * 0.4;
+            // Белая тонкая линия на самом внешнем срезе
+            float whiteLine = smoothstep(r, r - 0.002, dist) * smoothstep(r - 0.005, r - 0.002, dist);
             
-            // Альфа-канал для смешивания слоев
-            res.a = max(edge, glow * 0.4);
+            // Голубое свечение, уходящее внутрь
+            float blueGlow = smoothstep(r - 0.002, r - 0.04, dist);
+            
+            vec3 edgeColor = mix(vec3(0.0, 0.5, 1.0), vec3(1.0, 1.0, 1.0), whiteLine);
+            float edgeIntensity = max(whiteLine * 0.9, blueGlow * 0.5);
+            
+            material.rgb = mix(material.rgb, edgeColor, edgeIntensity);
+            material.a = max(material.a, edgeIntensity);
         }
-        return res;
+        return material;
     }
 
     void main() {
         vec2 uv = vUv;
         vec2 aspect = vec2(uResolution.x / uResolution.y, 1.0);
-        
-        // Начинаем с базового цвета фона
         vec4 finalColor = texture2D(uTexture, uv);
 
-        // Последовательно обрабатываем каждую линзу (от нижней к верхней)
         for (int i = 0; i < 3; i++) {
             vec2 lensPos = uLenses[i].xy;
             float r = uLenses[i].z;
-            
-            // Проверяем расстояние от текущего "настоящего" пикселя экрана до центра линзы
             vec2 distVec = (vUv - lensPos) * aspect;
             float dist = length(distVec);
 
             if (dist < r) {
-                // ПРИМЕНЯЕМ ПРЕЛОМЛЕНИЕ:
-                // Вычисляем новые координаты uv, которые "заглядывают" под линзу
+                // ПРЕЛОМЛЕНИЕ
                 float refraction = pow(dist / r, 0.65);
-                vec2 distortedUv = lensPos + (vUv - lensPos) * refraction;
+                vec2 distUv = lensPos + (vUv - lensPos) * refraction;
                 
-                // 1. Обновляем цвет фона (теперь он искажен текущей линзой)
-                finalColor = texture2D(uTexture, distortedUv);
+                // Смотрим на то, что под линзой (с учетом искажения)
+                finalColor = texture2D(uTexture, distUv);
 
-                // 2. ПЕРЕРИСОВЫВАЕМ эффекты всех ПРЕДЫДУЩИХ линз с учетом нового искажения
+                // Искажаем визуальные эффекты нижних линз
                 for (int j = 0; j < 3; j++) {
-                    if (j < i) { // Только те, что лежат ниже
-                        vec4 prevLens = getLensVisuals(distortedUv, uLenses[j].xy, uLenses[j].z);
-                        finalColor.rgb = mix(finalColor.rgb, prevLens.rgb, prevLens.a);
+                    if (j < i) {
+                        vec4 prevMat = getLensMaterial(distUv, uLenses[j].xy, uLenses[j].z);
+                        finalColor.rgb = mix(finalColor.rgb, prevMat.rgb, prevMat.a);
                     }
                 }
             }
-
-            // 3. Рисуем визуальные эффекты ТЕКУЩЕЙ линзы поверх всего (не искаженные ею самой)
-            vec4 currentVfx = getLensVisuals(vUv, lensPos, r);
-            finalColor.rgb = mix(finalColor.rgb, currentVfx.rgb, currentVfx.a);
+            
+            // Рисуем материал текущей линзы поверх
+            vec4 currentMat = getLensMaterial(vUv, lensPos, r);
+            finalColor.rgb = mix(finalColor.rgb, currentMat.rgb, currentMat.a);
         }
-
         gl_FragColor = finalColor;
     }
 </script>
@@ -99,43 +103,43 @@
 const canvas = document.getElementById('glCanvas');
 const gl = canvas.getContext('webgl');
 
-const width = 800;
-const height = 600;
+let width, height;
+function updateSize() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    gl.viewport(0, 0, canvas.width, canvas.height);
+}
+updateSize();
 
-// Создаем текстуру фона (текст iPhone 16)
 const textCanvas = document.createElement('canvas');
-textCanvas.width = 1024;
-textCanvas.height = 1024;
+textCanvas.width = 2048; textCanvas.height = 2048;
 const tCtx = textCanvas.getContext('2d');
 
 function drawBgTexture() {
-    const grad = tCtx.createLinearGradient(0, 0, 1024, 1024);
-    grad.addColorStop(0, '#1a0033');
-    grad.addColorStop(0.5, '#c1272d');
-    grad.addColorStop(1, '#4a148c');
+    const grad = tCtx.createLinearGradient(0, 0, 2048, 2048);
+    grad.addColorStop(0, '#120022');
+    grad.addColorStop(0.5, '#b01e24');
+    grad.addColorStop(1, '#3a0d70');
     tCtx.fillStyle = grad;
-    tCtx.fillRect(0, 0, 1024, 1024);
+    tCtx.fillRect(0, 0, 2048, 2048);
     
     tCtx.fillStyle = 'white';
-    tCtx.font = '900 130px sans-serif';
+    tCtx.font = '900 240px sans-serif';
     tCtx.textAlign = 'center';
     tCtx.textBaseline = 'middle';
-    tCtx.globalAlpha = 0.5;
-    tCtx.fillText('IPHONE 16', 512, 512);
+    tCtx.globalAlpha = 0.6;
+    tCtx.fillText('IPHONE 16', 1024, 1024);
 }
 drawBgTexture();
 
-// Инициализация шейдеров
 function createShader(gl, type, source) {
-    const shader = gl.createShader(type);
-    gl.shaderSource(shader, source);
-    gl.compileShader(shader);
-    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        console.error(gl.getShaderInfoLog(shader));
-        gl.deleteShader(shader);
-        return null;
-    }
-    return shader;
+    const s = gl.createShader(type);
+    gl.shaderSource(s, source);
+    gl.compileShader(s);
+    return s;
 }
 
 const program = gl.createProgram();
@@ -144,43 +148,32 @@ gl.attachShader(program, createShader(gl, gl.FRAGMENT_SHADER, document.getElemen
 gl.linkProgram(program);
 gl.useProgram(program);
 
-// Плоскость на весь экран
-const vertices = new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]);
 const buffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
+const posLoc = gl.getAttribLocation(program, "position");
+gl.enableVertexAttribArray(posLoc);
+gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
 
-const positionLocation = gl.getAttribLocation(program, "position");
-gl.enableVertexAttribArray(positionLocation);
-gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-
-// Загрузка текстуры в GPU
 const texture = gl.createTexture();
 gl.bindTexture(gl.TEXTURE_2D, texture);
 gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, textCanvas);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
-// Поиск uniform-переменных
 const uLensesLoc = gl.getUniformLocation(program, "uLenses");
 const uResLoc = gl.getUniformLocation(program, "uResolution");
 
 const lensData = [
-    { x: 0.3, y: 0.3, r: 0.18, sx: 0.003, sy: 0.0025 }, // Нижняя
-    { x: 0.7, y: 0.6, r: 0.15, sx: -0.0025, sy: -0.0035 }, // Средняя
-    { x: 0.5, y: 0.5, r: 0.23, sx: 0.0015, sy: -0.0018 }  // Верхняя
+    { x: 0.3, y: 0.4, r: 0.18, sx: 0.0015, sy: 0.0011 },
+    { x: 0.7, y: 0.6, r: 0.14, sx: -0.0012, sy: -0.0018 },
+    { x: 0.5, y: 0.5, r: 0.21, sx: 0.0008, sy: -0.0009 }
 ];
 
 function render() {
-    canvas.width = width * window.devicePixelRatio;
-    canvas.height = height * window.devicePixelRatio;
-    gl.viewport(0, 0, canvas.width, canvas.height);
-
     const flatLenses = [];
     lensData.forEach(l => {
-        l.x += l.sx;
-        l.y += l.sy;
+        l.x += l.sx; l.y += l.sy;
         if (l.x < 0.1 || l.x > 0.9) l.sx *= -1;
         if (l.y < 0.1 || l.y > 0.9) l.sy *= -1;
         flatLenses.push(l.x, l.y, l.r);
@@ -188,11 +181,11 @@ function render() {
 
     gl.uniform3fv(uLensesLoc, flatLenses);
     gl.uniform2f(uResLoc, width, height);
-
     gl.drawArrays(gl.TRIANGLES, 0, 6);
     requestAnimationFrame(render);
 }
 
+window.addEventListener('resize', updateSize);
 render();
 </script>
 </body>
