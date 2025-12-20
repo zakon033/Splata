@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>iPhone 16 - Fixed & Stabilized</title>
+    <title>iPhone 16 - Vector Motion Control</title>
     <style>
         body { margin: 0; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
         canvas { display: block; width: 100vw; height: 100vh; }
@@ -101,14 +101,9 @@
 const canvas = document.getElementById('glCanvas');
 const gl = canvas.getContext('webgl');
 
-if (!gl) {
-    alert("WebGL не поддерживается");
-}
-
 let width, height;
 function resize() {
-    width = window.innerWidth;
-    height = window.innerHeight;
+    width = window.innerWidth; height = window.innerHeight;
     canvas.width = width * (window.devicePixelRatio || 1);
     canvas.height = height * (window.devicePixelRatio || 1);
     gl.viewport(0, 0, canvas.width, canvas.height);
@@ -116,6 +111,7 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
+// Текстура фона
 const texCanv = document.createElement('canvas');
 texCanv.width = 2048; texCanv.height = 2048;
 const tCtx = texCanv.getContext('2d');
@@ -123,12 +119,6 @@ function drawBgTexture() {
     const grad = tCtx.createLinearGradient(0, 0, 0, 2048);
     grad.addColorStop(0, '#686878'); grad.addColorStop(1, '#030303'); 
     tCtx.fillStyle = grad; tCtx.fillRect(0, 0, 2048, 2048);
-    for(let i = 0; i < 15; i++) {
-        const x = Math.random() * 2048, y = Math.random() * 2048, r = 300 + Math.random() * 500;
-        const g = tCtx.createRadialGradient(x, y, 0, x, y, r);
-        g.addColorStop(0, 'rgba(255, 255, 255, 0.05)'); g.addColorStop(1, 'rgba(255, 255, 255, 0)');
-        tCtx.fillStyle = g; tCtx.fillRect(0, 0, 2048, 2048);
-    }
     tCtx.fillStyle = 'white'; tCtx.font = '900 240px sans-serif';
     tCtx.textAlign = 'center'; tCtx.globalAlpha = 0.3; tCtx.fillText('IPHONE 16', 1024, 1024);
 }
@@ -136,21 +126,14 @@ drawBgTexture();
 
 function createShader(gl, type, source) {
     const s = gl.createShader(type);
-    gl.shaderSource(s, source);
-    gl.compileShader(s);
-    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
-        console.error(gl.getShaderInfoLog(s));
-        gl.deleteShader(s);
-        return null;
-    }
+    gl.shaderSource(s, source); gl.compileShader(s);
     return s;
 }
 
 const prog = gl.createProgram();
 gl.attachShader(prog, createShader(gl, gl.VERTEX_SHADER, document.getElementById('vs').text));
 gl.attachShader(prog, createShader(gl, gl.FRAGMENT_SHADER, document.getElementById('fs').text));
-gl.linkProgram(prog);
-gl.useProgram(prog);
+gl.linkProgram(prog); gl.useProgram(prog);
 
 const buf = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, buf);
@@ -162,27 +145,44 @@ const tex = gl.createTexture();
 gl.bindTexture(gl.TEXTURE_2D, tex);
 gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texCanv);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
 const uL = gl.getUniformLocation(prog, "uLenses");
 const uR = gl.getUniformLocation(prog, "uResolution");
 
 const UNIFORM_RADIUS = 0.345;
 const lenses = [
-    { bx: 0.85, by: 0.15, ax: 0, ay: 1, sx: 0.005, sy: 0.007, r: 0.03 }, // Верх-право
-    { bx: 0.15, by: 0.5,  ax: 2, ay: 3, sx: 0.006, sy: 0.004, r: 0.03 }, // Центр-лево
-    { bx: 0.85, by: 0.85, ax: 4, ay: 5, sx: 0.003, sy: 0.006, r: 0.03 }  // Низ-право
+    { bx: 0.85, by: 0.15, phase: 0, sx: 0.005, sy: 0.007, rng: 0.03 }, // Верх-право
+    { bx: 0.15, by: 0.5,  phase: 2, sx: 0.006, sy: 0.004, rng: 0.03 }, // Центр-лево
+    { bx: 0.85, by: 0.85, phase: 4, sx: 0.004, sy: 0.005, rng: 0.03 }  // Низ-право
 ];
 
 function draw() {
     const flat = [];
+    const center = { x: 0.5, y: 0.5 };
+
     lenses.forEach(l => {
-        l.ax += l.sx; l.ay += l.sy;
-        const x = l.bx + Math.cos(l.ax) * l.r;
-        const y = l.by + Math.sin(l.ay) * l.r;
+        l.phase += 0.01; // Общая скорость времени
+        
+        // 1. Направление к центру экрана
+        const dirX = center.x - l.bx;
+        const dirY = center.y - l.by;
+        const distToCenter = Math.sqrt(dirX * dirX + dirY * dirY);
+        const normDirX = dirX / distToCenter;
+        const normDirY = dirY / distToCenter;
+
+        // 2. Колебание вдоль вектора к центру (и обратно)
+        const moveTowardsCenter = Math.sin(l.phase * l.sx * 100) * l.rng;
+        
+        // 3. Колебание перпендикулярно вектору или просто вверх-вниз
+        const moveVertical = Math.cos(l.phase * l.sy * 100) * l.rng;
+
+        // Итоговая позиция: База + (Смещение к центру) + (Смещение по вертикали)
+        const x = l.bx + (normDirX * moveTowardsCenter);
+        const y = l.by + (normDirY * moveTowardsCenter) + moveVertical;
+
         flat.push(x, y, UNIFORM_RADIUS);
     });
+
     gl.uniform3fv(uL, flat);
     gl.uniform2f(uR, width, height);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
