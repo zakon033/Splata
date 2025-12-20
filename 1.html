@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>iPhone 16 - Final Optical Engine</title>
+    <title>iPhone 16 - Minimalist Glass</title>
     <style>
         body { margin: 0; background: #030303; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
         canvas { display: block; width: 100vw; height: 100vh; touch-action: manipulation; }
@@ -31,13 +30,12 @@
     uniform vec3 uLenses[3];
     uniform vec2 uResolution;
 
+    // Функция отрисовки КРАЯ (теперь без наружного свечения)
     vec4 getLensEdge(vec2 uv, vec2 pos, float r, vec2 aspect) {
         float d = length((uv - pos) * aspect);
-        float whiteRing = smoothstep(0.0035, 0.0, abs(d - r));
-        float blueGlow = smoothstep(0.025, 0.0, abs(d - r));
-        vec3 color = mix(vec3(0.05, 0.45, 1.0), vec3(1.2), whiteRing);
-        float alpha = max(whiteRing, blueGlow * 0.8);
-        return vec4(color, alpha);
+        // Оставляем только очень тонкую белую линию на границе радиуса
+        float whiteRing = smoothstep(0.002, 0.0, abs(d - r));
+        return vec4(vec3(1.0), whiteRing * 0.8); // Белый контур с небольшой прозрачностью
     }
 
     void main() {
@@ -53,37 +51,39 @@
             if (d < r) {
                 float normD = d / r;
                 float distortion;
-                float aberration = 0.0;
+                float chroma = 0.0;
 
-                // ГИПЕР-ОПТИКА: Инверсия на 18% края
-                if (normD < 0.82) {
-                    distortion = pow(normD, 0.55); 
+                // Центр линзы (плоский профиль)
+                if (normD < 0.85) {
+                    distortion = pow(normD, 0.85); 
                 } else {
-                    float edgeFactor = (normD - 0.82) / 0.18;
-                    distortion = 0.89 - pow(edgeFactor, 1.2) * 0.45; 
-                    aberration = edgeFactor * 0.025;
+                    // Инверсия края
+                    float edgeProgress = (normD - 0.85) / 0.15;
+                    distortion = 0.88 - pow(edgeProgress, 1.5) * 0.45; 
+                    chroma = edgeProgress * 0.03;
                 }
 
                 vec2 uvBase = lPos + (vUv - lPos) * (distortion / normD);
                 
-                // Хроматическая аберрация (радужный край)
-                float rChan = texture2D(uTexture, uvBase + aberration * 1.2).r;
+                float rChan = texture2D(uTexture, uvBase + chroma).r;
                 float gChan = texture2D(uTexture, uvBase).g;
-                float bChan = texture2D(uTexture, uvBase - aberration * 0.8).b;
+                float bChan = texture2D(uTexture, uvBase - chroma).b;
                 
                 finalColor = vec4(rChan, gChan, bChan, 1.0);
 
-                // Иерархия: линзы преломляют друг друга
+                // Внутренние искажения слоев
                 for (int j = 0; j < 3; j++) {
                     if (j < i) {
-                        vec4 prevEdge = getLensEdge(uvBase, uLenses[j].xy, uLenses[j].z, aspect);
-                        finalColor.rgb += prevEdge.rgb * prevEdge.a;
+                        vec4 prev = getLensEdge(uvBase, uLenses[j].xy, uLenses[j].z, aspect);
+                        finalColor.rgb += prev.rgb * prev.a;
                     }
                 }
-                finalColor.rgb = mix(finalColor.rgb, vec3(0.3, 0.4, 0.5), 0.12);
+                // Легкое затемнение стекла
+                finalColor.rgb = mix(finalColor.rgb, vec3(0.2, 0.25, 0.3), 0.05);
             }
-            vec4 currentEdge = getLensEdge(vUv, lPos, r, aspect);
-            finalColor.rgb += currentEdge.rgb * currentEdge.a;
+            // Рисуем только чистый белый ободок
+            vec4 edge = getLensEdge(vUv, lPos, r, aspect);
+            finalColor.rgb += edge.rgb * edge.a;
         }
         gl_FragColor = vec4(finalColor.rgb, 1.0);
     }
@@ -109,27 +109,28 @@ texCanv.width = 2048; texCanv.height = 2048;
 const tCtx = texCanv.getContext('2d');
 
 function drawBgTexture() {
-    // 1. Отрисовка вашего градиента
     const grad = tCtx.createLinearGradient(0, 0, 0, 2048);
-    grad.addColorStop(0, '#686878'); // ВЕРХ
-    grad.addColorStop(1, '#030303'); // НИЗ
+    grad.addColorStop(0, '#686878'); 
+    grad.addColorStop(1, '#030303'); 
     tCtx.fillStyle = grad; 
     tCtx.fillRect(0, 0, 2048, 2048);
     
-    // 2. Добавление "маркеров" для визуализации преломления
-    // Это мелкие пылинки, которые будут закручиваться линзой
-    tCtx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-    for(let i = 0; i < 400; i++) {
-        tCtx.beginPath();
-        tCtx.arc(Math.random()*2048, Math.random()*2048, 1.5, 0, Math.PI*2);
-        tCtx.fill();
+    // Мягкие световые пятна
+    for(let i = 0; i < 12; i++) {
+        const x = Math.random() * 2048;
+        const y = Math.random() * 2048;
+        const r = 300 + Math.random() * 500;
+        const g = tCtx.createRadialGradient(x, y, 0, x, y, r);
+        g.addColorStop(0, 'rgba(255, 255, 255, 0.04)');
+        g.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        tCtx.fillStyle = g;
+        tCtx.fillRect(0, 0, 2048, 2048);
     }
 
-    // 3. Текст
     tCtx.fillStyle = 'white'; 
-    tCtx.font = '900 220px sans-serif';
+    tCtx.font = '900 240px sans-serif';
     tCtx.textAlign = 'center';
-    tCtx.globalAlpha = 0.25; 
+    tCtx.globalAlpha = 0.3; 
     tCtx.fillText('IPHONE 16', 1024, 1024);
 }
 drawBgTexture();
@@ -161,7 +162,6 @@ const uL = gl.getUniformLocation(prog, "uLenses");
 const uR = gl.getUniformLocation(prog, "uResolution");
 
 const UNIFORM_RADIUS = 0.345;
-
 const lenses = [
     { baseX: 0.85, baseY: 0.15, x: 0.85, y: 0.15, r: UNIFORM_RADIUS, angle: 0, speed: 0.005, range: 0.1 },
     { baseX: 0.15, baseY: 0.5, x: 0.15, y: 0.5, r: UNIFORM_RADIUS, angle: 2, speed: 0.004, range: 0.1 },
