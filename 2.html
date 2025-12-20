@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iPhone 16 - Static Base</title>
+    <title>iPhone 16 - Fixed Points & Nested Optics</title>
     <style>
         body { margin: 0; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
         canvas { display: block; width: 100vw; height: 100vh; }
@@ -64,20 +64,42 @@
 
             if (d < r) {
                 float normD = d / r;
-                float distortion = (normD < 0.85) ? pow(normD, 0.85) : 0.88 - pow((normD - 0.85) / 0.15, 1.5) * 0.45;
-                float chroma = (normD < 0.85) ? 0.0 : ((normD - 0.85) / 0.15) * 0.03;
+                float distortion;
+                float chroma = 0.0;
+
+                if (normD < 0.85) {
+                    distortion = pow(normD, 0.85); 
+                } else {
+                    float edgeFactor = (normD - 0.85) / 0.15;
+                    distortion = 0.88 - pow(edgeFactor, 1.5) * 0.45; 
+                    chroma = edgeFactor * 0.03;
+                }
                 
                 vec2 uvBase = lPos + (vUv - lPos) * (distortion / normD);
-                finalColor = vec4(texture2D(uTexture, uvBase + chroma).r, 
-                                  texture2D(uTexture, uvBase).g, 
-                                  texture2D(uTexture, uvBase - chroma).b, 1.0);
+                
+                // Основное преломление текстуры фона
+                float rCh = texture2D(uTexture, uvBase + chroma).r;
+                float gCh = texture2D(uTexture, uvBase).g;
+                float bCh = texture2D(uTexture, uvBase - chroma).b;
+                finalColor = vec4(rCh, gCh, bCh, 1.0);
+
+                // --- ВОЗВРАЩЕННЫЙ БЛОК: Взаимная обработка линз ---
+                for (int j = 0; j < 3; j++) {
+                    if (j != i) { // Линза i "видит" края линзы j внутри себя
+                        vec4 nestedEdge = getLensEdge(uvBase, uLenses[j].xy, uLenses[j].z, aspect, j);
+                        finalColor.rgb += nestedEdge.rgb * nestedEdge.a;
+                    }
+                }
+                // ------------------------------------------------
                 
                 finalColor.rgb = mix(finalColor.rgb, vec3(0.3, 0.35, 0.45), 0.08);
             }
+            
+            // Отрисовка внешних краев линз поверх всего
             vec4 edge = getLensEdge(vUv, lPos, r, aspect, i);
             finalColor.rgb += edge.rgb * edge.a;
         }
-        gl_FragColor = finalColor;
+        gl_FragColor = vec4(finalColor.rgb, 1.0);
     }
 </script>
 
@@ -122,7 +144,12 @@ const uL = gl.getUniformLocation(prog, "uLenses");
 const uR = gl.getUniformLocation(prog, "uResolution");
 
 function draw() {
-    gl.uniform3fv(uL, [0.85, 0.15, 0.345, 0.15, 0.5, 0.345, 0.85, 0.85, 0.345]);
+    // Строго зафиксированные базовые точки
+    gl.uniform3fv(uL, [
+        0.85, 0.15, 0.345, // Верхняя правая
+        0.15, 0.5,  0.345, // Средняя левая
+        0.85, 0.85, 0.345  // Нижняя правая
+    ]);
     gl.uniform2f(uR, canvas.width, canvas.height);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
     requestAnimationFrame(draw);
