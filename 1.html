@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>iPhone 16 - Advanced Edge Gradient</title>
+    <title>iPhone 16 - Deep Shadow Lens</title>
     <style>
         body { margin: 0; background: #030303; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
         canvas { display: block; width: 100vw; height: 100vh; touch-action: manipulation; }
@@ -40,26 +40,31 @@
         vec2 dVec = (uv - pos) * aspect;
         float d = length(dVec);
         
-        // 1. Базовая окантовка
+        // 1. Базовые элементы
         float whiteRing = smoothstep(0.0035, 0.0, abs(d - r));
         float glow = smoothstep(0.03, 0.0, abs(d - r)); 
-        if (d > r) { glow = 0.0; }
+        if (d > r) { glow = 0.0; } // Внешняя маска (как договаривались)
 
-        // 2. ЛОГИКА ГРАДИЕНТА ОКАНТОВКИ (для средней линзы, индекс 1)
-        vec3 ringColor = vec3(1.0); // По умолчанию белый
+        // 2. МАСКА ТЕНИ (для средней линзы, индекс 1)
+        float shadowMask = 1.0; 
         if (index == 1) {
-            // Вычисляем нормализованный вектор направления от центра
             vec2 dir = normalize(dVec);
-            // dir.y будет -1 в самой верхней точке (так как UV перевернуты)
-            // Создаем маску для верхней части (20-30%)
-            float topMask = smoothstep(-0.4, -1.0, dir.y); 
-            ringColor = mix(vec3(1.0), vec3(0.0), topMask);
+            // Плавное гашение в верхней части (dir.y от -0.4 до -1.0)
+            shadowMask = smoothstep(-1.0, -0.4, dir.y);
         }
 
+        // Применяем маску тени и к ободку, и к свечению
+        float finalWhite = whiteRing * shadowMask;
+        float finalGlow = glow * shadowMask;
+
         vec3 baseColor = getDynamicColor(uv.y);
-        vec3 finalRing = mix(baseColor, ringColor, whiteRing);
+        // Смешиваем динамический цвет (голубой/серый) с белым ободком
+        vec3 color = mix(baseColor, vec3(1.0), finalWhite);
         
-        return vec4(finalRing, max(whiteRing, glow * 0.75));
+        // В зонах тени (где shadowMask -> 0) всё уходит в черный
+        float alpha = max(finalWhite, finalGlow * 0.75);
+        
+        return vec4(color, alpha);
     }
 
     void main() {
@@ -102,7 +107,6 @@
                 finalColor.rgb = mix(finalColor.rgb, vec3(0.3, 0.35, 0.45), 0.08);
             }
             
-            // Отрисовка внешнего края с учетом индекса
             vec4 edge = getLensEdge(vUv, lPos, r, aspect, i);
             finalColor.rgb += edge.rgb * edge.a;
         }
@@ -198,3 +202,4 @@ draw();
 </script>
 </body>
 </html>
+
