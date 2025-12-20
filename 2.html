@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>iPhone 16 Lens - Layered Refraction</title>
+    <title>iPhone 16 Lens - Custom Gradient</title>
     <style>
         body { margin: 0; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
         canvas { display: block; width: 100vw; height: 100vh; touch-action: manipulation; }
@@ -30,15 +30,12 @@
     uniform vec3 uLenses[3];
     uniform vec2 uResolution;
 
-    // Функция для отрисовки того самого градиентного ободка
     vec4 getLensEdge(vec2 uv, vec2 pos, float r, vec2 aspect) {
         float d = length((uv - pos) * aspect);
-        // Белый резкий центр кольца
         float whiteRing = smoothstep(0.003, 0.0, abs(d - r));
-        // Голубое свечение вокруг
         float blueGlow = smoothstep(0.02, 0.0, abs(d - r));
         
-        vec3 color = mix(vec3(0.0, 0.4, 1.0), vec3(1.0), whiteRing);
+        vec3 color = mix(vec3(0.1, 0.4, 1.0), vec3(1.0), whiteRing);
         float alpha = max(whiteRing, blueGlow * 0.7);
         
         return vec4(color, alpha);
@@ -46,40 +43,27 @@
 
     void main() {
         vec2 aspect = vec2(uResolution.x / uResolution.y, 1.0);
-        
-        // 1. Начинаем с чистого фона
         vec4 finalColor = texture2D(uTexture, vUv);
 
-        // 2. Идем по линзам от нижней к верхней
         for (int i = 0; i < 3; i++) {
             vec2 lPos = uLenses[i].xy;
             float r = uLenses[i].z;
-            
-            // Проверяем дистанцию от текущего пикселя экрана
             float d = length((vUv - lPos) * aspect);
 
             if (d < r) {
-                // ВАЖНО: Вычисляем искаженные координаты
                 float refr = pow(d / r, 0.65);
                 vec2 distortedUv = lPos + (vUv - lPos) * refr;
-
-                // ПЕРЕРИСОВЫВАЕМ всё, что было под линзой, с учетом искажения
-                // Сначала берем фон по искаженным координатам
                 finalColor = texture2D(uTexture, distortedUv);
 
-                // Затем перерисовываем ободки всех ПРЕДЫДУЩИХ линз по искаженным координатам
                 for (int j = 0; j < 3; j++) {
                     if (j < i) {
                         vec4 prevEdge = getLensEdge(distortedUv, uLenses[j].xy, uLenses[j].z, aspect);
                         finalColor.rgb += prevEdge.rgb * prevEdge.a;
                     }
                 }
-                
-                // Добавляем легкую мутность стекла внутри линзы
-                finalColor.rgb = mix(finalColor.rgb, vec3(0.4, 0.6, 1.0), 0.08);
+                finalColor.rgb = mix(finalColor.rgb, vec3(0.2, 0.3, 0.5), 0.1);
             }
 
-            // 3. Накладываем ободок ТЕКУЩЕЙ линзы поверх (без искажения)
             vec4 currentEdge = getLensEdge(vUv, lPos, r, aspect);
             finalColor.rgb += currentEdge.rgb * currentEdge.a;
         }
@@ -103,15 +87,28 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
-// Текстура фона
 const texCanv = document.createElement('canvas');
 texCanv.width = 2048; texCanv.height = 2048;
 const tCtx = texCanv.getContext('2d');
-const grad = tCtx.createLinearGradient(0, 0, 2048, 2048);
-grad.addColorStop(0, '#0f001a'); grad.addColorStop(0.5, '#a1181d'); grad.addColorStop(1, '#2a0845');
-tCtx.fillStyle = grad; tCtx.fillRect(0, 0, 2048, 2048);
-tCtx.fillStyle = 'rgba(255,255,255,0.7)'; tCtx.font = '900 180px sans-serif';
-tCtx.textAlign = 'center'; tCtx.fillText('IPHONE 16', 1024, 1024);
+
+function drawBgTexture() {
+    const grad = tCtx.createLinearGradient(0, 0, 0, 2048);
+    // Цвета взяты на основе вашего изображения (верхушка и низ)
+    grad.addColorStop(0, '#1d1a26');   // Верх: Темный серо-фиолетовый
+    grad.addColorStop(0.5, '#121521'); // Середина: Почти черный
+    grad.addColorStop(1, '#0c2b6b');   // Низ: Глубокий синий
+    
+    tCtx.fillStyle = grad; 
+    tCtx.fillRect(0, 0, 2048, 2048);
+    
+    // Текст iPhone 16
+    tCtx.fillStyle = 'white'; 
+    tCtx.font = '900 200px sans-serif';
+    tCtx.textAlign = 'center';
+    tCtx.globalAlpha = 0.35; // Сделали чуть прозрачнее для "премиальности"
+    tCtx.fillText('IPHONE 16', 1024, 1024);
+}
+drawBgTexture();
 
 function createShader(gl, type, source) {
     const s = gl.createShader(type);
@@ -140,10 +137,12 @@ gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 const uL = gl.getUniformLocation(prog, "uLenses");
 const uR = gl.getUniformLocation(prog, "uResolution");
 
+const UNIFORM_RADIUS = 0.345;
+
 const lenses = [
-    { x: 0.3, y: 0.4, r: 0.18, sx: 0.0018, sy: 0.0013 },
-    { x: 0.7, y: 0.6, r: 0.15, sx: -0.0014, sy: -0.002 },
-    { x: 0.5, y: 0.5, r: 0.23, sx: 0.0009, sy: -0.0012 }
+    { x: 0.3, y: 0.4, r: UNIFORM_RADIUS, sx: 0.0012, sy: 0.0008 },
+    { x: 0.7, y: 0.6, r: UNIFORM_RADIUS, sx: -0.001, sy: -0.0014 },
+    { x: 0.5, y: 0.5, r: UNIFORM_RADIUS, sx: 0.0007, sy: -0.0009 }
 ];
 
 function draw() {
