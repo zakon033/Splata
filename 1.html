@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>iPhone 16 Lens Fixed</title>
+    <title>iPhone 16 Lens - Final Optics</title>
     <style>
         body { margin: 0; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        canvas { display: block; width: 100vw; height: 100vh; }
+        canvas { display: block; width: 100vw; height: 100vh; touch-action: manipulation; }
     </style>
 </head>
 <body>
@@ -34,21 +34,22 @@
         vec2 uv = vUv;
         vec2 aspect = vec2(uResolution.x / uResolution.y, 1.0);
         
-        // Сначала считаем общее искажение для фона (от всех линз)
+        // 1. ИСКАЖЕНИЕ ФОНА (Линза преломляет то, что под ней)
         for (int i = 0; i < 3; i++) {
             vec2 lPos = uLenses[i].xy;
             float r = uLenses[i].z;
             vec2 distVec = (vUv - lPos) * aspect;
             float d = length(distVec);
             if (d < r) {
-                float refr = pow(d / r, 0.7);
+                // Сферическое искажение
+                float refr = pow(d / r, 0.65);
                 uv = lPos + (vUv - lPos) * refr;
             }
         }
 
         vec4 color = texture2D(uTexture, uv);
 
-        // Теперь рисуем слоистые градиенты (белый -> голубой) поверх
+        // 2. ГРАДИЕНТНАЯ ЗАЛИВКА (Белый -> Голубой -> Прозрачность)
         for (int i = 0; i < 3; i++) {
             vec2 lPos = uLenses[i].xy;
             float r = uLenses[i].z;
@@ -56,17 +57,22 @@
             float d = length(distVec);
 
             if (d < r) {
-                // 1. Белая маска (узкая, на самом краю)
-                float whiteMask = smoothstep(r, r - 0.01, d);
-                // 2. Голубая маска (шире, под белой)
-                float blueMask = smoothstep(r, r - 0.05, d);
+                // МАСКА 1: Белый край (очень тонкий, 1% от радиуса)
+                float whiteEdge = smoothstep(r, r - 0.004, d);
                 
-                // Смешиваем: белый перетекает в голубой
-                vec3 glowColor = mix(vec3(0.0, 0.5, 1.0), vec3(1.0), whiteMask);
-                float glowAlpha = max(whiteMask, blueMask * 0.5);
+                // МАСКА 2: Голубая основа (шире, чем белый, около 10% от радиуса)
+                float blueEdge = smoothstep(r, r - 0.06, d);
                 
-                // Добавляем мутность линзы
-                color.rgb = mix(color.rgb, glowColor, glowAlpha * 0.6 + 0.05);
+                // Смешиваем цвета: 
+                // На самом краю белый доминирует, затем переходит в ярко-голубой
+                vec3 glowColor = mix(vec3(0.0, 0.4, 1.0), vec3(1.0, 1.0, 1.0), whiteEdge);
+                
+                // Прозрачность затухает по мере удаления от края (по голубой маске)
+                float glowAlpha = blueEdge;
+
+                // Накладываем градиент на картинку
+                // 0.1 - базовая мутность стекла, остальное - свечение края
+                color.rgb = mix(color.rgb, glowColor, glowAlpha * 0.7 + 0.05);
             }
         }
         
@@ -82,61 +88,65 @@ let width, height;
 function resize() {
     width = window.innerWidth;
     height = window.innerHeight;
-    canvas.width = width * window.devicePixelRatio;
-    canvas.height = height * window.devicePixelRatio;
+    canvas.width = width * (window.devicePixelRatio || 1);
+    canvas.height = height * (window.devicePixelRatio || 1);
     gl.viewport(0, 0, canvas.width, canvas.height);
 }
 window.addEventListener('resize', resize);
 resize();
 
-// Текстура фона
+// Создание текстуры фона
 const texCanv = document.createElement('canvas');
-texCanv.width = 1024; texCanv.height = 1024;
+texCanv.width = 2048; texCanv.height = 2048;
 const tCtx = texCanv.getContext('2d');
-const g = tCtx.createLinearGradient(0,0,1024,1024);
-g.addColorStop(0,'#1a0033'); g.addColorStop(0.5,'#c1272d'); g.addColorStop(1,'#4a148c');
-tCtx.fillStyle = g; tCtx.fillRect(0,0,1024,1024);
-tCtx.fillStyle = 'white'; tCtx.font = '900 120px sans-serif';
-tCtx.textAlign = 'center'; tCtx.fillText('IPHONE 16', 512, 512);
+const grad = tCtx.createLinearGradient(0, 0, 2048, 2048);
+grad.addColorStop(0, '#1a0033'); grad.addColorStop(0.5, '#c1272d'); grad.addColorStop(1, '#4a148c');
+tCtx.fillStyle = grad; tCtx.fillRect(0, 0, 2048, 2048);
+tCtx.fillStyle = 'rgba(255,255,255,0.6)'; tCtx.font = '900 200px sans-serif';
+tCtx.textAlign = 'center'; tCtx.fillText('IPHONE 16', 1024, 1024);
 
-function createShader(gl, type, id) {
+function createShader(gl, type, source) {
     const s = gl.createShader(type);
-    gl.shaderSource(s, document.getElementById(id).text);
+    gl.shaderSource(s, source);
     gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+        console.error(gl.getShaderInfoLog(s));
+    }
     return s;
 }
 
 const prog = gl.createProgram();
-gl.attachShader(prog, createShader(gl, gl.VERTEX_SHADER, 'vs'));
-gl.attachShader(prog, createShader(gl, gl.FRAGMENT_SHADER, 'fs'));
+gl.attachShader(prog, createShader(gl, gl.VERTEX_SHADER, document.getElementById('vs').text));
+gl.attachShader(prog, createShader(gl, gl.FRAGMENT_SHADER, document.getElementById('fs').text));
 gl.linkProgram(prog); gl.useProgram(prog);
 
 const buf = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]), gl.STATIC_DRAW);
-const p = gl.getAttribLocation(prog, 'position');
-gl.enableVertexAttribArray(p); gl.vertexAttribPointer(p, 2, gl.FLOAT, false, 0, 0);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
+const pLoc = gl.getAttribLocation(prog, 'position');
+gl.enableVertexAttribArray(pLoc); gl.vertexAttribPointer(pLoc, 2, gl.FLOAT, false, 0, 0);
 
 const tex = gl.createTexture();
 gl.bindTexture(gl.TEXTURE_2D, tex);
 gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texCanv);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
 const uL = gl.getUniformLocation(prog, "uLenses");
 const uR = gl.getUniformLocation(prog, "uResolution");
 
 const lenses = [
-    { x: 0.3, y: 0.3, r: 0.18, sx: 0.002, sy: 0.001 },
-    { x: 0.7, y: 0.6, r: 0.14, sx: -0.001, sy: -0.002 },
-    { x: 0.5, y: 0.5, r: 0.22, sx: 0.001, sy: -0.001 }
+    { x: 0.3, y: 0.4, r: 0.18, sx: 0.0015, sy: 0.0011 },
+    { x: 0.7, y: 0.6, r: 0.14, sx: -0.0012, sy: -0.0018 },
+    { x: 0.5, y: 0.5, r: 0.22, sx: 0.0008, sy: -0.001 }
 ];
 
 function draw() {
     const flat = [];
     lenses.forEach(l => {
         l.x += l.sx; l.y += l.sy;
-        if(l.x<0.1||l.x>0.9) l.sx*=-1;
-        if(l.y<0.1||l.y>0.9) l.sy*=-1;
+        if(l.x < 0.1 || l.x > 0.9) l.sx *= -1;
+        if(l.y < 0.1 || l.y > 0.9) l.sy *= -1;
         flat.push(l.x, l.y, l.r);
     });
     gl.uniform3fv(uL, flat);
