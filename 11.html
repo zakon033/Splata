@@ -23,7 +23,7 @@ body {
   color: #ffffff; background: transparent !important; position: relative;
 }
 
-/* СТИЛИ ДЛЯ ВЕБ-ГЛ ФОНА */
+/* ФОНОВЫЙ CANVAS */
 #bgCanvas {
   position: fixed;
   top: 0;
@@ -33,9 +33,6 @@ body {
   z-index: -1; 
   display: block;
   pointer-events: none;
-  /* Мягкое размытие краев для вписывания в интерфейс */
-  mask-image: linear-gradient(to bottom, transparent 0%, black 80px, black calc(100% - 80px), transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 80px, black calc(100% - 80px), transparent 100%);
 }
 
 .container {
@@ -48,57 +45,18 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
 .subtitle { font-size: 22px; opacity: 0.9; margin-bottom: 30px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
 
 .btn {
-  position: relative;
-  overflow: hidden; 
-  display: flex;
-  align-items: center; 
-  width: 100%;
-  height: 80px; 
-  padding: 0 12px; 
-  margin-bottom: 15px; 
-  backdrop-filter: blur(15px); 
-  -webkit-backdrop-filter: blur(15px);
-  background-color: rgba(255, 255, 255, 0.1); 
-  border: 1px solid rgba(255, 255, 255, 0.1); 
-  border-radius: 70px; 
-  color: #fff;
-  text-decoration: none;
-  font-size: 22px; 
-  font-weight: 500;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-  transition: transform 0.1s, background-color 0.2s; 
-  cursor: pointer;
-  user-select: none;
-  opacity: 0;
-  animation: fadeInUp 0.5s ease-out forwards;
+  position: relative; overflow: hidden; display: flex; align-items: center; width: 100%; height: 80px; padding: 0 12px; margin-bottom: 15px; 
+  backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+  background-color: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 70px; color: #fff;
+  text-decoration: none; font-size: 22px; font-weight: 500; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  transition: transform 0.1s, background-color 0.2s; cursor: pointer; user-select: none;
+  opacity: 0; animation: fadeInUp 0.5s ease-out forwards;
 }
 
 .btn.clicked { transform: scale(0.97) !important; background-color: rgba(46, 204, 113, 0.3) !important; }
 .btn.copied { background-color: rgba(46, 204, 113, 0.3) !important; }
-.btn::before, .btn::after { content: ''; position: absolute; left: 0; width: 100%; height: 1.5px; z-index: 1; }
-.btn::before { top: 0; background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent); }
-.btn::after { bottom: 0; background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent); }
-.btn img { display: block; }
-.btn-full-logo { justify-content: center; }
-.btn-full-logo img { height: 38px; width: auto; max-width: 80%; object-fit: contain; }
-.btn-pay-small img { height: 28px !important; }
-.btn-with-text { justify-content: flex-start; }
-.btn-icon, .btn-icon-right { width: 54px; height: 100%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding-top: 2px; }
-.btn-icon { margin-right: 12px; }
-.btn-icon-right { margin-left: 12px; }
-.btn-icon img, .btn-icon-right img { width: 100%; height: auto; max-height: 54px; object-fit: contain; }
-.btn-text { white-space: nowrap; height: 100%; display: flex; align-items: center; line-height: 1; padding-top: 2px; flex-grow: 1; }
-.btn-card { justify-content: center; }
-.card-number-font {
-    font-family: 'Consolas', 'Courier New', monospace;
-    font-size: clamp(16px, 6vw, 26px); 
-    font-weight: 500;
-    letter-spacing: 1px;
-    color: #e0e0e0; 
-    text-shadow: -2px -2px 3px rgba(255, 255, 255, 0.4), 2px 2px 3px rgba(0, 0, 0, 0.9);
-    height: 100%; display: flex; align-items: center; line-height: 1; white-space: nowrap; overflow: hidden;
-}
 
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; } }
 #copy-toast {
     position: fixed; top: 50%; left: 50%; transform: translate(-50%, calc(-50% - 150px)); 
     padding: 18px 36px; border-radius: 70px; background-color: rgba(255, 255, 255, 0.1); 
@@ -107,9 +65,6 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
     transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease-out;
 }
 #copy-toast.show { opacity: 1; transform: translate(-50%, -50%); background-color: rgba(46, 204, 113, 0.25); }
-
-@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; } }
-.btn:nth-child(n) { animation-delay: calc(0.1s * var(--i)); }
 </style>
 </head>
 
@@ -121,35 +76,25 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
   <h1>💳 Переказати кошти</h1>
   <div class="subtitle">Оберіть зручний спосіб</div>
 
-  <a class="btn" style="--i:1" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">
-    <img src="img/monobank.svg" alt="monobank" style="height:38px">
+  <a class="btn" style="animation-delay:0.1s" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">
+    <img src="img/monobank.svg" alt="monobank" style="height:38px; margin: 0 auto;">
   </a>
 
-  <a class="btn" style="--i:2" data-href="https://www.privat24.ua/send/id4xg" onclick="handleLinkClick(this)">
-    <img src="img/PrivatBank.svg" alt="PrivatBank" style="height:38px">
+  <a class="btn" style="animation-delay:0.2s" data-href="https://www.privat24.ua/send/id4xg" onclick="handleLinkClick(this)">
+    <img src="img/PrivatBank.svg" alt="PrivatBank" style="height:38px; margin: 0 auto;">
   </a>
 
-  <div class="btn btn-card" style="--i:3" onclick="handleCopyClick(this, '4441114459954077')">
-    <span class="card-number-font">4441 •••• •••• 4077</span>
+  <div class="btn" style="animation-delay:0.3s; justify-content:center;" onclick="handleCopyClick(this, '4441114459954077')">
+    <span style="font-family:monospace; font-size:24px;">4441 •••• •••• 4077</span>
   </div>
   
-  <a class="btn btn-full-logo btn-pay-small" style="--i:4" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">
-     <img src="img/apple_pay.svg" alt="apple_pay">
+  <a class="btn" style="animation-delay:0.4s; justify-content:center;" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">
+     <img src="img/apple_pay.svg" alt="apple_pay" style="height:28px">
   </a>
 
-  <a class="btn btn-full-logo btn-pay-small" style="--i:5" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">
-    <img src="img/google_pay.svg" alt="google_pay">
+  <a class="btn" style="animation-delay:0.5s; justify-content:center;" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">
+    <img src="img/google_pay.svg" alt="google_pay" style="height:28px">
   </a>
-  
-  <a class="btn btn-with-text" style="--i:6" data-href="https://app.binance.com/uni-qr/LXViL5Hb" onclick="handleLinkClick(this)">
-    <div class="btn-icon"><img src="img/bnb.svg" alt="binance"></div>
-    <span class="btn-text">Binance Pay</span>
-  </a>
-
-  <div class="btn btn-with-text" style="--i:7" onclick="handleCopyClick(this, 'bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp')">
-    <div class="btn-icon"><img src="img/btc.svg" alt="btc"></div>
-    <span class="btn-text">Bitcoin (BTC)</span>
-  </div>
 </div>
 
 <div id="copy-toast">Скопійовано!</div>
@@ -205,7 +150,7 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
             if (d < r) {
                 float normD = d / r;
                 float distortion = (normD < 0.85) ? pow(normD, 0.85) : 0.88 - pow((normD - 0.85) / 0.15, 1.5) * 0.45;
-                float chroma = (normD > 0.85) ? (normD - 0.85) * 0.2 : 0.0;
+                float chroma = (normD > 0.85) ? (normD - 0.85) * 0.03 : 0.0;
                 vec2 uvBase = clamp(lPos + (vUv - lPos) * (distortion / (normD + 0.0001)), 0.0, 1.0);
                 finalColor = vec4(texture2D(uTexture, uvBase + chroma).r, texture2D(uTexture, uvBase).g, texture2D(uTexture, uvBase - chroma).b, 1.0);
                 finalColor.rgb = mix(finalColor.rgb, vec3(0.3, 0.35, 0.45), 0.08);
@@ -218,10 +163,10 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
 </script>
 
 <script>
-// ЛОГИКА ФОНА
 const canvas = document.getElementById('bgCanvas');
 const gl = canvas.getContext('webgl');
 let width, height;
+
 function resize() {
     width = window.innerWidth; height = window.innerHeight;
     canvas.width = width * (window.devicePixelRatio || 1);
@@ -231,74 +176,79 @@ function resize() {
 window.addEventListener('resize', resize); resize();
 
 const texCanv = document.createElement('canvas');
-texCanv.width = 1024; texCanv.height = 1024;
+texCanv.width = 2048; texCanv.height = 2048;
 const tCtx = texCanv.getContext('2d');
-const grad = tCtx.createLinearGradient(0, 0, 0, 1024);
-grad.addColorStop(0, '#1b1f3b'); grad.addColorStop(1, '#030303');
-tCtx.fillStyle = grad; tCtx.fillRect(0, 0, 1024, 1024);
 
-const createS = (gl, t, s) => { const sh = gl.createShader(t); gl.shaderSource(sh, s); gl.compileShader(sh); return sh; };
-const prog = gl.createProgram();
-gl.attachShader(prog, createS(gl, gl.VERTEX_SHADER, document.getElementById('vs').text));
-gl.attachShader(prog, createS(gl, gl.FRAGMENT_SHADER, document.getElementById('fs').text));
-gl.linkProgram(prog); gl.useProgram(prog);
+const img = new Image();
+img.crossOrigin = "anonymous";
+img.src = "https://upload.wikimedia.org/wikipedia/commons/d/d7/Credit-card-front.svg";
 
-const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
-const pL = gl.getAttribLocation(prog, 'position'); gl.enableVertexAttribArray(pL); gl.vertexAttribPointer(pL, 2, gl.FLOAT, false, 0, 0);
+img.onload = () => {
+    drawTexture();
+    initGL();
+};
 
-const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
-gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texCanv);
-gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+function drawTexture() {
+    // Фон
+    const grad = tCtx.createLinearGradient(0, 0, 0, 2048);
+    grad.addColorStop(0, '#1b1f3b'); grad.addColorStop(1, '#030303');
+    tCtx.fillStyle = grad; tCtx.fillRect(0, 0, 2048, 2048);
+    
+    // Карта (увеличена и смещена вправо)
+    const cw = 900; const ch = (img.height / img.width) * cw;
+    tCtx.globalAlpha = 0.95;
+    tCtx.drawImage(img, 1300 - cw/2, 1024 - ch/2, cw, ch);
+}
 
-const uL = gl.getUniformLocation(prog, "uLenses"), uR = gl.getUniformLocation(prog, "uResolution"), uT = gl.getUniformLocation(prog, "uTime");
-const lenses = [{bx:1, by:0, t:Math.random()*100}, {bx:0, by:0.5, t:Math.random()*100}, {bx:1, by:1, t:Math.random()*100}];
-let gt = 0;
+function initGL() {
+    const createS = (gl, t, s) => { const sh = gl.createShader(t); gl.shaderSource(sh, s); gl.compileShader(sh); return sh; };
+    const prog = gl.createProgram();
+    gl.attachShader(prog, createS(gl, gl.VERTEX_SHADER, document.getElementById('vs').text));
+    gl.attachShader(prog, createS(gl, gl.FRAGMENT_SHADER, document.getElementById('fs').text));
+    gl.linkProgram(prog); gl.useProgram(prog);
 
-function draw() {
-    gt += 0.005; // Медленная смена цвета
-    const flat = [];
-    lenses.forEach(l => {
-        l.t += 0.008; // Скорость движения
-        const dx = (Math.sin(l.t*0.8)+Math.cos(l.t*1.5))/3.0, dy = (Math.cos(l.t*0.7)+Math.sin(l.t*1.2))/3.0;
-        flat.push(l.bx + dx*0.1, l.by + dy*0.1, 0.455);
+    const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
+    const pL = gl.getAttribLocation(prog, 'position'); gl.enableVertexAttribArray(pL); gl.vertexAttribPointer(pL, 2, gl.FLOAT, false, 0, 0);
+
+    const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texCanv);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    const uL = gl.getUniformLocation(prog, "uLenses"), uR = gl.getUniformLocation(prog, "uResolution"), uT = gl.getUniformLocation(prog, "uTime");
+    const lenses = [{bx:1, by:0, t:Math.random()*100}, {bx:0, by:0.5, t:Math.random()*100}, {bx:1, by:1, t:Math.random()*100}];
+    let gt = 0;
+
+    function render() {
+        gt += 0.01;
+        const flat = [];
+        lenses.forEach(l => {
+            l.t += 0.008; 
+            const dx = (Math.sin(l.t*0.8)+Math.cos(l.t*1.5))/3.0, dy = (Math.cos(l.t*0.7)+Math.sin(l.t*1.2))/3.0;
+            flat.push(l.bx + dx*0.1, l.by + dy*0.1, 0.455);
+        });
+        gl.uniform3fv(uL, flat); gl.uniform2f(uR, width, height); gl.uniform1f(uT, gt);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+        requestAnimationFrame(render);
+    }
+    render();
+}
+
+// ЛОГИКА КНОПОК
+async function handleLinkClick(el) {
+    el.classList.add('clicked'); setTimeout(() => el.classList.remove('clicked'), 150);
+    setTimeout(() => window.location.href = el.getAttribute('data-href'), 200);
+}
+async function handleCopyClick(el, txt) {
+    el.classList.add('clicked'); setTimeout(() => el.classList.remove('clicked'), 150);
+    navigator.clipboard.writeText(txt).then(() => {
+        el.classList.add('copied'); setTimeout(() => el.classList.remove('copied'), 250);
+        const t = document.getElementById('copy-toast');
+        t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000);
     });
-    gl.uniform3fv(uL, flat); gl.uniform2f(uR, width, height); gl.uniform1f(uT, gt);
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
-    requestAnimationFrame(draw);
-}
-draw();
-
-// ТВОЯ ОРИГИНАЛЬНАЯ ЛОГИКА КНОПОК
-function animateClick(element) {
-  return new Promise(resolve => {
-    element.classList.add('clicked');
-    setTimeout(() => { element.classList.remove('clicked'); resolve(); }, 150);
-  });
-}
-async function handleLinkClick(element) {
-  event.preventDefault(); 
-  const targetURL = element.getAttribute('data-href');
-  if (!targetURL) return;
-  await animateClick(element); 
-  window.location.href = targetURL;
-}
-async function handleCopyClick(element, textToCopy) {
-  await animateClick(element);
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(textToCopy).then(() => animateSuccess(element));
-  }
-}
-function animateSuccess(el) {
-  el.classList.add('copied');
-  setTimeout(() => el.classList.remove('copied'), 250);
-  const toast = document.getElementById('copy-toast');
-  toast.classList.add('show'); 
-  setTimeout(() => toast.classList.remove('show'), 2000);
 }
 </script>
-
 </body>
 </html>
