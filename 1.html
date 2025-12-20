@@ -3,131 +3,136 @@
 <head>
     <style>
         body { margin: 0; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        canvas { filter: saturate(1.1) contrast(1.1); }
+        canvas { width: 800px; height: 600px; touch-action: none; }
     </style>
 </head>
 <body>
 
-<canvas id="lensCanvas"></canvas>
+<canvas id="glCanvas"></canvas>
 
-<script>
-const canvas = document.getElementById('lensCanvas');
-const ctx = canvas.getContext('2d');
-
-const width = 800;
-const height = 600;
-canvas.width = width;
-canvas.height = height;
-
-// Буфер для хранения текущего состояния кадра перед наложением очередной линзы
-const tempCanvas = document.createElement('canvas');
-tempCanvas.width = width;
-tempCanvas.height = height;
-const tCtx = tempCanvas.getContext('2d');
-
-const bgCanvas = document.createElement('canvas');
-bgCanvas.width = width;
-bgCanvas.height = height;
-const bgCtx = bgCanvas.getContext('2d');
-
-function drawStaticBackground() {
-    const grad = bgCtx.createLinearGradient(0, 0, width, height);
-    grad.addColorStop(0, '#1a0033');
-    grad.addColorStop(0.5, '#c1272d');
-    grad.addColorStop(1, '#4a148c');
-    bgCtx.fillStyle = grad;
-    bgCtx.fillRect(0, 0, width, height);
-    
-    bgCtx.fillStyle = 'white';
-    bgCtx.font = '900 120px -apple-system, sans-serif';
-    bgCtx.textAlign = 'center';
-    bgCtx.textBaseline = 'middle';
-    bgCtx.globalAlpha = 0.5;
-    bgCtx.fillText('IPHONE 16', width/2, height/2);
-}
-
-const lenses = [
-    { x: 200, y: 200, r: 140, sx: 1.2, sy: 0.9, id: 'Нижняя' },
-    { x: 600, y: 400, r: 120, sx: -1.0, sy: -1.3, id: 'Средняя' },
-    { x: 400, y: 300, r: 160, sx: 0.6, sy: -0.8, id: 'Верхняя' }
-];
-
-function applyRefraction(lens, source) {
-    const x = Math.floor(lens.x);
-    const y = Math.floor(lens.y);
-    const r = lens.r;
-    const step = 2; 
-
-    for (let i = -r; i < r; i += step) {
-        for (let j = -r; j < r; j += step) {
-            const dist = Math.sqrt(i * i + j * j);
-            if (dist < r) {
-                const refraction = Math.pow(dist / r, 0.6);
-                const sourceX = x + i * refraction;
-                const sourceY = y + j * refraction;
-                
-                // Рисуем в основной контекст, беря данные из временного буфера
-                ctx.drawImage(source, sourceX, sourceY, step, step, x + i, y + j, step, step);
-            }
-        }
+<script id="vs" type="f">
+    attribute vec2 position;
+    varying vec2 vUv;
+    void main() {
+        vUv = position * 0.5 + 0.5;
+        vUv.y = 1.0 - vUv.y;
+        gl_Position = vec4(position, 0, 1);
     }
-}
-
-function drawLensVfx(lens) {
-    const x = Math.floor(lens.x);
-    const y = Math.floor(lens.y);
-    const r = lens.r;
-
-    // Голубое свечение
-    const blueGrad = ctx.createRadialGradient(x, y, 0, x, y, r);
-    blueGrad.addColorStop(0, 'rgba(0, 150, 255, 0)');
-    blueGrad.addColorStop(0.7, 'rgba(0, 120, 255, 0.1)');
-    blueGrad.addColorStop(0.96, 'rgba(0, 180, 255, 0.3)');
-    blueGrad.addColorStop(1, 'rgba(0, 180, 255, 0)');
-    ctx.fillStyle = blueGrad;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Тонкая белая кайма
-    const whiteEdge = ctx.createRadialGradient(x, y, r - 2, x, y, r + 1);
-    whiteEdge.addColorStop(0, 'rgba(255, 255, 255, 0)');
-    whiteEdge.addColorStop(0.5, 'rgba(255, 255, 255, 0.7)');
-    whiteEdge.addColorStop(1, 'rgba(255, 255, 255, 0)');
-    ctx.fillStyle = whiteEdge;
-    ctx.beginPath();
-    ctx.arc(x, y, r + 1, 0, Math.PI * 2);
-    ctx.fill();
-}
-
-function render() {
-    // 1. Начинаем с чистого фона
-    ctx.drawImage(bgCanvas, 0, 0);
-
-    lenses.forEach((lens, index) => {
-        // Двигаем линзу
-        lens.x += lens.sx;
-        lens.y += lens.sy;
-        if (lens.x < 100 || lens.x > width - 100) lens.sx *= -1;
-        if (lens.y < 100 || lens.y > height - 100) lens.sy *= -1;
-
-        // СОХРАНЯЕМ текущее состояние холста (то, что под линзой) в буфер
-        tCtx.clearRect(0, 0, width, height);
-        tCtx.drawImage(canvas, 0, 0);
-
-        // 2. Применяем искажение к текущему холсту, используя буфер
-        applyRefraction(lens, tempCanvas);
-
-        // 3. Рисуем визуальные эффекты линзы поверх искажения
-        drawLensVfx(lens);
-    });
-
-    requestAnimationFrame(render);
-}
-
-drawStaticBackground();
-render();
 </script>
 
+<script id="fs" type="f">
+    precision highp float;
+    varying vec2 vUv;
+    uniform sampler2D uTexture;
+    uniform vec3 uLenses[3]; // x, y, radius
+
+    void main() {
+        vec2 uv = vUv;
+        
+        // Идем от верхней линзы к нижней (инвертируем порядок для корректного наложения)
+        for (int i = 2; i >= 0; i--) {
+            vec2 lensPos = uLenses[i].xy;
+            float r = uLenses[i].z;
+            
+            // Соотношение сторон (чтобы линзы были круглыми, а не овальными)
+            vec2 distVec = (uv - lensPos) * vec2(800.0/600.0, 1.0);
+            float dist = length(distVec);
+            
+            if (dist < r) {
+                // Математика преломления (сферическая линза)
+                float refraction = pow(dist / r, 0.7);
+                uv = lensPos + (uv - lensPos) * refraction;
+            }
+        }
+        
+        vec4 color = texture2D(uTexture, uv);
+        
+        // Добавляем визуальные эффекты (ободок и свечение) поверх искажения
+        for (int i = 0; i < 3; i++) {
+            vec2 lensPos = uLenses[i].xy;
+            float r = uLenses[i].z;
+            vec2 distVec = (vUv - lensPos) * vec2(800.0/600.0, 1.0);
+            float dist = length(distVec);
+            
+            // Тонкий белый ободок
+            float edge = smoothstep(r, r - 0.005, dist) * smoothstep(r - 0.01, r - 0.005, dist);
+            color += vec4(edge * 0.8);
+            
+            // Голубое свечение у края
+            float glow = smoothstep(r, r - 0.05, dist) * pow(dist/r, 5.0);
+            color.rgb += vec3(0.0, 0.4, 1.0) * glow * 0.4;
+        }
+        
+        gl_FragColor = color;
+    }
+</script>
+
+<script>
+const canvas = document.getElementById('glCanvas');
+const gl = canvas.getContext('webgl');
+
+// Подготовка текстуры (наш фон с текстом)
+const textCanvas = document.createElement('canvas');
+textCanvas.width = 1024; textCanvas.height = 1024;
+const tCtx = textCanvas.getContext('2d');
+
+function drawBackground() {
+    const grad = tCtx.createLinearGradient(0, 0, 1024, 1024);
+    grad.addColorStop(0, '#1a0033'); grad.addColorStop(0.5, '#c1272d'); grad.addColorStop(1, '#4a148c');
+    tCtx.fillStyle = grad; tCtx.fillRect(0, 0, 1024, 1024);
+    tCtx.fillStyle = 'white'; tCtx.font = '900 130px sans-serif';
+    tCtx.textAlign = 'center'; tCtx.textBaseline = 'middle';
+    tCtx.globalAlpha = 0.5; tCtx.fillText('IPHONE 16', 512, 512);
+}
+drawBackground();
+
+// Инициализация WebGL (создание шейдеров и буферов)
+function createShader(gl, type, source) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, source); gl.compileShader(s); return s;
+}
+const program = gl.createProgram();
+gl.attachShader(program, createShader(gl, gl.VERTEX_SHADER, document.getElementById('vs').text));
+gl.attachShader(program, createShader(gl, gl.FRAGMENT_SHADER, document.getElementById('fs').text));
+gl.linkProgram(program); gl.useProgram(program);
+
+const vertices = new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]);
+const buffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+const pos = gl.getAttribLocation(program, "position");
+gl.enableVertexAttribArray(pos);
+gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+
+const texture = gl.createTexture();
+gl.bindTexture(gl.TEXTURE_2D, texture);
+gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, textCanvas);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+const uLenses = gl.getUniformLocation(program, "uLenses");
+const lensData = [
+    { x: 0.3, y: 0.3, r: 0.18, sx: 0.003, sy: 0.002 },
+    { x: 0.7, y: 0.6, r: 0.15, sx: -0.002, sy: -0.003 },
+    { x: 0.5, y: 0.5, r: 0.22, sx: 0.001, sy: -0.002 }
+];
+
+function render() {
+    canvas.width = 800; canvas.height = 600;
+    gl.viewport(0, 0, 800, 600);
+
+    const flatLenses = [];
+    lensData.forEach(l => {
+        l.x += l.sx; l.y += l.sy;
+        if (l.x < 0.1 || l.x > 0.9) l.sx *= -1;
+        if (l.y < 0.1 || l.y > 0.9) l.sy *= -1;
+        flatLenses.push(l.x, l.y, l.r);
+    });
+
+    gl.uniform3fv(uLenses, flatLenses);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    requestAnimationFrame(render);
+}
+render();
+</script>
 </body>
 </html>
