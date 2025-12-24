@@ -488,25 +488,26 @@ function processVCardWithPadding() {
 
 // Финальная сборка и скачивание файла .vcf
 function downloadVCF(base64Photo) {
-    const firstName = "Сергей"; // Имя
-    const lastName = "";        // Фамилия (можно оставить пустой)
+    const firstName = "Сергей";
     const phone = "+380635154535"; 
 
-    // Поле N требует четкого порядка: Фамилия;Имя;Отчество;Префикс;Суффикс
-    // Поле FN — это просто строка для отображения
+    // Используем CHARSET=UTF-8, чтобы система точно поняла кириллицу
+    // Поле N: Фамилия;Имя;Отчество;Префикс;Суффикс
     let vCard = "BEGIN:VCARD\n" +
                 "VERSION:3.0\n" +
-                "N:" + lastName + ";" + firstName + ";;;\n" + 
-                "FN:" + firstName + (lastName ? " " + lastName : "") + "\n" +
+                "N;CHARSET=UTF-8:;" + firstName + ";;;\n" + 
+                "FN;CHARSET=UTF-8:" + firstName + "\n" +
                 "TEL;TYPE=CELL:" + phone + "\n";
 
     if (base64Photo) {
+        // Добавляем фото
         vCard += "PHOTO;TYPE=PNG;ENCODING=b:" + base64Photo + "\n";
     }
 
     vCard += "END:VCARD";
 
-    const blob = new Blob([vCard], { type: "text/vcard" });
+    // Создаем Blob с явным указанием UTF-8 для самого файла
+    const blob = new Blob(["\ufeff" + vCard], { type: "text/vcard;charset=utf-8" });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
     
