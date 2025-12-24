@@ -483,7 +483,7 @@ function downloadVCF() {
     const vcard =
         "BEGIN:VCARD\r\n" +
         "VERSION:3.0\r\n" +
-        "N:Сергей;Сергей;;;\r\n" +   // ← КРИТИЧЕСКИ ВАЖНО
+        "N:.;Сергей;;;\r\n" +   // ← ВАЖНО: точка вместо фамилии
         "FN:Сергей\r\n" +
         "TEL;TYPE=CELL,VOICE:" + phone + "\r\n" +
         "END:VCARD\r\n";
@@ -507,7 +507,6 @@ function downloadVCF() {
         URL.revokeObjectURL(url);
     }, 500);
 }
-
 
 </script>
 
