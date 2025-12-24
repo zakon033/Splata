@@ -480,40 +480,36 @@ function downloadVCF(base64Photo) {
     const firstName = "Сергей";
     const phone = "+380635154535"; 
 
-    // Используем максимально простую структуру
-    // ВАЖНО: Никаких пробелов после двоеточий
+    // Формируем чистый текст vCard
     let vCard = "BEGIN:VCARD\r\n" +
                 "VERSION:3.0\r\n" +
-                "N:;" + firstName + ";;;\r\n" + 
-                "FN:" + firstName + "\r\n" +
-                "TEL;TYPE=CELL:" + phone + "\r\n" +
-                "END:VCARD";
+                "N;CHARSET=UTF-8:;" + firstName + ";;;\r\n" + 
+                "FN;CHARSET=UTF-8:" + firstName + "\r\n" +
+                "TEL;TYPE=CELL:" + phone + "\r\n";
 
-    // Создаем массив байтов с BOM (Byte Order Mark)
-    // Это магические три байта, которые говорят любому устройству: "ТУТ КИРИЛЛИЦА И UTF-8"
-    const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
-    const config = new TextEncoder();
-    const vCardUint8 = config.encode(vCard);
-    
-    // Соединяем BOM и данные
-    const fullContent = new Uint8Array(bom.length + vCardUint8.length);
-    fullContent.set(bom);
-    fullContent.set(vCardUint8, bom.length);
+    if (base64Photo) {
+        vCard += "PHOTO;TYPE=JPEG;ENCODING=b:" + base64Photo + "\r\n";
+    }
 
-    const blob = new Blob([fullContent], { type: 'text/vcard;charset=utf-8' });
-    const url = window.URL.createObjectURL(blob);
+    vCard += "END:VCARD";
+
+    // 1. Кодируем кириллицу в Base64 правильно (через UTF-8)
+    const vCardBase64 = btoa(unescape(encodeURIComponent(vCard)));
     
+    // 2. Создаем прямую ссылку Data-URI
+    // Важно: тип text/x-vcard лучше всего понимается iOS
+    const dataUri = 'data:text/x-vcard;base64,' + vCardBase64;
+
+    // 3. Создаем невидимую ссылку и кликаем
     const link = document.createElement("a");
-    link.href = url;
-    // Называем файл просто 'contact.vcf', чтобы Safari не путался
-    link.download = "contact.vcf"; 
+    link.href = dataUri;
+    link.download = "Sergey.vcf";
     
     document.body.appendChild(link);
     link.click();
     
     setTimeout(() => {
         document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
     }, 300);
 }
 
