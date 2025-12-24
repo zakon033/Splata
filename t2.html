@@ -478,36 +478,32 @@ function processVCardWithPadding() {
 
 function downloadVCF() {
     const firstName = "Сергей";
+    const lastName = "Том";
     const phone = "+380635154535";
 
-    // Формируем vCard 2.1. 
-    // В поле N сначала идет фамилия (ставим пробел), потом имя.
+    // Самая простая сборка строки
+    // N:Фамилия;Имя;Отчество;Префикс;Суффикс
     const vcard = 
         "BEGIN:VCARD\r\n" +
-        "VERSION:2.1\r\n" +
-        "N: ;" + firstName + "\r\n" + 
-        "FN:" + firstName + "\r\n" +
-        "TEL;CELL:" + phone + "\r\n" +
-        "END:VCARD\r\n";
+        "VERSION:3.0\r\n" +
+        "FN:" + firstName + " " + lastName + "\r\n" +
+        "N:" + lastName + ";" + firstName + ";;;\r\n" +
+        "TEL;TYPE=CELL:" + phone + "\r\n" +
+        "END:VCARD";
 
-    // Превращаем в Blob, но используем тип 'text/x-vcard'
-    // Это заставляет iOS открыть окно "Добавить контакт" вместо сохранения в файлы
-    const blob = new Blob([vcard], { type: 'text/x-vcard;charset=utf-8' });
-    const url = window.URL.createObjectURL(blob);
-    
+    // Создаем ссылку
     const link = document.createElement("a");
-    link.href = url;
-    link.download = "contact.vcf"; 
+    link.href = "data:text/vcard;charset=utf-8," + encodeURIComponent(vcard);
+    link.download = "Sergey_Tom.vcf";
     
     document.body.appendChild(link);
     link.click();
     
+    // Чистим за собой
     setTimeout(() => {
         document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-    }, 500);
+    }, 100);
 }
-
 
 
 </script>
