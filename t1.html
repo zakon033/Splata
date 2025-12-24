@@ -495,6 +495,88 @@ function fallbackCopy(text, element) {
   animateSuccess(element);
 }
 
+let photoClicks = 0;
+let photoTimer = null;
+
+async function handlePhotoClick(element) {
+    photoClicks++;
+    
+    // Вызываем вашу стандартную анимацию (подсветка/сжатие), 
+    // которую мы обсуждали ранее, чтобы был тактильный отклик
+    if (typeof animateClick === "function") {
+        animateClick(element);
+    }
+
+    // Сброс счетчика через 600мс
+    clearTimeout(photoTimer);
+    photoTimer = setTimeout(() => {
+        photoClicks = 0;
+    }, 600);
+
+    // При тройном клике запускаем скрытый процесс
+    if (photoClicks === 3) {
+        photoClicks = 0;
+        saveContactWithImage();
+    }
+}
+
+function saveContactWithImage() {
+    const imgPath = 'img/Tom.png'; // Путь к вашему фото
+    const img = new Image();
+    img.crossOrigin = 'Anonymous'; 
+
+    img.onload = function() {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Устанавливаем размер (для vCard лучше делать фото не слишком тяжелым, например 300x300)
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+
+        // Получаем Base64 и очищаем его от лишних заголовков для vCard
+        const base64Data = canvas.toDataURL('image/png').replace(/^data:image\/(png|jpg);base64,/, "");
+        
+        generateAndDownloadVCard(base64Data);
+    };
+
+    img.onerror = function() {
+        // Если картинка не загрузилась, создаем контакт без нее
+        generateAndDownloadVCard(null);
+    };
+
+    img.src = imgPath;
+}
+
+function generateAndDownloadVCard(base64Photo) {
+    const name = "Tom";
+    const phone = "+380000000000"; // Замените на реальный номер
+
+    let vCard = "BEGIN:VCARD\n" +
+                "VERSION:3.0\n" +
+                "FN:" + name + "\n" +
+                "TEL;TYPE=CELL:" + phone + "\n";
+
+    if (base64Photo) {
+        // Добавляем фото в формате Base64
+        vCard += "PHOTO;TYPE=PNG;ENCODING=b:" + base64Photo + "\n";
+    }
+
+    vCard += "END:VCARD";
+
+    // Создаем файл и инициируем скачивание
+    const blob = new Blob([vCard], { type: "text/vcard" });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", name + ".vcf");
+    document.body.appendChild(link);
+    link.click();
+    
+    // Чистим за собой
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+}
 
 
 </script>
