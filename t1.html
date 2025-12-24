@@ -10,6 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes"> 
 
 <style>
+
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent; 
@@ -30,7 +31,6 @@ body {
   z-index: -1; 
   display: block;
   pointer-events: none;
-  /* Мягкое размытие краев канваса */
   mask-image: linear-gradient(to bottom, transparent 0%, black 80px, black calc(100% - 80px), transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 80px, black calc(100% - 80px), transparent 100%);
 }
@@ -99,13 +99,34 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
     white-space: nowrap; height: 100%; display: flex; align-items: center; line-height: 1; padding-top: 2px; flex-grow: 1;
 }
 
-/* Стили для кнопок с картами */
+/* Позволяет позиционировать логотип относительно кнопки */
 .btn-card {
     position: relative;
-    justify-content: center;
-    flex-direction: column;
+    flex-direction: column; /* На всякий случай для выравнивания */
 }
 
+/* Стили для маленького логотипа под номером */
+.card-logo-sub {
+    position: absolute;
+    bottom: 10px;    /* Отступ снизу */
+    right: 35px;     /* Отступ справа (подстраивайте под дизайн) */
+    height: 20px;    /* Размер логотипа */
+    opacity: 0.8;    /* Делаем чуть прозрачным, чтобы не отвлекал */
+}
+
+.card-logo-sub img {
+    height: 100%;
+    width: auto;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); /* Тень для читаемости */
+}
+
+/* Немного поднимем сам номер, чтобы освободить место логотипу */
+.btn-card .card-number-font {
+    margin-top: -5px; 
+}
+
+
+.btn-card { justify-content: center; }
 .card-number-font {
     font-family: 'Consolas', 'Courier New', monospace;
     font-size: clamp(16px, 6vw, 26px); 
@@ -113,21 +134,7 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
     letter-spacing: 1px;
     color: #e0e0e0; 
     text-shadow: -2px -2px 3px rgba(255, 255, 255, 0.4), 2px 2px 3px rgba(0, 0, 0, 0.9);
-    margin-top: -5px;
-}
-
-.card-logo-sub {
-    position: absolute;
-    bottom: 10px;    
-    right: 35px;     
-    height: 20px;    
-    opacity: 0.8;    
-}
-
-.card-logo-sub img {
-    height: 100%;
-    width: auto;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+    height: 100%; display: flex; align-items: center; line-height: 1; white-space: nowrap; overflow: hidden;
 }
 
 .btn-triple { justify-content: space-between; }
@@ -148,6 +155,14 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
     transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease-out;
 }
 
+#copy-toast::before, #copy-toast::after {
+    content: ''; position: absolute; left: 0; width: 100%; height: 2px; z-index: 1;
+}
+#copy-toast::before { top: 0; background: linear-gradient(to right, rgba(46, 204, 113, 0), rgba(46, 204, 113, 0.8), rgba(46, 204, 113, 0)); }
+#copy-toast::after { bottom: 0; background: linear-gradient(to right, rgba(46, 204, 113, 0), rgba(46, 204, 113, 0.5), rgba(46, 204, 113, 0)); }
+
+
+
 #copy-toast.show { opacity: 1; transform: translate(-50%, -50%); background-color: rgba(46, 204, 113, 0.25); }
 
 @keyframes fadeInUp {
@@ -155,8 +170,42 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
     to { opacity: 1; }
 }
 
-/* Анимация появления кнопок по очереди */
-.btn:nth-child(n) { animation-delay: calc(0.1s * (var(--i, 1))); }
+.btn:nth-child(3) { animation-delay: 0.1s; }
+.btn:nth-child(4) { animation-delay: 0.2s; }
+.btn:nth-child(5) { animation-delay: 0.3s; }
+.btn:nth-child(6) { animation-delay: 0.4s; }
+.btn:nth-child(7) { animation-delay: 0.5s; }
+.btn:nth-child(8) { animation-delay: 0.6s; }
+.btn:nth-child(9) { animation-delay: 0.7s; }
+.btn:nth-child(10) { animation-delay: 0.8s; }
+.btn:nth-child(11) { animation-delay: 0.9s; }
+.btn:nth-child(12) { animation-delay: 1.0s; }
+.btn:nth-child(13) { animation-delay: 1.1s; }
+.btn:nth-child(14) { animation-delay: 1.2s; }
+
+.photo-header {
+  width: 100%;
+  /* Высота 3 кнопок по 80px + 2 отступа по 15px */
+  height: 270px; 
+  margin-bottom: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 40px; 
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  opacity: 0;
+  animation: fadeInUp 0.6s ease-out forwards;
+  animation-delay: 0.1s; /* Появляется первым */
+}
+
+.photo-header img {
+  height: 100%;
+  width: auto;
+  object-fit: contain; /* Сохраняет пропорции без обрезки */
+}
+
+
 </style>
 </head>
 
@@ -165,54 +214,79 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
 <canvas id="bgCanvas"></canvas>
 
 <div class="container">
+  
+    <div class="photo-header">
+      <img src="img/Tom.png" alt="Tom">
+  </div>
+
   <h1>💳 Переказати кошти</h1>
   <div class="subtitle">Оберіть зручний спосіб</div>
 
-  <a class="btn btn-full-logo" style="--i:1" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">
+  <a class="btn btn-full-logo" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">
     <img src="img/monobank.svg" alt="monobank">
   </a>
 
-  <a class="btn btn-full-logo" style="--i:2" data-href="https://www.privat24.ua/send/id4xg" onclick="handleLinkClick(this)">
+  <a class="btn btn-full-logo" data-href="https://www.privat24.ua/send/id4xg" onclick="handleLinkClick(this)">
     <img src="img/PrivatBank.svg" alt="PrivatBank">
   </a>
   
-  <div class="btn btn-card" style="--i:3" onclick="handleCopyClick(this, '4441114443828353')">
+  <div class="btn btn-card" onclick="handleCopyClick(this, '4441114443828353')">
     <span class="card-number-font">4441 •••• •••• 8353</span>
-    <div class="card-logo-sub"><img src="img/monobank.svg" alt="monobank"></div>
+      <div class="card-logo-sub">
+        <img src="img/monobank.svg" alt="monobank">
+      </div>
   </div>
 
-  <div class="btn btn-card" style="--i:4" onclick="handleCopyClick(this, '5363542096314829')">
+  <div class="btn btn-card" onclick="handleCopyClick(this, '5363542096314829')">
     <span class="card-number-font">5363 •••• •••• 4829</span>
-    <div class="card-logo-sub"><img src="img/PrivatBank.svg" alt="PrivatBank"></div>
+      <div class="card-logo-sub">
+        <img src="img/PrivatBank.svg" alt="PrivatBank">
+      </div>
   </div>
   
-  <a class="btn btn-full-logo btn-pay-small" style="--i:5" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">
+  <a class="btn btn-full-logo btn-pay-small" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">
      <img src="img/apple_pay.svg" alt="apple_pay">
   </a>
 
-  <a class="btn btn-full-logo btn-pay-small" style="--i:6" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">
+  <a class="btn btn-full-logo btn-pay-small" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">
     <img src="img/google_pay.svg" alt="google_pay">
   </a>
   
-  <a class="btn btn-with-text" style="--i:7" data-href="https://app.binance.com/uni-qr/LXViL5Hb" onclick="handleLinkClick(this)">
+  <a class="btn btn-with-text" data-href="https://app.binance.com/uni-qr/LXViL5Hb" onclick="handleLinkClick(this)">
     <div class="btn-icon"><img src="img/bnb.svg" alt="binance"></div>
     <span class="btn-text">Binance Pay</span>
   </a>
 
-  <div class="btn btn-with-text" style="--i:8" onclick="handleCopyClick(this, 'bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp')">
+  <div class="btn btn-with-text" onclick="handleCopyClick(this, 'bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp')">
     <div class="btn-icon"><img src="img/btc.svg" alt="btc"></div>
     <span class="btn-text">Bitcoin (BTC)</span>
   </div>
   
-  <div class="btn btn-with-text" style="--i:9" onclick="handleCopyClick(this, '0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
+  <div class="btn btn-with-text" onclick="handleCopyClick(this, '0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
     <div class="btn-icon"><img src="img/eth.svg" alt="eth"></div>
     <span class="btn-text">Ethereum (ETH)</span>
   </div>
   
-  <div class="btn btn-with-text" style="--i:10" onclick="handleCopyClick(this, 'TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh')">
+  <div class="btn btn-with-text" onclick="handleCopyClick(this, 'TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh')">
     <div class="btn-icon"><img src="img/usdt.svg" alt="usdt"></div>
     <span class="btn-text">USDT (Tether)</span>
   </div>
+  
+  <div class="btn btn-with-text" onclick="handleCopyClick(this, 'EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7')">
+    <div class="btn-icon"><img src="img/sol.svg" alt="sol"></div>
+    <span class="btn-text">Solana (SOL)</span>
+  </div>
+  
+  <div class="btn btn-with-text" onclick="handleCopyClick(this, '0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
+    <div class="btn-icon"><img src="img/usdc.svg" alt="usdc"></div>
+    <span class="btn-text">USDC (Polygon)</span>
+  </div>
+
+  <a class="btn btn-triple" data-href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9&asset=c966_t0x576Cf361711cd940CD9C397BB98C4C896cBd38De" target="_blank" onclick="handleLinkClick(this)">
+     <div class="btn-icon"><img src="img/usdc.svg" alt="usdc"></div> 
+     <span class="btn-text">USDC (Polygon) Trust</span>
+     <div class="btn-icon-right"><img src="img/trust.svg" alt="trust"></div> 
+  </a>
 </div>
 
 <div id="copy-toast">Скопійовано!</div>
@@ -233,7 +307,6 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
     uniform vec2 uResolution;
     uniform float uTime;
     uniform vec3 uLenses[3];
-    uniform sampler2D uTexture;
 
     vec3 getDynamicColor(float y, float time) {
         vec3 blue = vec3(0.0, 0.5, 1.0);
@@ -259,10 +332,8 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
 
     void main() {
         vec2 aspect = vec2(uResolution.x / uResolution.y, 1.0);
-        
-        // Читаем фоновую картинку
-        vec4 texColor = texture2D(uTexture, vUv);
-        vec4 finalColor = texColor;
+        vec3 bgColor = mix(vec3(0.1, 0.12, 0.23), vec3(0.01), vUv.y);
+        vec4 finalColor = vec4(bgColor, 1.0);
 
         for (int i = 0; i < 3; i++) {
             vec2 lPos = uLenses[i].xy;
@@ -277,9 +348,9 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
                 vec2 uvBase = lPos + (vUv - lPos) * (distortion / (normD + 0.0001));
                 
                 vec3 refr;
-                refr.r = texture2D(uTexture, clamp(uvBase + chroma, 0.0, 1.0)).r;
-                refr.g = texture2D(uTexture, uvBase).g;
-                refr.b = texture2D(uTexture, clamp(uvBase - chroma, 0.0, 1.0)).b;
+                refr.r = mix(vec3(0.1, 0.12, 0.23), vec3(0.01), clamp(uvBase.y + chroma, 0.0, 1.0)).r;
+                refr.g = mix(vec3(0.1, 0.12, 0.23), vec3(0.01), uvBase.y).g;
+                refr.b = mix(vec3(0.1, 0.12, 0.23), vec3(0.01), clamp(uvBase.y - chroma, 0.0, 1.0)).b;
                 
                 finalColor.rgb = refr + 0.04;
                 for (int j = 0; j < 3; j++) { if (j < i) {
@@ -295,6 +366,7 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
 </script>
 
 <script>
+
 const canvas = document.getElementById('bgCanvas');
 const gl = canvas.getContext('webgl');
 let w, h;
@@ -319,28 +391,8 @@ gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 
 const pLoc = gl.getAttribLocation(prog, "position");
 gl.enableVertexAttribArray(pLoc); gl.vertexAttribPointer(pLoc, 2, gl.FLOAT, false, 0, 0);
 
-const uL = gl.getUniformLocation(prog, "uLenses"), 
-      uR = gl.getUniformLocation(prog, "uResolution"), 
-      uT = gl.getUniformLocation(prog, "uTime"),
-      uTex = gl.getUniformLocation(prog, "uTexture");
-
+const uL = gl.getUniformLocation(prog, "uLenses"), uR = gl.getUniformLocation(prog, "uResolution"), uT = gl.getUniformLocation(prog, "uTime");
 const lenses = [{bx:0.8, by:0.2, t:0}, {bx:0.2, by:0.5, t:2}, {bx:0.7, by:0.8, t:4}];
-
-// ЗАГРУЗКА ТЕКСТУРЫ
-const texture = gl.createTexture();
-gl.bindTexture(gl.TEXTURE_2D, texture);
-gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([20, 20, 30, 255]));
-
-const image = new Image();
-image.onload = function() {
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-};
-image.src = 'img/Tom.png';
 
 let time = 0;
 function render() {
@@ -353,13 +405,11 @@ function render() {
         flat.push(l.bx + dx, l.by + dy, 0.45);
     });
     gl.uniform3fv(uL, flat); gl.uniform2f(uR, w, h); gl.uniform1f(uT, time);
-    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, texture); gl.uniform1i(uTex, 0);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
     requestAnimationFrame(render);
 }
 render();
 
-// ЛОГИКА КНОПОК
 const CLICK_ANIMATION_DURATION = 150; 
 const TOAST_DISPLAY_DURATION = 2000; 
 
@@ -393,11 +443,15 @@ async function handleCopyClick(element, textToCopy) {
 }
 
 function animateSuccess(el) {
+  if (!el) return;
   el.classList.add('copied');
   setTimeout(() => el.classList.remove('copied'), 250);
+  
   const toast = document.getElementById('copy-toast');
-  toast.classList.add('show'); 
-  setTimeout(() => toast.classList.remove('show'), TOAST_DISPLAY_DURATION);
+  if (toast) {
+    toast.classList.add('show'); 
+    setTimeout(() => toast.classList.remove('show'), TOAST_DISPLAY_DURATION);
+  }
 }
 
 function fallbackCopy(text, element) {
