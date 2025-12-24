@@ -443,7 +443,7 @@ async function handlePhotoClick(element) {
     }
 }
 
-// Функция подготовки изображения и создания контакта
+// Функция подготовки изображения БЕЗ искажений и обрезки
 function processVCardWithPadding() {
     const imgPath = 'img/Tom.png'; 
     const img = new Image();
@@ -453,26 +453,24 @@ function processVCardWithPadding() {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         
-        // Уменьшаем размер до 300x300, чтобы файл был легким и грузился мгновенно
-        const size = 300; 
-        canvas.width = size;
-        canvas.height = size;
+        // КЛЮЧЕВОЕ: Используем натуральные размеры картинки
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
 
-        const scale = 0.8; 
-        const drawHeight = img.height * (size / img.height) * scale;
-        const drawWidth = img.width * (size / img.width) * scale;
+        // Рисуем один к одному, без смещений и масштабирования
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-        const x = (size - drawWidth) / 2;
-        const y = size - drawHeight;
-
-        ctx.drawImage(img, x, y, drawWidth, drawHeight);
-
-        // Сжимаем качество до 0.7, чтобы Safari не тормозил
-        const base64Data = canvas.toDataURL('image/jpeg', 0.7).replace(/^data:image\/jpeg;base64,/, "");
+        // Сохраняем в хорошем качестве (0.9)
+        const base64Data = canvas.toDataURL('image/jpeg', 0.9).replace(/^data:image\/jpeg;base64,/, "");
+        
+        // Вызываем загрузку визитки
         downloadVCF(base64Data);
     };
 
-    img.onerror = function() { downloadVCF(null); };
+    img.onerror = function() { 
+        console.error("Не удалось загрузить фото для визитки");
+        downloadVCF(null); 
+    };
     img.src = imgPath;
 }
 
