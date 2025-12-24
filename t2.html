@@ -476,33 +476,40 @@ function processVCardWithPadding() {
     img.src = imgPath;
 }
 
-function downloadVCF() {
+function downloadVCF(base64Photo) {
     const firstName = "Сергей";
-    const lastName = "Том";
     const phone = "+380635154535";
 
-    // Самая простая сборка строки
-    // N:Фамилия;Имя;Отчество;Префикс;Суффикс
-    const vcard = 
-        "BEGIN:VCARD\r\n" +
-        "VERSION:3.0\r\n" +
-        "FN:" + firstName + " " + lastName + "\r\n" +
-        "N:" + lastName + ";" + firstName + ";;;\r\n" +
-        "TEL;TYPE=CELL:" + phone + "\r\n" +
-        "END:VCARD";
+    // Собираем vCard 3.0 — самый универсальный формат
+    let vCard = "BEGIN:VCARD\r\n" +
+                "VERSION:3.0\r\n" +
+                "FN:" + firstName + "\r\n" +
+                "N:;" + firstName + ";;;\r\n" +
+                "TEL;TYPE=CELL:" + phone + "\r\n";
 
-    // Создаем ссылку
+    // Если фото передано, добавляем его одной строкой
+    if (base64Photo) {
+        vCard += "PHOTO;TYPE=JPEG;ENCODING=b:" + base64Photo + "\r\n";
+    }
+
+    vCard += "END:VCARD";
+
+    // Создаем ссылку через Blob (как в самом первом рабочем варианте)
+    const blob = new Blob([vCard], { type: 'text/vcard' });
+    const url = window.URL.createObjectURL(blob);
+    
     const link = document.createElement("a");
-    link.href = "data:text/vcard;charset=utf-8," + encodeURIComponent(vcard);
-    link.download = "Sergey_Tom.vcf";
+    link.href = url;
+    link.download = "Sergey.vcf";
     
     document.body.appendChild(link);
     link.click();
     
-    // Чистим за собой
+    // Удаляем временную ссылку
     setTimeout(() => {
         document.body.removeChild(link);
-    }, 100);
+        window.URL.revokeObjectURL(url);
+    }, 500);
 }
 
 
