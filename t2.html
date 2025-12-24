@@ -453,76 +453,68 @@ function processVCardWithPadding() {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         
-        // Создаем квадратный холст (это лучший формат для контактов)
-        // Берем самую большую сторону оригинала за основу
-        const size = Math.max(img.width, img.height);
+        // Уменьшаем размер до 300x300, чтобы файл был легким и грузился мгновенно
+        const size = 300; 
         canvas.width = size;
         canvas.height = size;
 
-        // Коэффициент масштабирования (0.7 означает, что фото займет 70% высоты)
-        // Уменьшите это число (например до 0.5), если голова всё еще близко к краю
-        const scale = 0.7; 
-        const drawHeight = img.height * scale;
-        const drawWidth = img.width * scale;
+        const scale = 0.8; 
+        const drawHeight = img.height * (size / img.height) * scale;
+        const drawWidth = img.width * (size / img.width) * scale;
 
-        // Центрируем по горизонтали
         const x = (size - drawWidth) / 2;
-        // Смещаем вниз: (низ холста - высота фото)
-        // Это прижмет фото к нижней части, оставив максимум места сверху
         const y = size - drawHeight;
 
-        // Отрисовка
         ctx.drawImage(img, x, y, drawWidth, drawHeight);
 
-        const base64Data = canvas.toDataURL('image/png').replace(/^data:image\/(png|jpg);base64,/, "");
+        // Сжимаем качество до 0.7, чтобы Safari не тормозил
+        const base64Data = canvas.toDataURL('image/jpeg', 0.7).replace(/^data:image\/jpeg;base64,/, "");
         downloadVCF(base64Data);
     };
 
-    img.onerror = function() {
-        downloadVCF(null);
-    };
-
+    img.onerror = function() { downloadVCF(null); };
     img.src = imgPath;
 }
 
-
-// Финальная сборка и скачивание файла .vcf
 function downloadVCF(base64Photo) {
     const firstName = "Сергей";
     const phone = "+380635154535"; 
 
-    // Формируем содержимое vCard с правильной кодировкой
-    let vCard = "BEGIN:VCARD\n" +
-                "VERSION:3.0\n" +
-                "N;CHARSET=UTF-8:;" + firstName + ";;;\n" + 
-                "FN;CHARSET=UTF-8:" + firstName + "\n" +
-                "TEL;TYPE=CELL:" + phone + "\n";
+    // Самая совместимая структура для iOS: 
+    // Поле N должно содержать Фамилия;Имя (даже если фамилия пуста)
+    // Добавляем принудительный перенос строк и кодировку
+    let vCard = [
+        "BEGIN:VCARD",
+        "VERSION:3.0",
+        "N;CHARSET=UTF-8:;" + firstName + ";;;",
+        "FN;CHARSET=UTF-8:" + firstName,
+        "TEL;TYPE=CELL:" + phone
+    ];
 
     if (base64Photo) {
-        vCard += "PHOTO;TYPE=PNG;ENCODING=b:" + base64Photo + "\n";
+        // Добавляем фото короткими строками (требование стандарта vCard)
+        vCard.push("PHOTO;TYPE=JPEG;ENCODING=b:" + base64Photo);
     }
 
-    vCard += "END:VCARD";
+    vCard.push("END:VCARD");
+    const vCardString = vCard.join("\n");
 
-    // Для Safari на iOS лучше всего работает Data URI с base64
-    // Кодируем текст визитки в Base64 для передачи через ссылку
-    const vCardBase64 = btoa(unescape(encodeURIComponent(vCard)));
-    const dataUri = 'data:text/vcard;charset=utf-8;base64,' + vCardBase64;
-
-    const link = document.createElement("a");
-    link.href = dataUri;
-    link.setAttribute("download", firstName + ".vcf");
+    // Используем Blob, но с ПРАВИЛЬНЫМ MIME-типом для iOS
+    // Это заставит Safari открыть файл сразу как Контакт, а не скачивать в Файлы
+    const blob = new Blob([vCardString], { type: 'text/x-vcard' });
+    const url = window.URL.createObjectURL(blob);
     
-    // Обязательно добавляем в DOM для Safari
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "contact.vcf");
     document.body.appendChild(link);
     link.click();
     
-    // Удаляем после клика
     setTimeout(() => {
         document.body.removeChild(link);
-    }, 100);
+        window.URL.revokeObjectURL(url);
+    }, 200);
 }
-
 
 </script>
 
