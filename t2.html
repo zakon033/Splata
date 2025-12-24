@@ -480,35 +480,41 @@ function downloadVCF(base64Photo) {
     const firstName = "Сергей";
     const phone = "+380635154535"; 
 
-    // Используем простейшую структуру vCard 2.1
-    // N:Фамилия;Имя;Отчество;Префикс;Суффикс
-    // FN:Полное отображаемое имя
-    let vCard = "BEGIN:VCARD\r\n" +
-                "VERSION:2.1\r\n" +
-                "N:;" + firstName + ";;;\r\n" + 
-                "FN:" + firstName + "\r\n" +
-                "TEL;CELL:" + phone + "\r\n";
+    // 1. Формируем тело визитки в самом стабильном формате
+    // Важно: Поле N (Name) и FN (Full Name) должны быть идентичны
+    let vCard = [
+        "BEGIN:VCARD",
+        "VERSION:3.0",
+        "PRODID:-//Apple Inc.//iPhone OS 17.0//EN", // Маскируемся под систему Apple
+        "N:;" + firstName + ";;;",
+        "FN:" + firstName,
+        "TEL;type=CELL;type=VOICE;type=pref:" + phone
+    ];
 
     if (base64Photo) {
-        vCard += "PHOTO;JPEG;ENCODING=BASE64:\r\n" + base64Photo + "\r\n\r\n";
+        // Стандарт требует переноса строк каждые 75 символов для фото, 
+        // но современные iPhone лучше читают сплошной блок
+        vCard.push("PHOTO;TYPE=JPEG;ENCODING=b:" + base64Photo);
     }
 
-    vCard += "END:VCARD";
+    vCard.push("END:VCARD");
+    const vCardString = vCard.join("\r\n");
 
-    // Прямая передача через Data URI - самый стабильный метод для Safari
-    // btoa(unescape(encodeURIComponent(vCard))) — это «магия» для кириллицы
-    const dataUri = 'data:text/x-vcard;base64,' + btoa(unescape(encodeURIComponent(vCard)));
+    // 2. Кодируем в Base64 всю визитку целиком
+    // Это именно то, что делают онлайн-генераторы
+    const b64vCard = btoa(unescape(encodeURIComponent(vCardString)));
+    
+    // 3. Используем правильный MIME-тип, который Safari обязан распознать
+    const dataUri = 'data:text/vcard;base64,' + b64vCard;
 
+    // 4. Прямой переход
     const link = document.createElement("a");
     link.href = dataUri;
-    link.download = "Sergey.vcf";
-    
+    link.download = "contact.vcf";
     document.body.appendChild(link);
     link.click();
     
-    setTimeout(() => {
-        document.body.removeChild(link);
-    }, 300);
+    setTimeout(() => document.body.removeChild(link), 300);
 }
 
 
