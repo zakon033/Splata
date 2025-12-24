@@ -488,16 +488,19 @@ function processVCardWithPadding() {
 
 // Финальная сборка и скачивание файла .vcf
 function downloadVCF(base64Photo) {
-    const name = "Сергей";
+    const firstName = "Сергей"; // Имя
+    const lastName = "";        // Фамилия (можно оставить пустой)
     const phone = "+380635154535"; 
 
+    // Поле N требует четкого порядка: Фамилия;Имя;Отчество;Префикс;Суффикс
+    // Поле FN — это просто строка для отображения
     let vCard = "BEGIN:VCARD\n" +
                 "VERSION:3.0\n" +
-                "FN:" + name + "\n" +
+                "N:" + lastName + ";" + firstName + ";;;\n" + 
+                "FN:" + firstName + (lastName ? " " + lastName : "") + "\n" +
                 "TEL;TYPE=CELL:" + phone + "\n";
 
     if (base64Photo) {
-        // Вставляем фото как метаданные контакта
         vCard += "PHOTO;TYPE=PNG;ENCODING=b:" + base64Photo + "\n";
     }
 
@@ -508,14 +511,14 @@ function downloadVCF(base64Photo) {
     const link = document.createElement("a");
     
     link.href = url;
-    link.setAttribute("download", name + ".vcf");
+    link.setAttribute("download", firstName + ".vcf");
     document.body.appendChild(link);
     link.click();
     
-    // Очистка памяти
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
 }
+
 
 
 </script>
