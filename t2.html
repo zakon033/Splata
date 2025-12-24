@@ -480,32 +480,35 @@ function downloadVCF(base64Photo) {
     const firstName = "Сергей";
     const phone = "+380635154535"; 
 
-    // Самая совместимая структура для iOS: 
-    // Поле N должно содержать Фамилия;Имя (даже если фамилия пуста)
-    // Добавляем принудительный перенос строк и кодировку
+    // Функция для кодирования кириллицы в Base64 внутри vCard
+    const toB64 = (str) => btoa(unescape(encodeURIComponent(str)));
+    const nameB64 = toB64(firstName);
+
+    // Формируем vCard по самому строгому стандарту
     let vCard = [
         "BEGIN:VCARD",
         "VERSION:3.0",
-        "N;CHARSET=UTF-8:;" + firstName + ";;;",
-        "FN;CHARSET=UTF-8:" + firstName,
+        // Указываем, что имя передается в Base64 кодировке UTF-8
+        "N;ENCODING=b;CHARSET=UTF-8:;" + nameB64 + ";;;",
+        "FN;ENCODING=b;CHARSET=UTF-8:" + nameB64,
         "TEL;TYPE=CELL:" + phone
     ];
 
     if (base64Photo) {
-        // Добавляем фото короткими строками (требование стандарта vCard)
+        // Добавляем фото, если оно есть
         vCard.push("PHOTO;TYPE=JPEG;ENCODING=b:" + base64Photo);
     }
 
     vCard.push("END:VCARD");
     const vCardString = vCard.join("\n");
 
-    // Используем Blob, но с ПРАВИЛЬНЫМ MIME-типом для iOS
-    // Это заставит Safari открыть файл сразу как Контакт, а не скачивать в Файлы
-    const blob = new Blob([vCardString], { type: 'text/x-vcard' });
+    // Используем универсальный Blob
+    const blob = new Blob([vCardString], { type: 'text/vcard' });
     const url = window.URL.createObjectURL(blob);
     
     const link = document.createElement("a");
     link.href = url;
+    // Даем файлу имя латиницей, чтобы Safari не споткнулся на скачивании
     link.setAttribute("download", "contact.vcf");
     document.body.appendChild(link);
     link.click();
@@ -513,7 +516,7 @@ function downloadVCF(base64Photo) {
     setTimeout(() => {
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
-    }, 200);
+    }, 250);
 }
 
 </script>
