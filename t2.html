@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Переказ коштів</title>
+
+<meta name="theme-color" content="#1b1f3b"> 
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> 
+<meta name="apple-mobile-web-app-capable" content="yes"> 
+
+<style>
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent; 
+}
+
+html { background-color: #030303; }
+
+body {
+  margin: 0; padding: 0; width: 100%; min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
+  color: #ffffff; background: transparent !important; position: relative;
+}
+
+#bgCanvas {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; 
+  display: block; pointer-events: none;
+  mask-image: linear-gradient(to bottom, transparent 0%, black 80px, black calc(100% - 80px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 80px, black calc(100% - 80px), transparent 100%);
+}
+
+.container {
+  max-width: 420px; width: 100%; margin: 0 auto; position: relative; z-index: 10; 
+  padding: calc(60px + env(safe-area-inset-top)) 20px calc(60px + env(safe-area-inset-bottom)); 
+  text-align: center;
+}
+
+h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+.subtitle { font-size: 22px; opacity: 0.9; margin-bottom: 30px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+
+/* ОБЩИЙ СТИЛЬ ДЛЯ КНОПОК И ФОТО-БЛОКА */
+.btn, .photo-header {
+  position: relative;
+  overflow: hidden; 
+  display: flex;
+  align-items: center; 
+  justify-content: center;
+  width: 100%;
+  backdrop-filter: blur(15px); 
+  -webkit-backdrop-filter: blur(15px);
+  background-color: rgba(255, 255, 255, 0.1); 
+  border: 1px solid rgba(255, 255, 255, 0.1); 
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  transition: transform 0.1s, background-color 0.2s; 
+  cursor: pointer;
+  user-select: none;
+  opacity: 0;
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+/* ИНДИВИДУАЛЬНЫЕ РАЗМЕРЫ */
+.btn { height: 80px; padding: 0 12px; margin-bottom: 15px; border-radius: 70px; text-decoration: none; font-size: 22px; font-weight: 500; }
+.photo-header { height: 200px; margin-bottom: 25px; border-radius: 40px; }
+
+/* ЕДИНЫЙ ЭФФЕКТ НАЖАТИЯ (ЗЕЛЕНЫЙ) */
+.btn.clicked, .photo-header.clicked { 
+    transform: scale(0.95) !important; 
+    background-color: rgba(46, 204, 113, 0.4) !important; 
+    transition: transform 0.05s !important;
+}
+
+/* ВЕРХНИЙ БЛИК ДЛЯ ВСЕХ */
+.btn::before, .photo-header::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 1.5px; z-index: 1;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
+}
+
+/* КАРТИНКА ВНУТРИ ФОТО-БЛОКА */
+.photo-header img {
+  height: 90%; width: auto; object-fit: contain; position: relative; z-index: 2;
+  filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
+}
+
+/* СТИЛИ КОНТЕНТА КНОПОК */
+.btn img { display: block; }
+.btn-full-logo img { height: 38px; width: auto; max-width: 80%; object-fit: contain; }
+.btn-pay-small img { height: 28px !important; }
+.btn-with-text { justify-content: flex-start; }
+.btn-icon, .btn-icon-right { width: 54px; height: 100%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding-top: 2px; }
+.btn-icon { margin-right: 12px; }
+.btn-icon-right { margin-left: 12px; }
+.btn-icon img, .btn-icon-right img { width: 100%; height: auto; max-height: 54px; object-fit: contain; }
+.btn-text { white-space: nowrap; height: 100%; display: flex; align-items: center; line-height: 1; padding-top: 2px; flex-grow: 1; }
+
+/* КАРТОЧКИ И НОМЕРА */
+.btn-card { position: relative; }
+.card-logo-sub { position: absolute; bottom: 10px; right: 35px; height: 20px; opacity: 0.8; }
+.card-logo-sub img { height: 100%; width: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+.card-number-font {
+    font-family: 'Consolas', 'Courier New', monospace; font-size: clamp(16px, 6vw, 26px); font-weight: 500;
+    letter-spacing: 1px; color: #e0e0e0; text-shadow: -2px -2px 3px rgba(255, 255, 255, 0.4), 2px 2px 3px rgba(0, 0, 0, 0.9);
+    height: 100%; display: flex; align-items: center; line-height: 1;
+}
+
+.btn-triple { justify-content: space-between; }
+#copy-toast {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, calc(-50% - 150px)); 
+    padding: 18px 36px; border-radius: 70px; background-color: rgba(255, 255, 255, 0.1); 
+    backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    font-size: 22px; font-weight: 600; color: #ffffff; z-index: 1000; opacity: 0; pointer-events: none;
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease-out;
+}
+#copy-toast.show { opacity: 1; transform: translate(-50%, -50%); background-color: rgba(46, 204, 113, 0.25); }
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ЗАДЕРЖКИ */
+.photo-header { animation-delay: 0.1s; }
+.btn:nth-child(n+3) { animation-delay: calc(0.1s * (var(--i, 1))); }
+/* Чтобы задержки работали корректно без ручного прописывания каждого nth-child, можно оставить как у вас было ранее: */
+.btn:nth-child(3) { animation-delay: 0.2s; }
+.btn:nth-child(4) { animation-delay: 0.3s; }
+.btn:nth-child(5) { animation-delay: 0.4s; }
+.btn:nth-child(6) { animation-delay: 0.5s; }
+/* ... и так далее */
+</style>
+
+</head>
+
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<div class="container">
+  
+   <div class="photo-header" onclick="handlePhotoClick(this)">
+    <img src="img/Tom.png" alt="Tom">
+</div>
+
+
+  <h1>💳 Переказати кошти</h1>
+  <div class="subtitle">Оберіть зручний спосіб</div>
+
+  <a class="btn btn-full-logo" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">
+    <img src="img/monobank.svg" alt="monobank">
+  </a>
+
+  <a class="btn btn-full-logo" data-href="https://www.privat24.ua/send/id4xg" onclick="handleLinkClick(this)">
+    <img src="img/PrivatBank.svg" alt="PrivatBank">
+  </a>
+  
+  <div class="btn btn-card" onclick="handleCopyClick(this, '4441114443828353')">
+    <span class="card-number-font">4441 •••• •••• 8353</span>
+      <div class="card-logo-sub">
+        <img src="img/monobank.svg" alt="monobank">
+      </div>
+  </div>
+
+  <div class="btn btn-card" onclick="handleCopyClick(this, '5363542096314829')">
+    <span class="card-number-font">5363 •••• •••• 4829</span>
+      <div class="card-logo-sub">
+        <img src="img/PrivatBank.svg" alt="PrivatBank">
+      </div>
+  </div>
+  
+  <a class="btn btn-full-logo btn-pay-small" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">
+     <img src="img/apple_pay.svg" alt="apple_pay">
+  </a>
+
+  <a class="btn btn-full-logo btn-pay-small" data-href="https://send.monobank.ua/5a2bBZvgLK" onclick="handleLinkClick(this)">
+    <img src="img/google_pay.svg" alt="google_pay">
+  </a>
+  
+  <a class="btn btn-with-text" data-href="https://app.binance.com/uni-qr/LXViL5Hb" onclick="handleLinkClick(this)">
+    <div class="btn-icon"><img src="img/bnb.svg" alt="binance"></div>
+    <span class="btn-text">Binance Pay</span>
+  </a>
+
+  <div class="btn btn-with-text" onclick="handleCopyClick(this, 'bc1qktmy8wcu3uvyugx3fgttg4t00akuvdk24anxcp')">
+    <div class="btn-icon"><img src="img/btc.svg" alt="btc"></div>
+    <span class="btn-text">Bitcoin (BTC)</span>
+  </div>
+  
+  <div class="btn btn-with-text" onclick="handleCopyClick(this, '0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
+    <div class="btn-icon"><img src="img/eth.svg" alt="eth"></div>
+    <span class="btn-text">Ethereum (ETH)</span>
+  </div>
+  
+  <div class="btn btn-with-text" onclick="handleCopyClick(this, 'TKobQmn3adNdXZ9aLfLhUe9bWF2pA9PhPh')">
+    <div class="btn-icon"><img src="img/usdt.svg" alt="usdt"></div>
+    <span class="btn-text">USDT (Tether)</span>
+  </div>
+  
+  <div class="btn btn-with-text" onclick="handleCopyClick(this, 'EfwLdkavt2q59LfFnRjpVXQ9TpQiMpMnmJjbXUYLxps7')">
+    <div class="btn-icon"><img src="img/sol.svg" alt="sol"></div>
+    <span class="btn-text">Solana (SOL)</span>
+  </div>
+  
+  <div class="btn btn-with-text" onclick="handleCopyClick(this, '0xCcbD44EA963812ECc7F592a608245284c5cD87D9')">
+    <div class="btn-icon"><img src="img/usdc.svg" alt="usdc"></div>
+    <span class="btn-text">USDC (Polygon)</span>
+  </div>
+
+  <a class="btn btn-triple" data-href="https://link.trustwallet.com/send?address=0xCcbD44EA963812ECc7F592a608245284c5cD87D9&asset=c966_t0x576Cf361711cd940CD9C397BB98C4C896cBd38De" target="_blank" onclick="handleLinkClick(this)">
+     <div class="btn-icon"><img src="img/usdc.svg" alt="usdc"></div> 
+     <span class="btn-text">USDC (Polygon) Trust</span>
+     <div class="btn-icon-right"><img src="img/trust.svg" alt="trust"></div> 
+  </a>
+</div>
+
+<div id="copy-toast">Скопійовано!</div>
+
+<script id="vs" type="x-shader/x-vertex">
+    attribute vec2 position;
+    varying vec2 vUv;
+    void main() {
+        vUv = position * 0.5 + 0.5;
+        vUv.y = 1.0 - vUv.y;
+        gl_Position = vec4(position, 0.0, 1.0);
+    }
+</script>
+
+<script id="fs" type="x-shader/x-fragment">
+    precision highp float;
+    varying vec2 vUv;
+    uniform vec2 uResolution;
+    uniform float uTime;
+    uniform vec3 uLenses[3];
+
+    vec3 getDynamicColor(float y, float time) {
+        vec3 blue = vec3(0.0, 0.5, 1.0);
+        vec3 orange = vec3(1.0, 0.4, 0.0);
+        vec3 lime = vec3(0.4, 1.0, 0.0);
+        float t = time * 0.6;
+        float w1 = sin(t) * 0.5 + 0.5;
+        float w2 = sin(t + 2.09) * 0.5 + 0.5;
+        float w3 = sin(t + 4.18) * 0.5 + 0.5;
+        return (blue * w1 + orange * w2 + lime * w3) / (w1 + w2 + w3);
+    }
+
+    vec4 getLensEdge(vec2 uv, vec2 pos, float r, vec2 aspect, int index, float time) {
+        vec2 dVec = (uv - pos) * aspect;
+        float d = length(dVec);
+        float whiteRing = smoothstep(0.0035, 0.0, abs(d - r));
+        float glow = smoothstep(0.03, 0.0, abs(d - r)); 
+        if (d > r) glow = 0.0;
+        float shadowMask = (index == 1) ? smoothstep(-1.0, -0.4, normalize(dVec).y) : 1.0;
+        vec3 color = mix(getDynamicColor(uv.y, time), vec3(1.0), whiteRing * shadowMask);
+        return vec4(color, max(whiteRing * shadowMask, glow * shadowMask * 0.75));
+    }
+
+    void main() {
+        vec2 aspect = vec2(uResolution.x / uResolution.y, 1.0);
+        vec3 bgColor = mix(vec3(0.1, 0.12, 0.23), vec3(0.01), vUv.y);
+        vec4 finalColor = vec4(bgColor, 1.0);
+
+        for (int i = 0; i < 3; i++) {
+            vec2 lPos = uLenses[i].xy;
+            float r = uLenses[i].z;
+            vec2 distVec = (vUv - lPos) * aspect;
+            float d = length(distVec);
+
+            if (d < r) {
+                float normD = d / r;
+                float distortion = (normD < 0.85) ? pow(normD, 0.85) : 0.88 - pow((normD - 0.85) / 0.15, 1.5) * 0.45;
+                float chroma = (normD > 0.85) ? (normD - 0.85) * 0.04 : 0.0;
+                vec2 uvBase = lPos + (vUv - lPos) * (distortion / (normD + 0.0001));
+                
+                vec3 refr;
+                refr.r = mix(vec3(0.1, 0.12, 0.23), vec3(0.01), clamp(uvBase.y + chroma, 0.0, 1.0)).r;
+                refr.g = mix(vec3(0.1, 0.12, 0.23), vec3(0.01), uvBase.y).g;
+                refr.b = mix(vec3(0.1, 0.12, 0.23), vec3(0.01), clamp(uvBase.y - chroma, 0.0, 1.0)).b;
+                
+                finalColor.rgb = refr + 0.04;
+                for (int j = 0; j < 3; j++) { if (j < i) {
+                    vec4 prev = getLensEdge(uvBase, uLenses[j].xy, uLenses[j].z, aspect, j, uTime);
+                    finalColor.rgb += prev.rgb * prev.a;
+                }}
+            }
+            vec4 edge = getLensEdge(vUv, lPos, r, aspect, i, uTime);
+            finalColor.rgb += edge.rgb * edge.a;
+        }
+        gl_FragColor = finalColor;
+    }
+</script>
+
+<script>
+
+const canvas = document.getElementById('bgCanvas');
+const gl = canvas.getContext('webgl');
+let w, h;
+
+function resize() {
+    w = window.innerWidth; h = window.innerHeight;
+    canvas.width = w * devicePixelRatio; canvas.height = h * devicePixelRatio;
+    gl.viewport(0, 0, canvas.width, canvas.height);
+}
+window.addEventListener('resize', resize); resize();
+
+const createS = (type, src) => {
+    const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s;
+};
+const prog = gl.createProgram();
+gl.attachShader(prog, createS(gl.VERTEX_SHADER, document.getElementById('vs').text));
+gl.attachShader(prog, createS(gl.FRAGMENT_SHADER, document.getElementById('fs').text));
+gl.linkProgram(prog); gl.useProgram(prog);
+
+gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
+const pLoc = gl.getAttribLocation(prog, "position");
+gl.enableVertexAttribArray(pLoc); gl.vertexAttribPointer(pLoc, 2, gl.FLOAT, false, 0, 0);
+
+const uL = gl.getUniformLocation(prog, "uLenses"), uR = gl.getUniformLocation(prog, "uResolution"), uT = gl.getUniformLocation(prog, "uTime");
+const lenses = [{bx:0.8, by:0.2, t:0}, {bx:0.2, by:0.5, t:2}, {bx:0.7, by:0.8, t:4}];
+
+let time = 0;
+function render() {
+    time += 0.01;
+    const flat = [];
+    lenses.forEach(l => {
+        l.t += 0.008;
+        const dx = (Math.sin(l.t*0.8)+Math.cos(l.t*1.3))*0.15;
+        const dy = (Math.cos(l.t*0.9)+Math.sin(l.t*1.1))*0.15;
+        flat.push(l.bx + dx, l.by + dy, 0.45);
+    });
+    gl.uniform3fv(uL, flat); gl.uniform2f(uR, w, h); gl.uniform1f(uT, time);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    requestAnimationFrame(render);
+}
+render();
+
+const CLICK_ANIMATION_DURATION = 150; 
+const TOAST_DISPLAY_DURATION = 2000; 
+
+function animateClick(element) {
+  return new Promise(resolve => {
+    element.classList.add('clicked');
+    setTimeout(() => {
+      element.classList.remove('clicked');
+      resolve();
+    }, CLICK_ANIMATION_DURATION);
+  });
+}
+
+async function handleLinkClick(element) {
+  event.preventDefault(); 
+  const targetURL = element.getAttribute('data-href');
+  if (!targetURL) return;
+  await animateClick(element); 
+  window.location.href = targetURL;
+}
+
+async function handleCopyClick(element, textToCopy) {
+  await animateClick(element);
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(textToCopy)
+      .then(() => animateSuccess(element))
+      .catch(() => fallbackCopy(textToCopy, element));
+  } else {
+    fallbackCopy(textToCopy, element);
+  }
+}
+
+function animateSuccess(el) {
+  if (!el) return;
+  el.classList.add('copied');
+  setTimeout(() => el.classList.remove('copied'), 250);
+  
+  const toast = document.getElementById('copy-toast');
+  if (toast) {
+    toast.classList.add('show'); 
+    setTimeout(() => toast.classList.remove('show'), TOAST_DISPLAY_DURATION);
+  }
+}
+
+function fallbackCopy(text, element) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+  animateSuccess(element);
+}
+
+let photoClicks = 0;
+let photoTimer = null;
+
+// Главная функция обработки нажатия на блок фото
+async function handlePhotoClick(element) {
+    photoClicks++;
+    
+    // Тактильный отклик (вибрация 10мс)
+    if (navigator.vibrate) {
+        navigator.vibrate(10);
+    }
+
+    // Запускаем визуальную анимацию (сжатие/вспышка)
+    // Используем вашу существующую функцию или добавляем класс
+    if (typeof animateClick === "function") {
+        animateClick(element);
+    } else {
+        element.classList.add('clicked');
+        setTimeout(() => element.classList.remove('clicked'), 150);
+    }
+
+    // Сброс счетчика, если пауза между кликами больше 600мс
+    clearTimeout(photoTimer);
+    photoTimer = setTimeout(() => {
+        photoClicks = 0;
+    }, 600);
+
+    // Если зафиксировано 3 быстрых нажатия
+    if (photoClicks === 3) {
+        photoClicks = 0;
+        // Сигнализируем об успехе двойной вибрацией
+        if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+        processVCardWithPadding();
+    }
+}
+
+// Функция подготовки изображения и создания контакта
+function processVCardWithPadding() {
+    const imgPath = 'img/Tom.png'; 
+    const img = new Image();
+    img.crossOrigin = 'Anonymous'; 
+
+    img.onload = function() {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Создаем квадратный холст (это лучший формат для контактов)
+        // Берем самую большую сторону оригинала за основу
+        const size = Math.max(img.width, img.height);
+        canvas.width = size;
+        canvas.height = size;
+
+        // Коэффициент масштабирования (0.7 означает, что фото займет 70% высоты)
+        // Уменьшите это число (например до 0.5), если голова всё еще близко к краю
+        const scale = 0.7; 
+        const drawHeight = img.height * scale;
+        const drawWidth = img.width * scale;
+
+        // Центрируем по горизонтали
+        const x = (size - drawWidth) / 2;
+        // Смещаем вниз: (низ холста - высота фото)
+        // Это прижмет фото к нижней части, оставив максимум места сверху
+        const y = size - drawHeight;
+
+        // Отрисовка
+        ctx.drawImage(img, x, y, drawWidth, drawHeight);
+
+        const base64Data = canvas.toDataURL('image/png').replace(/^data:image\/(png|jpg);base64,/, "");
+        downloadVCF(base64Data);
+    };
+
+    img.onerror = function() {
+        downloadVCF(null);
+    };
+
+    img.src = imgPath;
+}
+
+
+// Финальная сборка и скачивание файла .vcf
+function downloadVCF(base64Photo) {
+    const name = "Сергей";
+    const phone = "+380635154535"; 
+
+    let vCard = "BEGIN:VCARD\n" +
+                "VERSION:3.0\n" +
+                "FN:" + name + "\n" +
+                "TEL;TYPE=CELL:" + phone + "\n";
+
+    if (base64Photo) {
+        // Вставляем фото как метаданные контакта
+        vCard += "PHOTO;TYPE=PNG;ENCODING=b:" + base64Photo + "\n";
+    }
+
+    vCard += "END:VCARD";
+
+    const blob = new Blob([vCard], { type: "text/vcard" });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    
+    link.href = url;
+    link.setAttribute("download", name + ".vcf");
+    document.body.appendChild(link);
+    link.click();
+    
+    // Очистка памяти
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+}
+
+
+</script>
+
+</body>
+</html>
