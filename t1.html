@@ -498,30 +498,42 @@ function fallbackCopy(text, element) {
 let photoClicks = 0;
 let photoTimer = null;
 
+// Главная функция обработки нажатия на блок фото
 async function handlePhotoClick(element) {
     photoClicks++;
     
-    // Вызываем вашу стандартную анимацию (подсветка/сжатие), 
-    // которую мы обсуждали ранее, чтобы был тактильный отклик
-    if (typeof animateClick === "function") {
-        animateClick(element);
+    // Тактильный отклик (вибрация 10мс)
+    if (navigator.vibrate) {
+        navigator.vibrate(10);
     }
 
-    // Сброс счетчика через 600мс
+    // Запускаем визуальную анимацию (сжатие/вспышка)
+    // Используем вашу существующую функцию или добавляем класс
+    if (typeof animateClick === "function") {
+        animateClick(element);
+    } else {
+        element.classList.add('clicked');
+        setTimeout(() => element.classList.remove('clicked'), 150);
+    }
+
+    // Сброс счетчика, если пауза между кликами больше 600мс
     clearTimeout(photoTimer);
     photoTimer = setTimeout(() => {
         photoClicks = 0;
     }, 600);
 
-    // При тройном клике запускаем скрытый процесс
+    // Если зафиксировано 3 быстрых нажатия
     if (photoClicks === 3) {
         photoClicks = 0;
-        saveContactWithImage();
+        // Сигнализируем об успехе двойной вибрацией
+        if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+        processVCardWithPadding();
     }
 }
 
-function saveContactWithImage() {
-    const imgPath = 'img/Tom.png'; // Путь к вашему фото
+// Функция подготовки изображения и создания контакта
+function processVCardWithPadding() {
+    const imgPath = 'img/Tom.png'; 
     const img = new Image();
     img.crossOrigin = 'Anonymous'; 
 
@@ -529,28 +541,35 @@ function saveContactWithImage() {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         
-        // Устанавливаем размер (для vCard лучше делать фото не слишком тяжелым, например 300x300)
+        // ПАРАМЕТРЫ ОТСТУПА
+        // Увеличиваем это число, если нужно еще больше "опустить" фото
+        const topPadding = 60; 
+        
+        // Устанавливаем размер холста: ширина та же, высота больше на величину отступа
         canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
+        canvas.height = img.height + topPadding;
 
-        // Получаем Base64 и очищаем его от лишних заголовков для vCard
+        // Отрисовка: само фото рисуется со сдвигом вниз
+        ctx.drawImage(img, 0, topPadding);
+
+        // Конвертация в Base64 без технического заголовка
         const base64Data = canvas.toDataURL('image/png').replace(/^data:image\/(png|jpg);base64,/, "");
         
-        generateAndDownloadVCard(base64Data);
+        downloadVCF(base64Data);
     };
 
     img.onerror = function() {
-        // Если картинка не загрузилась, создаем контакт без нее
-        generateAndDownloadVCard(null);
+        console.error("Ошибка загрузки Tom.png. Сохраняю без фото.");
+        downloadVCF(null);
     };
 
     img.src = imgPath;
 }
 
-function generateAndDownloadVCard(base64Photo) {
+// Финальная сборка и скачивание файла .vcf
+function downloadVCF(base64Photo) {
     const name = "Tom";
-    const phone = "+380000000000"; // Замените на реальный номер
+    const phone = "+380000000000"; // Впишите нужный номер
 
     let vCard = "BEGIN:VCARD\n" +
                 "VERSION:3.0\n" +
@@ -558,22 +577,22 @@ function generateAndDownloadVCard(base64Photo) {
                 "TEL;TYPE=CELL:" + phone + "\n";
 
     if (base64Photo) {
-        // Добавляем фото в формате Base64
+        // Вставляем фото как метаданные контакта
         vCard += "PHOTO;TYPE=PNG;ENCODING=b:" + base64Photo + "\n";
     }
 
     vCard += "END:VCARD";
 
-    // Создаем файл и инициируем скачивание
     const blob = new Blob([vCard], { type: "text/vcard" });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
+    
     link.href = url;
     link.setAttribute("download", name + ".vcf");
     document.body.appendChild(link);
     link.click();
     
-    // Чистим за собой
+    // Очистка памяти
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
 }
