@@ -491,8 +491,7 @@ function downloadVCF(base64Photo) {
     const firstName = "Сергей";
     const phone = "+380635154535"; 
 
-    // Используем CHARSET=UTF-8, чтобы система точно поняла кириллицу
-    // Поле N: Фамилия;Имя;Отчество;Префикс;Суффикс
+    // Формируем содержимое vCard с правильной кодировкой
     let vCard = "BEGIN:VCARD\n" +
                 "VERSION:3.0\n" +
                 "N;CHARSET=UTF-8:;" + firstName + ";;;\n" + 
@@ -500,26 +499,29 @@ function downloadVCF(base64Photo) {
                 "TEL;TYPE=CELL:" + phone + "\n";
 
     if (base64Photo) {
-        // Добавляем фото
         vCard += "PHOTO;TYPE=PNG;ENCODING=b:" + base64Photo + "\n";
     }
 
     vCard += "END:VCARD";
 
-    // Создаем Blob с явным указанием UTF-8 для самого файла
-    const blob = new Blob(["\ufeff" + vCard], { type: "text/vcard;charset=utf-8" });
-    const url = window.URL.createObjectURL(blob);
+    // Для Safari на iOS лучше всего работает Data URI с base64
+    // Кодируем текст визитки в Base64 для передачи через ссылку
+    const vCardBase64 = btoa(unescape(encodeURIComponent(vCard)));
+    const dataUri = 'data:text/vcard;charset=utf-8;base64,' + vCardBase64;
+
     const link = document.createElement("a");
-    
-    link.href = url;
+    link.href = dataUri;
     link.setAttribute("download", firstName + ".vcf");
+    
+    // Обязательно добавляем в DOM для Safari
     document.body.appendChild(link);
     link.click();
     
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
+    // Удаляем после клика
+    setTimeout(() => {
+        document.body.removeChild(link);
+    }, 100);
 }
-
 
 
 </script>
