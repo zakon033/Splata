@@ -490,9 +490,9 @@ function downloadVCF(base64Photo) {
         "TEL;TYPE=CELL:" + phone + "\r\n";
 
     // Если фото есть, добавляем его (в этом методе оно тоже может сработать)
-    if (base64Photo) {
-        vcard += "PHOTO;TYPE=JPEG;ENCODING=b:" + base64Photo + "\r\n";
-    }
+    //if (base64Photo) {
+        //vcard += "PHOTO;TYPE=JPEG;ENCODING=b:" + base64Photo + "\r\n";
+    //}
 
     vcard += "END:VCARD\r\n";
 
