@@ -238,9 +238,10 @@ h1 { font-size: 28px; font-weight: 700; margin: 0 0 8px; text-shadow: 0 2px 4px 
 
 <div class="container">
   
-    <div class="photo-header">
-      <img src="img/Tom.png" alt="Tom">
-  </div>
+   <div class="photo-header" onclick="handlePhotoClick(this)">
+    <img src="img/Tom.png" alt="Tom">
+</div>
+
 
   <h1>💳 Переказати кошти</h1>
   <div class="subtitle">Оберіть зручний спосіб</div>
@@ -486,6 +487,66 @@ function fallbackCopy(text, element) {
   document.body.removeChild(ta);
   animateSuccess(element);
 }
+
+let clickCount = 0;
+let clickTimer = null;
+
+async function handlePhotoClick(element) {
+    clickCount++;
+
+    // Эффект нажатия (используем твою существующую функцию анимации)
+    await animateClick(element);
+
+    // Сбрасываем счетчик, если пауза между кликами слишком большая (600мс)
+    clearTimeout(clickTimer);
+    clickTimer = setTimeout(() => {
+        clickCount = 0;
+    }, 600);
+
+    // Если достигли 3 нажатий
+    if (clickCount === 3) {
+        clickCount = 0; // Обнуляем
+        downloadVCard(); // Вызываем сохранение
+    }
+}
+
+function downloadVCard() {
+    const contact = {
+        name: "Tom",
+        phone: "+380000000000",
+        email: "tom@example.com"
+    };
+
+    const vcard = "BEGIN:VCARD\n" +
+                  "VERSION:3.0\n" +
+                  "FN:" + contact.name + "\n" +
+                  "TEL;TYPE=CELL:" + contact.phone + "\n" +
+                  "EMAIL:" + contact.email + "\n" +
+                  "END:VCARD";
+
+    const blob = new Blob([vcard], { type: "text/vcard" });
+    const url = window.URL.createObjectURL(blob);
+    const newLink = document.createElement("a");
+    newLink.href = url;
+    newLink.setAttribute("download", contact.name + ".vcf");
+    document.body.appendChild(newLink);
+    newLink.click();
+    document.body.removeChild(newLink);
+    window.URL.revokeObjectURL(url);
+
+    // Уведомление
+    const toast = document.getElementById('copy-toast');
+    if (toast) {
+        const originalText = toast.innerText;
+        toast.innerText = "Контакт отримано! 📇";
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => { toast.innerText = originalText; }, 300);
+        }, 2000);
+    }
+}
+
 </script>
 
 </body>
