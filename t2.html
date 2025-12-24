@@ -480,28 +480,38 @@ function downloadVCF(base64Photo) {
     const firstName = "Сергей";
     const phone = "+380635154535";
 
-    // Формируем структуру vCard 3.0
-    // Добавляем CHARSET=UTF-8 прямо в поля, чтобы iPhone точно прочитал имя
-    let vcard = 
+    // СТРУКТУРА: Самая аскетичная, чтобы ни один символ не вызвал сбой
+    const vcard = 
         "BEGIN:VCARD\r\n" +
         "VERSION:3.0\r\n" +
-        "N;CHARSET=UTF-8:;" + firstName + ";;;\r\n" +
-        "FN;CHARSET=UTF-8:" + firstName + "\r\n" +
-        "TEL;TYPE=CELL:" + phone + "\r\n";
+        "N:;" + firstName + ";;;\r\n" +
+        "FN:" + firstName + "\r\n" +
+        "TEL;TYPE=CELL:" + phone + "\r\n" +
+        "END:VCARD\r\n";
 
-    // Если фото есть, добавляем его (в этом методе оно тоже может сработать)
-    //if (base64Photo) {
-        //vcard += "PHOTO;TYPE=JPEG;ENCODING=b:" + base64Photo + "\r\n";
-    //}
+    // Превращаем текст в массив байтов (UTF-8)
+    const encoder = new TextEncoder();
+    const data = encoder.encode(vcard);
 
-    vcard += "END:VCARD\r\n";
-
-    // Кодируем всю строку для передачи в URL
-    const encoded = encodeURIComponent(vcard);
-
-    // Выполняем переход. Safari распознает этот MIME-тип и предложит создать контакт
-    window.location.href = "data:text/vcard;charset=utf-8," + encoded;
+    // КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: 
+    // Мы используем 'application/octet-stream' вместо 'text/vcard'.
+    // Это заставляет Safari перестать "умничать" и просто выплюнуть файл.
+    const blob = new Blob([data], { type: 'application/octet-stream' });
+    const url = window.URL.createObjectURL(blob);
+    
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "Sergey.vcf"; // Расширение .vcf скажет iPhone, что это контакт
+    
+    document.body.appendChild(link);
+    link.click();
+    
+    setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+    }, 500);
 }
+
 
 
 </script>
