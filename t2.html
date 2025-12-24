@@ -480,43 +480,41 @@ function downloadVCF(base64Photo) {
     const firstName = "Сергей";
     const phone = "+380635154535"; 
 
-    // Функция для кодирования кириллицы в Base64 внутри vCard
-    const toB64 = (str) => btoa(unescape(encodeURIComponent(str)));
-    const nameB64 = toB64(firstName);
-
-    // Формируем vCard по самому строгому стандарту
+    // Максимально строгий порядок для iOS
     let vCard = [
         "BEGIN:VCARD",
         "VERSION:3.0",
-        // Указываем, что имя передается в Base64 кодировке UTF-8
-        "N;ENCODING=b;CHARSET=UTF-8:;" + nameB64 + ";;;",
-        "FN;ENCODING=b;CHARSET=UTF-8:" + nameB64,
-        "TEL;TYPE=CELL:" + phone
+        "N:;" + firstName + ";;;", // Сначала точка с запятой (фамилия пуста), потом Имя
+        "FN:" + firstName,
+        "TEL;TYPE=CELL,VOICE:" + phone
     ];
 
     if (base64Photo) {
-        // Добавляем фото, если оно есть
+        // Фото в одну строку без разрывов (для стабильности)
         vCard.push("PHOTO;TYPE=JPEG;ENCODING=b:" + base64Photo);
     }
 
     vCard.push("END:VCARD");
     const vCardString = vCard.join("\n");
 
-    // Используем универсальный Blob
+    // Используем 'text/vcard' - это стандарт. 
+    // Если Safari все равно пишет "Без имени" в заголовке загрузки, 
+    // значит он просто не умеет отображать имя файла в окне скачивания.
     const blob = new Blob([vCardString], { type: 'text/vcard' });
     const url = window.URL.createObjectURL(blob);
     
     const link = document.createElement("a");
     link.href = url;
-    // Даем файлу имя латиницей, чтобы Safari не споткнулся на скачивании
-    link.setAttribute("download", "contact.vcf");
+    // Название файла БЕЗ пробелов и только латиницей
+    link.download = "Sergey.vcf"; 
+    
     document.body.appendChild(link);
     link.click();
     
     setTimeout(() => {
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
-    }, 250);
+    }, 300);
 }
 
 </script>
