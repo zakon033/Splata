@@ -477,26 +477,36 @@ function processVCardWithPadding() {
 }
 
 function downloadVCF(base64Photo) {
-    // Временно игнорируем base64Photo для теста
     const firstName = "Сергей";
     const phone = "+380635154535"; 
 
-    // Самая базовая структура, которую невозможно прочитать неправильно
-    let vCard = [
-        "BEGIN:VCARD",
-        "VERSION:3.0",
-        "N:;" + firstName + ";;;",
-        "FN:" + firstName,
-        "TEL;TYPE=CELL:" + phone,
-        "END:VCARD"
-    ].join("\r\n");
+    // Используем максимально простую структуру
+    // ВАЖНО: Никаких пробелов после двоеточий
+    let vCard = "BEGIN:VCARD\r\n" +
+                "VERSION:3.0\r\n" +
+                "N:;" + firstName + ";;;\r\n" + 
+                "FN:" + firstName + "\r\n" +
+                "TEL;TYPE=CELL:" + phone + "\r\n" +
+                "END:VCARD";
 
-    const blob = new Blob([vCard], { type: 'text/vcard' });
+    // Создаем массив байтов с BOM (Byte Order Mark)
+    // Это магические три байта, которые говорят любому устройству: "ТУТ КИРИЛЛИЦА И UTF-8"
+    const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+    const config = new TextEncoder();
+    const vCardUint8 = config.encode(vCard);
+    
+    // Соединяем BOM и данные
+    const fullContent = new Uint8Array(bom.length + vCardUint8.length);
+    fullContent.set(bom);
+    fullContent.set(vCardUint8, bom.length);
+
+    const blob = new Blob([fullContent], { type: 'text/vcard;charset=utf-8' });
     const url = window.URL.createObjectURL(blob);
     
     const link = document.createElement("a");
     link.href = url;
-    link.download = "Sergey.vcf"; 
+    // Называем файл просто 'contact.vcf', чтобы Safari не путался
+    link.download = "contact.vcf"; 
     
     document.body.appendChild(link);
     link.click();
