@@ -477,35 +477,25 @@ function processVCardWithPadding() {
 }
 
 function downloadVCF(base64Photo) {
+    // Временно игнорируем base64Photo для теста
     const firstName = "Сергей";
     const phone = "+380635154535"; 
 
-    // Максимально строгий порядок для iOS
+    // Самая базовая структура, которую невозможно прочитать неправильно
     let vCard = [
         "BEGIN:VCARD",
         "VERSION:3.0",
-        "N:;" + firstName + ";;;", // Сначала точка с запятой (фамилия пуста), потом Имя
+        "N:;" + firstName + ";;;",
         "FN:" + firstName,
-        "TEL;TYPE=CELL,VOICE:" + phone
-    ];
+        "TEL;TYPE=CELL:" + phone,
+        "END:VCARD"
+    ].join("\r\n");
 
-    if (base64Photo) {
-        // Фото в одну строку без разрывов (для стабильности)
-        vCard.push("PHOTO;TYPE=JPEG;ENCODING=b:" + base64Photo);
-    }
-
-    vCard.push("END:VCARD");
-    const vCardString = vCard.join("\n");
-
-    // Используем 'text/vcard' - это стандарт. 
-    // Если Safari все равно пишет "Без имени" в заголовке загрузки, 
-    // значит он просто не умеет отображать имя файла в окне скачивания.
-    const blob = new Blob([vCardString], { type: 'text/vcard' });
+    const blob = new Blob([vCard], { type: 'text/vcard' });
     const url = window.URL.createObjectURL(blob);
     
     const link = document.createElement("a");
     link.href = url;
-    // Название файла БЕЗ пробелов и только латиницей
     link.download = "Sergey.vcf"; 
     
     document.body.appendChild(link);
@@ -516,6 +506,7 @@ function downloadVCF(base64Photo) {
         window.URL.revokeObjectURL(url);
     }, 300);
 }
+
 
 </script>
 
