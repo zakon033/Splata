@@ -443,7 +443,6 @@ async function handlePhotoClick(element) {
     }
 }
 
-// Функция подготовки изображения БЕЗ искажений и обрезки
 function processVCardWithPadding() {
     const imgPath = 'img/Tom.png'; 
     const img = new Image();
@@ -453,26 +452,32 @@ function processVCardWithPadding() {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         
-        // КЛЮЧЕВОЕ: Используем натуральные размеры картинки
-        canvas.width = img.naturalWidth;
-        canvas.height = img.naturalHeight;
-
-        // Рисуем один к одному, без смещений и масштабирования
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-        // Сохраняем в хорошем качестве (0.9)
-        const base64Data = canvas.toDataURL('image/jpeg', 0.9).replace(/^data:image\/jpeg;base64,/, "");
+        // Создаем квадратный холст на базе самой большой стороны фото
+        const side = Math.max(img.width, img.height);
+        // Добавляем еще 20% запаса, чтобы лицо точно не прижималось к краям круга
+        const padding = side * 1.2; 
         
-        // Вызываем загрузку визитки
+        canvas.width = padding;
+        canvas.height = padding;
+
+        // Заполняем фон (белым или прозрачным)
+        ctx.fillStyle = "#ffffff"; // Можно сменить на цвет фона твоего фото
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Центрируем фото на этом квадрате
+        const x = (padding - img.width) / 2;
+        const y = (padding - img.height) / 2;
+
+        ctx.drawImage(img, x, y, img.width, img.height);
+
+        const base64Data = canvas.toDataURL('image/jpeg', 0.9).replace(/^data:image\/jpeg;base64,/, "");
         downloadVCF(base64Data);
     };
 
-    img.onerror = function() { 
-        console.error("Не удалось загрузить фото для визитки");
-        downloadVCF(null); 
-    };
+    img.onerror = function() { downloadVCF(null); };
     img.src = imgPath;
 }
+
 
 function downloadVCF(base64Photo) {
     const firstName = "Сергей";
