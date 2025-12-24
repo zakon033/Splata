@@ -541,30 +541,38 @@ function processVCardWithPadding() {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         
-        // ПАРАМЕТРЫ ОТСТУПА
-        // Увеличиваем это число, если нужно еще больше "опустить" фото
-        const topPadding = 60; 
-        
-        // Устанавливаем размер холста: ширина та же, высота больше на величину отступа
-        canvas.width = img.width;
-        canvas.height = img.height + topPadding;
+        // Создаем квадратный холст (это лучший формат для контактов)
+        // Берем самую большую сторону оригинала за основу
+        const size = Math.max(img.width, img.height);
+        canvas.width = size;
+        canvas.height = size;
 
-        // Отрисовка: само фото рисуется со сдвигом вниз
-        ctx.drawImage(img, 0, topPadding);
+        // Коэффициент масштабирования (0.7 означает, что фото займет 70% высоты)
+        // Уменьшите это число (например до 0.5), если голова всё еще близко к краю
+        const scale = 0.7; 
+        const drawHeight = img.height * scale;
+        const drawWidth = img.width * scale;
 
-        // Конвертация в Base64 без технического заголовка
+        // Центрируем по горизонтали
+        const x = (size - drawWidth) / 2;
+        // Смещаем вниз: (низ холста - высота фото)
+        // Это прижмет фото к нижней части, оставив максимум места сверху
+        const y = size - drawHeight;
+
+        // Отрисовка
+        ctx.drawImage(img, x, y, drawWidth, drawHeight);
+
         const base64Data = canvas.toDataURL('image/png').replace(/^data:image\/(png|jpg);base64,/, "");
-        
         downloadVCF(base64Data);
     };
 
     img.onerror = function() {
-        console.error("Ошибка загрузки Tom.png. Сохраняю без фото.");
         downloadVCF(null);
     };
 
     img.src = imgPath;
 }
+
 
 // Финальная сборка и скачивание файла .vcf
 function downloadVCF(base64Photo) {
