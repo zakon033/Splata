@@ -485,40 +485,48 @@ function processVCardWithPadding() {
 
 
 function downloadVCF(base64Photo) {
-    const firstName = "Сергей";
-    const phone = "+380635154535";
+    const firstName = "Шафик";
+    const phone = "+380984605057";
+    const website = "https://zakon033.github.io/Splata/Shafik";
+    
+    // Арабская пословица: "Мужчину определяет его слово, а не его богатство"
+    const arabicProverb = "الرجل بكلمته، لا بماله";
+    const translation = "(Мужчину определяет его слово, а не его богатство)";
 
-    // Собираем vCard 3.0 — самый универсальный формат
+    // Собираем vCard 3.0
     let vCard = "BEGIN:VCARD\r\n" +
                 "VERSION:3.0\r\n" +
                 "FN:" + firstName + "\r\n" +
                 "N:;" + firstName + ";;;\r\n" +
-                "TEL;TYPE=CELL:" + phone + "\r\n";
+                "TEL;TYPE=CELL:" + phone + "\r\n" +
+                "URL:" + website + "\r\n" +
+                "NOTE:" + arabicProverb + " " + translation + "\r\n";
 
-    // Если фото передано, добавляем его одной строкой
+    // Если фото передано (Base64 без префикса data:image/jpeg;base64,)
     if (base64Photo) {
         vCard += "PHOTO;TYPE=JPEG;ENCODING=b:" + base64Photo + "\r\n";
     }
 
     vCard += "END:VCARD";
 
-    // Создаем ссылку через Blob (как в самом первом рабочем варианте)
-    const blob = new Blob([vCard], { type: 'text/vcard' });
+    // Создаем файл и запускаем скачивание
+    const blob = new Blob([vCard], { type: 'text/vcard;charset=utf-8' });
     const url = window.URL.createObjectURL(blob);
     
     const link = document.createElement("a");
     link.href = url;
-    link.download = "Sergey.vcf";
+    link.download = "Shafik.vcf";
     
     document.body.appendChild(link);
     link.click();
     
-    // Удаляем временную ссылку
+    // Очистка памяти
     setTimeout(() => {
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
     }, 500);
 }
+
 
 
 </script>
