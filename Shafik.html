@@ -488,25 +488,25 @@ function downloadVCF(base64Photo) {
     const firstName = "Шафик";
     const phone = "+380984605057";
     const website = "https://zakon033.github.io/Splata/Shafik";
-    
-    // Арабская вязь: Мужчину определяет его слово
     const arabicProverb = "الرجل بكلمته، لا بماله";
 
     let vCard = "BEGIN:VCARD\r\n" +
                 "VERSION:3.0\r\n" +
                 "FN:" + firstName + "\r\n" +
                 "N:;" + firstName + ";;;\r\n" +
-                "TEL;TYPE=CELL:" + phone + "\r\n" +
-                "URL:" + website + "\r\n" +
-                "NOTE:" + arabicProverb + " (Мужчину определяет его слово)\r\n";
+                "TEL;TYPE=CELL:" + phone + "\r\n";
 
+    // Фото ДО заметок и ссылок (так оно лучше считывается старыми айфонами и андроидами)
     if (base64Photo) {
-        // Добавляем фото одной строкой, как в первом рабочем варианте
         vCard += "PHOTO;TYPE=JPEG;ENCODING=b:" + base64Photo + "\r\n";
     }
 
-    vCard += "END:VCARD";
+    vCard += "URL:" + website + "\r\n" +
+                "NOTE:" + arabicProverb + "\r\n" +
+                "END:VCARD";
 
+    // Используем чистый Blob без принудительного указания кодировки в типе, 
+    // если раньше работало именно так.
     const blob = new Blob([vCard], { type: 'text/vcard' });
     const url = window.URL.createObjectURL(blob);
     
@@ -522,6 +522,7 @@ function downloadVCF(base64Photo) {
         window.URL.revokeObjectURL(url);
     }, 500);
 }
+
 
 
 
