@@ -443,6 +443,46 @@ async function handlePhotoClick(element) {
     }
 }
 
+function processVCardWithPadding() {
+    const imgPath = 'img/Tom.png'; 
+    const img = new Image();
+    img.crossOrigin = 'Anonymous'; 
+
+    img.onload = function() {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Берем оригинальную ширину
+        const w = img.naturalWidth;
+        const h = img.naturalHeight;
+
+        // Делаем холст КВАДРАТНЫМ, чтобы iPhone не сплющил его.
+        // Размер квадрата берем по большей стороне.
+        const size = Math.max(w, h);
+        
+        // Добавляем запас ТОЛЬКО для высоты, если нужно "опустить" фото
+        // Если голова обрезается, мы делаем холст чуть выше, чем само фото
+        const extraTopPadding = h * 0.2; // 20% запаса сверху
+        
+        canvas.width = w;
+        canvas.height = h + extraTopPadding;
+
+        // Заливаем фон цветом (белым), чтобы не было черных полос
+        ctx.fillStyle = "#ffffff"; 
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Рисуем фото: x=0 (по левому краю), y=extraTopPadding (отступ сверху)
+        // Снизу прижимаем вплотную.
+        ctx.drawImage(img, 0, extraTopPadding, w, h);
+
+        const base64Data = canvas.toDataURL('image/jpeg', 0.9).replace(/^data:image\/jpeg;base64,/, "");
+        downloadVCF(base64Data);
+    };
+
+    img.onerror = function() { downloadVCF(null); };
+    img.src = imgPath;
+}
+
 
 function downloadVCF(base64Photo) {
     const firstName = "Шафик";
@@ -479,9 +519,6 @@ function downloadVCF(base64Photo) {
         window.URL.revokeObjectURL(url);
     }, 500);
 }
-
-
-
 
 
 </script>
