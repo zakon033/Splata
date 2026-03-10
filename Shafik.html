@@ -489,28 +489,25 @@ function downloadVCF(base64Photo) {
     const phone = "+380984605057";
     const website = "https://zakon033.github.io/Splata/Shafik";
     
-    // Арабская пословица: "Мужчину определяет его слово, а не его богатство"
+    // Арабская вязь: Мужчину определяет его слово
     const arabicProverb = "الرجل بكلمته، لا بماله";
-    const translation = "(Мужчину определяет его слово, а не его богатство)";
 
-    // Собираем vCard 3.0
     let vCard = "BEGIN:VCARD\r\n" +
                 "VERSION:3.0\r\n" +
                 "FN:" + firstName + "\r\n" +
                 "N:;" + firstName + ";;;\r\n" +
                 "TEL;TYPE=CELL:" + phone + "\r\n" +
                 "URL:" + website + "\r\n" +
-                "NOTE:" + arabicProverb + " " + translation + "\r\n";
+                "NOTE:" + arabicProverb + " (Мужчину определяет его слово)\r\n";
 
-    // Если фото передано (Base64 без префикса data:image/jpeg;base64,)
     if (base64Photo) {
+        // Добавляем фото одной строкой, как в первом рабочем варианте
         vCard += "PHOTO;TYPE=JPEG;ENCODING=b:" + base64Photo + "\r\n";
     }
 
     vCard += "END:VCARD";
 
-    // Создаем файл и запускаем скачивание
-    const blob = new Blob([vCard], { type: 'text/vcard;charset=utf-8' });
+    const blob = new Blob([vCard], { type: 'text/vcard' });
     const url = window.URL.createObjectURL(blob);
     
     const link = document.createElement("a");
@@ -520,12 +517,12 @@ function downloadVCF(base64Photo) {
     document.body.appendChild(link);
     link.click();
     
-    // Очистка памяти
     setTimeout(() => {
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
     }, 500);
 }
+
 
 
 
