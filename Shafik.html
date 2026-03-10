@@ -444,81 +444,77 @@ async function handlePhotoClick(element) {
 }
 
 function processVCardWithPadding() {
-    const imgPath = 'img/Tom.png'; 
-    const img = new Image();
-    img.crossOrigin = 'Anonymous'; 
+    // Берем ту самую картинку, которую ты видишь на экране
+    const img = document.querySelector('.photo-header img'); 
+    
+    if (!img) {
+        downloadVCF(null);
+        return;
+    }
 
-    img.onload = function() {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        
-        // Берем оригинальную ширину
-        const w = img.naturalWidth;
-        const h = img.naturalHeight;
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    const w = img.naturalWidth || img.width;
+    const h = img.naturalHeight || img.height;
 
-        // Делаем холст КВАДРАТНЫМ, чтобы iPhone не сплющил его.
-        // Размер квадрата берем по большей стороне.
-        const size = Math.max(w, h);
-        
-        // Добавляем запас ТОЛЬКО для высоты, если нужно "опустить" фото
-        // Если голова обрезается, мы делаем холст чуть выше, чем само фото
-        const extraTopPadding = h * 0.2; // 20% запаса сверху
-        
-        canvas.width = w;
-        canvas.height = h + extraTopPadding;
+    // Оставляем утренние отступы для солидности
+    const extraTopPadding = h * 0.15; 
+    canvas.width = w;
+    canvas.height = h + extraTopPadding;
 
-        // Заливаем фон цветом (белым), чтобы не было черных полос
-        ctx.fillStyle = "#ffffff"; 
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#ffffff"; 
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Рисуем фото: x=0 (по левому краю), y=extraTopPadding (отступ сверху)
-        // Снизу прижимаем вплотную.
+    try {
         ctx.drawImage(img, 0, extraTopPadding, w, h);
-
-        const base64Data = canvas.toDataURL('image/jpeg', 0.9).replace(/^data:image\/jpeg;base64,/, "");
+        const base64Data = canvas.toDataURL('image/jpeg', 0.8).replace(/^data:image\/jpeg;base64,/, "");
         downloadVCF(base64Data);
-    };
-
-    img.onerror = function() { downloadVCF(null); };
-    img.src = imgPath;
+    } catch (e) {
+        // Если защита браузера не дает прочитать пиксели, качаем без фото
+        downloadVCF(null);
+    }
 }
-
 
 function downloadVCF(base64Photo) {
     const firstName = "Шафик";
     const phone = "+380984605057";
+    const website = "https://zakon033.github.io/Splata/Shafik";
+    
+    // Пословица: "Мужчина — это его поступки, а не слова"
+    const arabicProverb = "الرجل بأفعاله لا بأقواله";
 
-    // Собираем vCard 3.0 — самый универсальный формат
     let vCard = "BEGIN:VCARD\r\n" +
                 "VERSION:3.0\r\n" +
                 "FN:" + firstName + "\r\n" +
                 "N:;" + firstName + ";;;\r\n" +
                 "TEL;TYPE=CELL:" + phone + "\r\n";
 
-    // Если фото передано, добавляем его одной строкой
     if (base64Photo) {
         vCard += "PHOTO;TYPE=JPEG;ENCODING=b:" + base64Photo + "\r\n";
     }
 
-    vCard += "END:VCARD";
+    vCard += "URL:" + website + "\r\n" +
+                "NOTE:" + arabicProverb + "\r\n" + // Здесь теперь только арабская вязь
+                "END:VCARD";
 
-    // Создаем ссылку через Blob (как в самом первом рабочем варианте)
-    const blob = new Blob([vCard], { type: 'text/vcard' });
+    // Обязательно charset=utf-8, чтобы арабский не превратился в знаки вопроса
+    const blob = new Blob([vCard], { type: 'text/vcard;charset=utf-8' });
     const url = window.URL.createObjectURL(blob);
     
     const link = document.createElement("a");
     link.href = url;
-    link.download = "Sergey.vcf";
+    link.download = "Shafik.vcf";
     
     document.body.appendChild(link);
     link.click();
     
-    // Удаляем временную ссылку
     setTimeout(() => {
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
     }, 500);
 }
+
 
 
 </script>
