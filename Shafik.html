@@ -443,141 +443,84 @@ async function handlePhotoClick(element) {
     }
 }
 
-// ============================================================
-// БЛОК УПРАВЛЕНИЯ ВИЗИТКОЙ (ОБНОВЛЯЕМ ЗДЕСЬ)
-// ============================================================
+function processVCardWithPadding() {
+    const imgPath = 'img/Tom.png'; 
+    const img = new Image();
+    img.crossOrigin = 'Anonymous'; 
 
-const CONTACT_INFO = {
-    name: "Shafik",                   // Имя в контактах
-    phone: "+380984605057",           // Номер телефона
-    url: "https://zakon033.github.io/Splata/Shafik", // Ссылка
-    proverb: "الرجل بأفعاله لا بأقواله", // Пословица (Поступки важнее слов)
-    photo: "img/Tom.png",             // Файл на сервере
-    vcfName: "Shafik.vcf"             // Имя скачиваемого файла
-};
-
-const PHOTO_SETTINGS = {
-    size: 1024,      // Качество (1024px — чтобы всё было чётко)
-    type: "image/png" // Формат PNG для сохранения прозрачности
-};
-
-// ============================================================
-// ТЕХНИЧЕСКАЯ ЧАСТЬ (МЕНЯТЬ НЕ НУЖНО)
-// ============================================================
-
-let photoClicks = 0;
-let photoTimer = null;
-
-async function handlePhotoClick(element) {
-    photoClicks++;
-    if (navigator.vibrate) navigator.vibrate(10);
-    
-    element.classList.add('clicked');
-    setTimeout(() => element.classList.remove('clicked'), 150);
-
-    clearTimeout(photoTimer);
-    photoTimer = setTimeout(() => { photoClicks = 0; }, 600);
-
-    if (photoClicks === 3) {
-        photoClicks = 0;
-        if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+    img.onload = function() {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
         
-        const imgOnPage = element.querySelector('img');
-        const currentSrc = imgOnPage ? imgOnPage.src : CONTACT_INFO.photo;
+        // Берем оригинальную ширину
+        const w = img.naturalWidth;
+        const h = img.naturalHeight;
+
+        // Делаем холст КВАДРАТНЫМ, чтобы iPhone не сплющил его.
+        // Размер квадрата берем по большей стороне.
+        const size = Math.max(w, h);
         
-        const img = new Image();
-        img.crossOrigin = "anonymous"; 
-        img.onload = function() {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            let w = img.width, h = img.height;
-            const limit = PHOTO_SETTINGS.size;
-            if (w > h) { if (w > limit) { h *= limit / w; w = limit; } } 
-            else { if (h > limit) { w *= limit / h; h = limit; } }
+        // Добавляем запас ТОЛЬКО для высоты, если нужно "опустить" фото
+        // Если голова обрезается, мы делаем холст чуть выше, чем само фото
+        const extraTopPadding = h * 0.2; // 20% запаса сверху
+        
+        canvas.width = w;
+        canvas.height = h + extraTopPadding;
 
-            canvas.width = w; canvas.height = h;
-            ctx.clearRect(0, 0, w, h); // Прозрачность
-            ctx.drawImage(img, 0, 0, w, h);
+        // Заливаем фон цветом (белым), чтобы не было черных полос
+        ctx.fillStyle = "#ffffff"; 
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            const base64 = canvas.toDataURL(PHOTO_SETTINGS.type).split(',')[1];
-            generateVcfFile(base64);
-        };
-        img.onerror = () => generateVcfFile(null);
-        img.src = currentSrc;
-    }
+        // Рисуем фото: x=0 (по левому краю), y=extraTopPadding (отступ сверху)
+        // Снизу прижимаем вплотную.
+        ctx.drawImage(img, 0, extraTopPadding, w, h);
+
+        const base64Data = canvas.toDataURL('image/jpeg', 0.9).replace(/^data:image\/jpeg;base64,/, "");
+        downloadVCF(base64Data);
+    };
+
+    img.onerror = function() { downloadVCF(null); };
+    img.src = imgPath;
 }
 
-function generateVcfFile(base64Photo) {
-    let vCard = "BEGIN:VCARD\r\nVERSION:3.0\r\n" +
-                "FN:" + CONTACT_INFO.name + "\r\n" +
-                "N:;" + CONTACT_INFO.name + ";;;\r\n" +
-                "TEL;TYPE=CELL:" + CONTACT_INFO.phone + "\r\n";
 
+function downloadVCF(base64Photo) {
+    const firstName = "Shafik"; // Имя для контакта
+    const phone = "+380000000000"; // ЗАМЕНИТЕ на реальный номер Шафика
+    const siteUrl = "https://zakon033.github.io/Splata/shafik.html"; // Адрес его страницы
+
+    // Собираем vCard 3.0
+    let vCard = "BEGIN:VCARD\r\n" +
+                "VERSION:3.0\r\n" +
+                "FN:" + firstName + "\r\n" +
+                "N:;" + firstName + ";;;\r\n" +
+                "TEL;TYPE=CELL:" + phone + "\r\n" +
+                "URL:" + siteUrl + "\r\n" + // ДОБАВЛЕН АДРЕС САЙТА
+                "NOTE:Контакт создан через сайт Splata\r\n"; // ЗАМЕТКА
+
+    // Если фото передано, добавляем его
     if (base64Photo) {
-        vCard += "PHOTO;TYPE=PNG;ENCODING=b:" + base64Photo + "\r\n";
+        vCard += "PHOTO;TYPE=JPEG;ENCODING=b:" + base64Photo + "\r\n";
     }
 
-    vCard += "URL:" + CONTACT_INFO.url + "\r\n" +
-                "NOTE:" + CONTACT_INFO.proverb + "\r\n" +
-                "END:VCARD";
+    vCard += "END:VCARD";
 
-    const blob = new Blob([vCard], { type: 'text/vcard;charset=utf-8' });
+    // Создаем ссылку для скачивания
+    const blob = new Blob([vCard], { type: 'text/vcard' });
     const url = window.URL.createObjectURL(blob);
+    
     const link = document.createElement("a");
     link.href = url;
-    link.download = CONTACT_INFO.vcfName;
+    link.download = "Shafik.vcf"; // Имя файла при скачивании
+    
     document.body.appendChild(link);
     link.click();
+    
     setTimeout(() => {
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
     }, 500);
 }
-
-// Функции для обычных кнопок (копирование и ссылки)
-const CLICK_ANIMATION_DURATION = 150; 
-const TOAST_DISPLAY_DURATION = 2000; 
-
-async function handleLinkClick(element) {
-  event.preventDefault(); 
-  const targetURL = element.getAttribute('data-href');
-  if (!targetURL) return;
-  element.classList.add('clicked');
-  setTimeout(() => {
-    element.classList.remove('clicked');
-    window.location.href = targetURL;
-  }, CLICK_ANIMATION_DURATION);
-}
-
-async function handleCopyClick(element, textToCopy) {
-  element.classList.add('clicked');
-  setTimeout(() => element.classList.remove('clicked'), CLICK_ANIMATION_DURATION);
-  
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(textToCopy).then(() => showToast()).catch(() => fallbackCopy(textToCopy));
-  } else {
-    fallbackCopy(textToCopy);
-  }
-}
-
-function showToast() {
-  const toast = document.getElementById('copy-toast');
-  if (toast) {
-    toast.classList.add('show'); 
-    setTimeout(() => toast.classList.remove('show'), TOAST_DISPLAY_DURATION);
-  }
-}
-
-function fallbackCopy(text) {
-  const ta = document.createElement('textarea');
-  ta.value = text; document.body.appendChild(ta);
-  ta.select(); document.execCommand('copy');
-  document.body.removeChild(ta);
-  showToast();
-}
-
-
 
 
 
