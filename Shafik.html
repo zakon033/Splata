@@ -443,80 +443,140 @@ async function handlePhotoClick(element) {
     }
 }
 
-function processVCardWithPadding() {
-    // Берем картинку, которая отображается в блоке .photo-header
-    const img = document.querySelector('.photo-header img'); 
+// ============================================================
+// БЛОК УПРАВЛЕНИЯ ВИЗИТКОЙ (ОБНОВЛЯЕМ ЗДЕСЬ)
+// ============================================================
+
+const CONTACT_INFO = {
+    name: "Shafik",                   // Имя в контактах
+    phone: "+380984605057",           // Номер телефона
+    url: "https://zakon033.github.io/Splata/Shafik", // Ссылка
+    proverb: "الرجل بأفعاله لا بأقواله", // Пословица (Поступки важнее слов)
+    photo: "img/Tom.png",             // Файл на сервере
+    vcfName: "Shafik.vcf"             // Имя скачиваемого файла
+};
+
+const PHOTO_SETTINGS = {
+    size: 1024,      // Качество (1024px — чтобы всё было чётко)
+    type: "image/png" // Формат PNG для сохранения прозрачности
+};
+
+// ============================================================
+// ТЕХНИЧЕСКАЯ ЧАСТЬ (МЕНЯТЬ НЕ НУЖНО)
+// ============================================================
+
+let photoClicks = 0;
+let photoTimer = null;
+
+async function handlePhotoClick(element) {
+    photoClicks++;
+    if (navigator.vibrate) navigator.vibrate(10);
     
-    if (!img) {
-        downloadVCF(null);
-        return;
-    }
+    element.classList.add('clicked');
+    setTimeout(() => element.classList.remove('clicked'), 150);
 
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    
-    const w = img.naturalWidth || img.width;
-    const h = img.naturalHeight || img.height;
+    clearTimeout(photoTimer);
+    photoTimer = setTimeout(() => { photoClicks = 0; }, 600);
 
-    // Тот самый утренний отступ сверху
-    const extraTopPadding = h * 0.15; 
-    canvas.width = w;
-    canvas.height = h + extraTopPadding;
+    if (photoClicks === 3) {
+        photoClicks = 0;
+        if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+        
+        const imgOnPage = element.querySelector('img');
+        const currentSrc = imgOnPage ? imgOnPage.src : CONTACT_INFO.photo;
+        
+        const img = new Image();
+        img.crossOrigin = "anonymous"; 
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            let w = img.width, h = img.height;
+            const limit = PHOTO_SETTINGS.size;
+            if (w > h) { if (w > limit) { h *= limit / w; w = limit; } } 
+            else { if (h > limit) { w *= limit / h; h = limit; } }
 
-    ctx.fillStyle = "#ffffff"; 
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+            canvas.width = w; canvas.height = h;
+            ctx.clearRect(0, 0, w, h); // Прозрачность
+            ctx.drawImage(img, 0, 0, w, h);
 
-    try {
-        ctx.drawImage(img, 0, extraTopPadding, w, h);
-        // Сжатие 0.8 для баланса качества и веса файла
-        const base64Data = canvas.toDataURL('image/jpeg', 0.8).replace(/^data:image\/jpeg;base64,/, "");
-        downloadVCF(base64Data);
-    } catch (e) {
-        // Если браузер блокирует холст, качаем только текст
-        downloadVCF(null);
+            const base64 = canvas.toDataURL(PHOTO_SETTINGS.type).split(',')[1];
+            generateVcfFile(base64);
+        };
+        img.onerror = () => generateVcfFile(null);
+        img.src = currentSrc;
     }
 }
 
-function downloadVCF(base64Photo) {
-    // Все основные данные на латинице для максимальной совместимости
-    const firstName = "Shafik";
-    const phone = "+380984605057";
-    const website = "https://zakon033.github.io/Splata/Shafik";
-    
-    // Только арабская вязь (поступки важнее слов)
-    const arabicProverb = "الرجل بأفعاله لا بأقواله";
-
-    let vCard = "BEGIN:VCARD\r\n" +
-                "VERSION:3.0\r\n" +
-                "FN:" + firstName + "\r\n" +
-                "N:;" + firstName + ";;;\r\n" +
-                "TEL;TYPE=CELL:" + phone + "\r\n";
+function generateVcfFile(base64Photo) {
+    let vCard = "BEGIN:VCARD\r\nVERSION:3.0\r\n" +
+                "FN:" + CONTACT_INFO.name + "\r\n" +
+                "N:;" + CONTACT_INFO.name + ";;;\r\n" +
+                "TEL;TYPE=CELL:" + CONTACT_INFO.phone + "\r\n";
 
     if (base64Photo) {
-        // Фото передается одной строкой
-        vCard += "PHOTO;TYPE=JPEG;ENCODING=b:" + base64Photo + "\r\n";
+        vCard += "PHOTO;TYPE=PNG;ENCODING=b:" + base64Photo + "\r\n";
     }
 
-    vCard += "URL:" + website + "\r\n" +
-                "NOTE:" + arabicProverb + "\r\n" +
+    vCard += "URL:" + CONTACT_INFO.url + "\r\n" +
+                "NOTE:" + CONTACT_INFO.proverb + "\r\n" +
                 "END:VCARD";
 
-    // Указываем UTF-8, чтобы арабские буквы не "сломались"
     const blob = new Blob([vCard], { type: 'text/vcard;charset=utf-8' });
     const url = window.URL.createObjectURL(blob);
-    
     const link = document.createElement("a");
     link.href = url;
-    link.download = "Shafik.vcf";
-    
+    link.download = CONTACT_INFO.vcfName;
     document.body.appendChild(link);
     link.click();
-    
     setTimeout(() => {
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
     }, 500);
 }
+
+// Функции для обычных кнопок (копирование и ссылки)
+const CLICK_ANIMATION_DURATION = 150; 
+const TOAST_DISPLAY_DURATION = 2000; 
+
+async function handleLinkClick(element) {
+  event.preventDefault(); 
+  const targetURL = element.getAttribute('data-href');
+  if (!targetURL) return;
+  element.classList.add('clicked');
+  setTimeout(() => {
+    element.classList.remove('clicked');
+    window.location.href = targetURL;
+  }, CLICK_ANIMATION_DURATION);
+}
+
+async function handleCopyClick(element, textToCopy) {
+  element.classList.add('clicked');
+  setTimeout(() => element.classList.remove('clicked'), CLICK_ANIMATION_DURATION);
+  
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(textToCopy).then(() => showToast()).catch(() => fallbackCopy(textToCopy));
+  } else {
+    fallbackCopy(textToCopy);
+  }
+}
+
+function showToast() {
+  const toast = document.getElementById('copy-toast');
+  if (toast) {
+    toast.classList.add('show'); 
+    setTimeout(() => toast.classList.remove('show'), TOAST_DISPLAY_DURATION);
+  }
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text; document.body.appendChild(ta);
+  ta.select(); document.execCommand('copy');
+  document.body.removeChild(ta);
+  showToast();
+}
+
 
 
 
