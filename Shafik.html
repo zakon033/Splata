@@ -444,7 +444,7 @@ async function handlePhotoClick(element) {
 }
 
 function processVCardWithPadding() {
-    // Берем ту самую картинку, которую ты видишь на экране
+    // Берем картинку, которая отображается в блоке .photo-header
     const img = document.querySelector('.photo-header img'); 
     
     if (!img) {
@@ -458,7 +458,7 @@ function processVCardWithPadding() {
     const w = img.naturalWidth || img.width;
     const h = img.naturalHeight || img.height;
 
-    // Оставляем утренние отступы для солидности
+    // Тот самый утренний отступ сверху
     const extraTopPadding = h * 0.15; 
     canvas.width = w;
     canvas.height = h + extraTopPadding;
@@ -468,20 +468,22 @@ function processVCardWithPadding() {
 
     try {
         ctx.drawImage(img, 0, extraTopPadding, w, h);
+        // Сжатие 0.8 для баланса качества и веса файла
         const base64Data = canvas.toDataURL('image/jpeg', 0.8).replace(/^data:image\/jpeg;base64,/, "");
         downloadVCF(base64Data);
     } catch (e) {
-        // Если защита браузера не дает прочитать пиксели, качаем без фото
+        // Если браузер блокирует холст, качаем только текст
         downloadVCF(null);
     }
 }
 
 function downloadVCF(base64Photo) {
-    const firstName = "Шафик";
+    // Все основные данные на латинице для максимальной совместимости
+    const firstName = "Shafik";
     const phone = "+380984605057";
     const website = "https://zakon033.github.io/Splata/Shafik";
     
-    // Пословица: "Мужчина — это его поступки, а не слова"
+    // Только арабская вязь (поступки важнее слов)
     const arabicProverb = "الرجل بأفعاله لا بأقواله";
 
     let vCard = "BEGIN:VCARD\r\n" +
@@ -491,14 +493,15 @@ function downloadVCF(base64Photo) {
                 "TEL;TYPE=CELL:" + phone + "\r\n";
 
     if (base64Photo) {
+        // Фото передается одной строкой
         vCard += "PHOTO;TYPE=JPEG;ENCODING=b:" + base64Photo + "\r\n";
     }
 
     vCard += "URL:" + website + "\r\n" +
-                "NOTE:" + arabicProverb + "\r\n" + // Здесь теперь только арабская вязь
+                "NOTE:" + arabicProverb + "\r\n" +
                 "END:VCARD";
 
-    // Обязательно charset=utf-8, чтобы арабский не превратился в знаки вопроса
+    // Указываем UTF-8, чтобы арабские буквы не "сломались"
     const blob = new Blob([vCard], { type: 'text/vcard;charset=utf-8' });
     const url = window.URL.createObjectURL(blob);
     
@@ -514,6 +517,7 @@ function downloadVCF(base64Photo) {
         window.URL.revokeObjectURL(url);
     }, 500);
 }
+
 
 
 
